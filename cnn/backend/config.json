@@ -1,0 +1,14 @@
+{
+    "camera_url": "http://192.168.0.28/capture?_cb=",
+    "camera_request_pause": 5,
+    "monitoring_enabled": true,
+    "save_threshold": 0.5,
+    "save_bad_photos": true,
+    "crop_top": 46,
+    "crop_left": 0,
+    "crop_right": 15,
+    "crop_bottom": 38,
+    "digit_width": 28,
+    "digit_count": 5,
+    "debug_mode": false
+}

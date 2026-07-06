@@ -1,0 +1,7 @@
+dataset/
+__pycache__
+images_output/
+raw_images/
+hard_images_output/
+cnn/backend/runs/
+dataset_val/

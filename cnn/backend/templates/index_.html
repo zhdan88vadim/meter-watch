@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Digit Recognition Test</title>
+    <style>
+        body { font-family: Arial; margin: 20px; background: #f5f5f5; }
+        .container { max-width: 1200px; margin: 0 auto; }
+        .file-list { margin: 20px 0; }
+        .file { margin: 5px; padding: 10px; background: #e0e0e0; cursor: pointer; display: inline-block; border-radius: 5px; }
+        .file:hover { background: #d0d0d0; }
+        #result { margin-top: 20px; background: white; padding: 20px; border-radius: 10px; }
+        .digit-card { display: inline-block; margin: 10px; text-align: center; background: white; padding: 15px; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        .digit-img { width: 80px; height: 80px; border: 1px solid #ddd; }
+        .heatmap-img { width: 80px; margin-top: 5px; }
+        .prediction { font-size: 24px; font-weight: bold; color: #4CAF50; margin: 10px 0; }
+        .confidence { color: #666; font-size: 12px; }
+        h3 { color: #333; }
+        .loading { color: #999; font-style: italic; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📷 Digit Recognition API Test</h1>
+        
+        <div class="file-list">
+            <h3>Available Images:</h3>
+            <div id="files" class="loading">Loading...</div>
+        </div>
+        
+        <div id="result"></div>
+    </div>
+
+    <script>
+        // Получаем список файлов
+        fetch('/test/list')
+            .then(res => res.json())
+            .then(data => {
+                const filesDiv = document.getElementById('files');
+                if (data.files && data.files.length) {
+                    filesDiv.innerHTML = data.files.map(f => 
+                        `<div class="file" onclick="recognize('${f}')">📷 ${f}</div>`
+                    ).join('');
+                } else {
+                    filesDiv.innerHTML = '❌ No images found in current directory';
+                }
+            })
+            .catch(err => {
+                document.getElementById('files').innerHTML = '❌ Error loading files';
+            });
+
+        // Функция распознавания
+        function recognize(filename) {
+            const resultDiv = document.getElementById('result');
+            resultDiv.innerHTML = '<div class="loading">⏳ Processing...</div>';
+            
+            fetch(`/test?filename=${encodeURIComponent(filename)}`)
+                .then(res => res.json())
+                .then(data => {
+                    if (data.error) {
+                        resultDiv.innerHTML = `<div style="color: red;">❌ Error: ${data.error}</div>`;
+                        return;
+                    }
+                    
+                    let html = `<h3>📁 ${data.filename}</h3>`;
+                    html += `<h2>🔢 Full Number: <strong style="color: #4CAF50;">${data.full_number}</strong></h2>`;
+                    html += `<div>`;
+                    
+                    data.digits.forEach(d => {
+                        html += `
+                            <div class="digit-card">
+                                <img class="digit-img" src="data:image/png;base64,${d.digit_image}" alt="digit">
+                                <div class="prediction">${d.prediction}</div>
+                                <div class="confidence">${(d.confidence * 100).toFixed(1)}%</div>
+                                <img class="heatmap-img" src="data:image/png;base64,${d.heatmap_gradcam}" alt="gradcam">
+                                <div style="font-size: 10px;">Grad-CAM</div>
+                                <img class="heatmap-img" src="data:image/png;base64,${d.heatmap_saliency}" alt="saliency">
+                                <div style="font-size: 10px;">Saliency</div>
+                            </div>
+                        `;
+                    });
+                    
+                    html += `</div>`;
+                    resultDiv.innerHTML = html;
+                })
+                .catch(err => {
+                    resultDiv.innerHTML = `<div style="color: red;">❌ Error: ${err.message}</div>`;
+                });
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,2042 @@
+[
+  {
+    "old_name": "test_digits__less__[1, 7, 3, 5, 5]__1772342431.png",
+    "new_name": "17355_de427187.png",
+    "recognized_number": "17355",
+    "confidence": 0.5608943700790405
+  },
+  {
+    "old_name": "test_digits__less__[1, 6, 8, 3, 3]__1772163839.png",
+    "new_name": "16833_e975b058.png",
+    "recognized_number": "16833",
+    "confidence": 0.9888327121734619
+  },
+  {
+    "old_name": "test_digits__less__[1, 6, 8, 3, 3]__1772163312.png",
+    "new_name": "16833_731212c3.png",
+    "recognized_number": "16833",
+    "confidence": 0.996846616268158
+  },
+  {
+    "old_name": "test_digits__less__[1, 6, 8, 3, 3]__1772143344.png",
+    "new_name": "16833_1961079e.png",
+    "recognized_number": "16833",
+    "confidence": 0.9980565905570984
+  },
+  {
+    "old_name": "test_digits__less__[1, 7, 9, 6, 0]__1772533590.png",
+    "new_name": "17968_2650979c.png",
+    "recognized_number": "17968",
+    "confidence": 0.7879535555839539
+  },
+  {
+    "old_name": "test_digits__less__[1, 7, 3, 3, 0]__1772342079.png",
+    "new_name": "17338_e90f9127.png",
+    "recognized_number": "17338",
+    "confidence": 0.7308341860771179
+  },
+  {
+    "old_name": "test_digits__less__[1, 6, 5, 9, 6]__1772117521.png",
+    "new_name": "16596_fe26b60a.png",
+    "recognized_number": "16596",
+    "confidence": 0.9988425970077515
+  },
+  {
+    "old_name": "test_digits__less__[1, 6, 7, 7, 1]__1772171013.png",
+    "new_name": "16871_d1b12d39.png",
+    "recognized_number": "16871",
+    "confidence": 0.623502254486084
+  },
+  {
+    "old_name": "test_digits__less__[1, 6, 0, 3, 7]__1772157793.png",
+    "new_name": "16833_5dc28aa7.png",
+    "recognized_number": "16833",
+    "confidence": 0.987155556678772
+  },
+  {
+    "old_name": "test_digits__less__[1, 7, 4, 9, 5]__1772380062.png",
+    "new_name": "17495_9e708d73.png",
+    "recognized_number": "17495",
+    "confidence": 0.5443627238273621
+  },
+  {
+    "old_name": "test_digits__less__[1, 7, 4, 8, 1]__1772379921.png",
+    "new_name": "17487_8540367d.png",
+    "recognized_number": "17487",
+    "confidence": 0.7834362983703613
+  },
+  {
+    "old_name": "test_digits__less__[1, 6, 7, 3, 7]__1772131215.png",
+    "new_name": "16833_d9668cfa.png",
+    "recognized_number": "16833",
+    "confidence": 0.8484529852867126
+  },
+  {
+    "old_name": "test_digits__less__[1, 6, 0, 3, 7]__1772153258.png",
+    "new_name": "16833_e5e0f8aa.png",
+    "recognized_number": "16833",
+    "confidence": 0.91557377576828
+  },
+  {
+    "old_name": "test_digits__less__[1, 6, 0, 3, 7]__1772165878.png",
+    "new_name": "16833_f58534f5.png",
+    "recognized_number": "16833",
+    "confidence": 0.6916193962097168
+  },
+  {
+    "old_name": "test_digits__less__[1, 7, 6, 1, 1]__1772448325.png",
+    "new_name": "17617_c6537fa3.png",
+    "recognized_number": "17617",
+    "confidence": 0.9893025755882263
+  },
+  {
+    "old_name": "test_digits__less__[1, 6, 8, 3, 3]__1772131180.png",
+    "new_name": "16833_811bf8d9.png",
+    "recognized_number": "16833",
+    "confidence": 0.9950951337814331
+  },
+  {
+    "old_name": "test_digits__less__[1, 7, 0, 7, 2]__1772518890.png",
+    "new_name": "17072_d80174e6.png",
+    "recognized_number": "17072",
+    "confidence": 0.9117951989173889
+  },
+  {
+    "old_name": "test_digits__less__[1, 6, 8, 3, 3]__1772128778.png",
+    "new_name": "16833_28f92df9.png",
+    "recognized_number": "16833",
+    "confidence": 0.9983925223350525
+  },
+  {
+    "old_name": "test_digits__less__[1, 6, 0, 5, 0]__1772167531.png",
+    "new_name": "16058_7e557d3d.png",
+    "recognized_number": "16058",
+    "confidence": 0.8559621572494507
+  },
+  {
+    "old_name": "test_digits__less__[1, 6, 7, 8, 5]__1772122691.png",
+    "new_name": "16785_141c6c62.png",
+    "recognized_number": "16785",
+    "confidence": 0.7402617335319519
+  },
+  {
+    "old_name": "test_digits__less__[1, 6, 8, 3, 3]__1772127228.png",
+    "new_name": "16833_39ca8077.png",
+    "recognized_number": "16833",
+    "confidence": 0.9969154596328735
+  },
+  {
+    "old_name": "test_digits__less__[1, 7, 0, 7, -1]__1772518996.png",
+    "new_name": "17877_c1715aa6.png",
+    "recognized_number": "17877",
+    "confidence": 0.6931059956550598
+  },
+  {
+    "old_name": "test_digits__less__[1, 7, 3, 2, 0]__1772328119.png",
+    "new_name": "18328_2ec75227.png",
+    "recognized_number": "18328",
+    "confidence": 0.3056691884994507
+  },
+  {
+    "old_name": "test_digits__less__[1, 7, 4, 9, 0]__1772380132.png",
+    "new_name": "17498_175ce9fa.png",
+    "recognized_number": "17498",
+    "confidence": 0.9865816831588745
+  },
+  {
+    "old_name": "test_digits__less__[1, 6, 0, 3, 7]__1772155121.png",
+    "new_name": "16833_20665b9a.png",
+    "recognized_number": "16833",
+    "confidence": 0.7998490333557129
+  },
+  {
+    "old_name": "test_digits__less__[1, 6, 8, 3, 3]__1772127087.png",
+    "new_name": "16833_14dcdb82.png",
+    "recognized_number": "16833",
+    "confidence": 0.9981995820999146
+  },
+  {
+    "old_name": "test_digits__less__[1, 7, -1, 7, 4]__1772258240.png",
+    "new_name": "17179_c36b5661.png",
+    "recognized_number": "17179",
+    "confidence": 0.8029814958572388
+  },
+  {
+    "old_name": "test_digits__less__[1, 6, 0, 3, 7]__1772138845.png",
+    "new_name": "16833_d371fe7b.png",
+    "recognized_number": "16833",
+    "confidence": 0.9861413240432739
+  },
+  {
+    "old_name": "test_digits__less__[1, 6, 8, 3, 3]__1772150481.png",
+    "new_name": "16833_0a62e077.png",
+    "recognized_number": "16833",
+    "confidence": 0.9992260932922363
+  },
+  {
+    "old_name": "test_digits__less__[1, 6, 7, 3, 3]__1772139513.png",
+    "new_name": "16833_c538c0e5.png",
+    "recognized_number": "16833",
+    "confidence": 0.913489043712616
+  },
+  {
+    "old_name": "test_digits__less__[1, 6, 8, 3, 3]__1772152485.png",
+    "new_name": "16833_1a9e3aad.png",
+    "recognized_number": "16833",
+    "confidence": 0.9989570379257202
+  },
+  {
+    "old_name": "test_digits__less__[1, 6, 0, 3, 3]__1772153012.png",
+    "new_name": "16833_327edb02.png",
+    "recognized_number": "16833",
+    "confidence": 0.9896929860115051
+  },
+  {
+    "old_name": "test_digits__less__[1, 5, 0, 7, 9]__1771953388.png",
+    "new_name": "15879_8494f491.png",
+    "recognized_number": "15879",
+    "confidence": 0.6738953590393066
+  },
+  {
+    "old_name": "test_digits__less__[1, 6, 8, 3, 3]__1772157055.png",
+    "new_name": "16833_36842731.png",
+    "recognized_number": "16833",
+    "confidence": 0.9979670643806458
+  },
+  {
+    "old_name": "test_digits__less__[1, 6, 0, 4, 0]__1772034631.png",
+    "new_name": "16048_2075bc44.png",
+    "recognized_number": "16048",
+    "confidence": 0.8321046233177185
+  },
+  {
+    "old_name": "test_digits__less__[1, 7, 4, 5, 5]__1772374188.png",
+    "new_name": "17455_de136b5e.png",
+    "recognized_number": "17455",
+    "confidence": 0.4723344147205353
+  },
+  {
+    "old_name": "test_digits__less__[1, 6, 8, 3, 3]__1772133782.png",
+    "new_name": "16833_52e64f29.png",
+    "recognized_number": "16833",
+    "confidence": 0.996658205986023
+  },
+  {
+    "old_name": "test_digits__less__[1, 6, 0, 3, 7]__1772130828.png",
+    "new_name": "16033_617b55db.png",
+    "recognized_number": "16033",
+    "confidence": 0.6864147782325745
+  },
+  {
+    "old_name": "test_digits__less__[1, 7, 1, 2, 0]__1772255427.png",
+    "new_name": "17128_d9e282c3.png",
+    "recognized_number": "17128",
+    "confidence": 0.9631964564323425
+  },
+  {
+    "old_name": "test_digits__less__[1, 6, 8, 3, 3]__1772166406.png",
+    "new_name": "16833_e521dbed.png",
+    "recognized_number": "16833",
+    "confidence": 0.9984283447265625
+  },
+  {
+    "old_name": "test_digits__less__[1, 6, 0, 1, 4]__1772123289.png",
+    "new_name": "16014_844dbcc2.png",
+    "recognized_number": "16014",
+    "confidence": 0.6369103789329529
+  },
+  {
+    "old_name": "test_digits__less__[1, 6, 8, 3, 3]__1772134802.png",
+    "new_name": "16833_ff57ddaf.png",
+    "recognized_number": "16833",
+    "confidence": 0.9985365867614746
+  },
+  {
+    "old_name": "test_digits__less__[1, 5, 5, 2, 0]__1771861646.png",
+    "new_name": "15528_d277a279.png",
+    "recognized_number": "15528",
+    "confidence": 0.9949561953544617
+  },
+  {
+    "old_name": "test_digits__less__[1, 7, 4, 2, 0]__1772350205.png",
+    "new_name": "17428_e54b52fb.png",
+    "recognized_number": "17428",
+    "confidence": 0.989263117313385
+  },
+  {
+    "old_name": "test_digits__less__[1, 6, 0, 2, 0]__1772033926.png",
+    "new_name": "16028_7919bb47.png",
+    "recognized_number": "16028",
+    "confidence": 0.9712185859680176
+  },
+  {
+    "old_name": "test_digits__less__[1, 6, 8, 3, 3]__1772129481.png",
+    "new_name": "16833_81e4ff5b.png",
+    "recognized_number": "16833",
+    "confidence": 0.9948010444641113
+  },
+  {
+    "old_name": "test_digits__less__[1, 6, 8, 3, 3]__1772139477.png",
+    "new_name": "16833_d5b3aba6.png",
+    "recognized_number": "16833",
+    "confidence": 0.9988719820976257
+  },
+  {
+    "old_name": "test_digits__less__[1, 6, 0, 3, 3]__1772158355.png",
+    "new_name": "16833_25383e43.png",
+    "recognized_number": "16833",
+    "confidence": 0.5752781629562378
+  },
+  {
+    "old_name": "test_digits__less__[1, 6, 8, 3, 3]__1772136525.png",
+    "new_name": "16833_56eb9bc9.png",
+    "recognized_number": "16833",
+    "confidence": 0.9969838261604309
+  },
+  {
+    "old_name": "test_digits__less__[1, 6, 8, 3, 3]__1772145383.png",
+    "new_name": "16833_fc992412.png",
+    "recognized_number": "16833",
+    "confidence": 0.9890972375869751
+  },
+  {
+    "old_name": "test_digits__less__[1, 6, 0, 1, 7]__1772124379.png",
+    "new_name": "16017_cbdc90ad.png",
+    "recognized_number": "16017",
+    "confidence": 0.9413331747055054
+  },
+  {
+    "old_name": "test_digits__less__[1, 6, 7, 3, 3]__1772158461.png",
+    "new_name": "16833_d2101116.png",
+    "recognized_number": "16833",
+    "confidence": 0.8573118448257446
+  },
+  {
+    "old_name": "test_digits__less__[1, 6, 8, 3, 3]__1772146087.png",
+    "new_name": "16833_09dee281.png",
+    "recognized_number": "16833",
+    "confidence": 0.9958058595657349
+  },
+  {
+    "old_name": "test_digits__less__[1, 7, 7, 0, 0]__1772472694.png",
+    "new_name": "17708_74882ee7.png",
+    "recognized_number": "17708",
+    "confidence": 0.7430360913276672
+  },
+  {
+    "old_name": "test_digits__less__[1, 6, 0, 3, 7]__1772126455.png",
+    "new_name": "16833_7dc96690.png",
+    "recognized_number": "16833",
+    "confidence": 0.961625337600708
+  },
+  {
+    "old_name": "test_digits__less__[1, 6, 4, 2, 4]__1772092263.png",
+    "new_name": "16429_8924fec3.png",
+    "recognized_number": "16429",
+    "confidence": 0.8349729776382446
+  },
+  {
+    "old_name": "test_digits__less__[1, 1, 4, 4, 8]__1772374047.png",
+    "new_name": "18448_9cd8ea18.png",
+    "recognized_number": "18448",
+    "confidence": 0.723250687122345
+  },
+  {
+    "old_name": "test_digits__less__[1, 6, 7, 3, 3]__1772149461.png",
+    "new_name": "16033_12c1bc0d.png",
+    "recognized_number": "16033",
+    "confidence": 0.8281519412994385
+  },
+  {
+    "old_name": "test_digits__less__[1, 6, 7, 3, 7]__1772143661.png",
+    "new_name": "16033_f0d35c3c.png",
+    "recognized_number": "16033",
+    "confidence": 0.5555948615074158
+  },
+  {
+    "old_name": "test_digits__less__[1, 6, 3, 0, 4]__1772123078.png",
+    "new_name": "16809_b3721491.png",
+    "recognized_number": "16809",
+    "confidence": 0.6106629371643066
+  },
+  {
+    "old_name": "test_digits__less__[1, 7, 7, 5, 1]__1772473678.png",
+    "new_name": "17757_fb968fa3.png",
+    "recognized_number": "17757",
+    "confidence": 0.9428098201751709
+  },
+  {
+    "old_name": "test_digits__less__[1, 6, 7, 6, 0]__1772169642.png",
+    "new_name": "16868_7757daa6.png",
+    "recognized_number": "16868",
+    "confidence": 0.9516322612762451
+  },
+  {
+    "old_name": "test_digits__less__[1, 6, 0, 3, 7]__1772154770.png",
+    "new_name": "16833_cc6a82a0.png",
+    "recognized_number": "16833",
+    "confidence": 0.905885636806488
+  },
+  {
+    "old_name": "test_digits__less__[1, 6, 8, 3, 3]__1772153328.png",
+    "new_name": "16833_2c35f244.png",
+    "recognized_number": "16833",
+    "confidence": 0.9973266124725342
+  },
+  {
+    "old_name": "test_digits__less__[1, 6, 8, 3, 3]__1772154981.png",
+    "new_name": "16833_aca988d3.png",
+    "recognized_number": "16833",
+    "confidence": 0.9980021119117737
+  },
+  {
+    "old_name": "test_digits__less__[1, 6, 0, 3, 7]__1772128248.png",
+    "new_name": "16833_dc29f3e5.png",
+    "recognized_number": "16833",
+    "confidence": 0.9405084252357483
+  },
+  {
+    "old_name": "test_digits__less__[1, 4, 2, 2]__1771511227.png",
+    "new_name": "14221_f98ba2fa.png",
+    "recognized_number": "14221",
+    "confidence": 0.9312859177589417
+  },
+  {
+    "old_name": "test_digits__less__[1, 6, 0, 3, 3]__1772151535.png",
+    "new_name": "16033_b7a13106.png",
+    "recognized_number": "16033",
+    "confidence": 0.7385954260826111
+  },
+  {
+    "old_name": "test_digits__less__[1, 6, 8, 3, 3]__1772134204.png",
+    "new_name": "16833_38faff11.png",
+    "recognized_number": "16833",
+    "confidence": 0.9928308129310608
+  },
+  {
+    "old_name": "test_digits__less__[1, 6, 8, 3, 3]__1772145137.png",
+    "new_name": "16833_80244a83.png",
+    "recognized_number": "16833",
+    "confidence": 0.9969730377197266
+  },
+  {
+    "old_name": "test_digits__less__[1, 7, -1, 8, 7]__1772273822.png",
+    "new_name": "17187_4e7f99cc.png",
+    "recognized_number": "17187",
+    "confidence": 0.6887730956077576
+  },
+  {
+    "old_name": "test_digits__less__[1, 5, -1, 1, 9]__1771951981.png",
+    "new_name": "15819_7a2ee35a.png",
+    "recognized_number": "15819",
+    "confidence": 0.6107314825057983
+  },
+  {
+    "old_name": "test_digits__less__[1, 6, 0, 3, 7]__1772126912.png",
+    "new_name": "16033_3bd7d7c3.png",
+    "recognized_number": "16033",
+    "confidence": 0.6443588733673096
+  },
+  {
+    "old_name": "test_digits__less__[1, 6, 7, 5, 6]__1772121918.png",
+    "new_name": "16756_9ad9554e.png",
+    "recognized_number": "16756",
+    "confidence": 0.9456441402435303
+  },
+  {
+    "old_name": "test_digits__less__[1, 6, 0, 3, 7]__1772144716.png",
+    "new_name": "16033_68364fff.png",
+    "recognized_number": "16033",
+    "confidence": 0.6097479462623596
+  },
+  {
+    "old_name": "test_digits__less__[1, 7, 1, 0, 7]__1772265240.png",
+    "new_name": "12107_2e6e2685.png",
+    "recognized_number": "12107",
+    "confidence": 0.36453598737716675
+  },
+  {
+    "old_name": "test_digits__less__[1, 7, 2, 0, 5]__1772280647.png",
+    "new_name": "18205_ee6ed9b2.png",
+    "recognized_number": "18205",
+    "confidence": 0.5205561518669128
+  },
+  {
+    "old_name": "test_digits__less__[1, 6, 8, 3, 3]__1772165316.png",
+    "new_name": "16833_b0b4a48a.png",
+    "recognized_number": "16833",
+    "confidence": 0.9972972273826599
+  },
+  {
+    "old_name": "test_digits__less__[1, 7, 3, 5, 0]__1772342501.png",
+    "new_name": "17358_b990474e.png",
+    "recognized_number": "17358",
+    "confidence": 0.8537631630897522
+  },
+  {
+    "old_name": "test_digits__less__[1, 7, 0, 9, 4]__1772529722.png",
+    "new_name": "17894_723bb8e0.png",
+    "recognized_number": "17894",
+    "confidence": 0.835677444934845
+  },
+  {
+    "old_name": "test_digits__less__[1, 7, 4, 3, 0]__1772350416.png",
+    "new_name": "18438_e45a67b1.png",
+    "recognized_number": "18438",
+    "confidence": 0.4125401973724365
+  },
+  {
+    "old_name": "test_digits__less__[1, 6, 7, 3, 7]__1772145313.png",
+    "new_name": "16833_5f63f9c7.png",
+    "recognized_number": "16833",
+    "confidence": 0.9893876314163208
+  },
+  {
+    "old_name": "test_digits__less__[1, 6, 8, 3, 3]__1772132340.png",
+    "new_name": "16833_bd40b9b2.png",
+    "recognized_number": "16833",
+    "confidence": 0.9917473793029785
+  },
+  {
+    "old_name": "test_digits__less__[1, 6, 8, 3, 3]__1772140743.png",
+    "new_name": "16833_039d3416.png",
+    "recognized_number": "16833",
+    "confidence": 0.9934364557266235
+  },
+  {
+    "old_name": "test_digits__less__[1, 6, 0, 6, 0]__1772168727.png",
+    "new_name": "16868_12128306.png",
+    "recognized_number": "16868",
+    "confidence": 0.9947768449783325
+  },
+  {
+    "old_name": "test_digits__less__[1, 6, 0, 3, 3]__1772133817.png",
+    "new_name": "16833_4fc4b1df.png",
+    "recognized_number": "16833",
+    "confidence": 0.8755868673324585
+  },
+  {
+    "old_name": "test_digits__less__[1, 6, 0, 3, 7]__1772155719.png",
+    "new_name": "16833_40ac7508.png",
+    "recognized_number": "16833",
+    "confidence": 0.7826812863349915
+  },
+  {
+    "old_name": "test_digits__less__[1, 1, 2, 2, 1]__1771511192.png",
+    "new_name": "14221_6f530a44.png",
+    "recognized_number": "14221",
+    "confidence": 0.8080320954322815
+  },
+  {
+    "old_name": "test_digits__less__[1, 7, -1, 8, 7]__1772260491.png",
+    "new_name": "17187_6002c1db.png",
+    "recognized_number": "17187",
+    "confidence": 0.5736978054046631
+  },
+  {
+    "old_name": "test_digits__less__[1, 1, 7, 9, 9]__1772474487.png",
+    "new_name": "17799_83bcf3fd.png",
+    "recognized_number": "17799",
+    "confidence": 0.4604688584804535
+  },
+  {
+    "old_name": "test_digits__less__[1, 6, 8, 3, 3]__1772132903.png",
+    "new_name": "16833_f718010a.png",
+    "recognized_number": "16833",
+    "confidence": 0.9948630928993225
+  },
+  {
+    "old_name": "test_digits__less__[1, 6, 0, 3, 3]__1772165034.png",
+    "new_name": "16833_b7d7d9e4.png",
+    "recognized_number": "16833",
+    "confidence": 0.9961470365524292
+  },
+  {
+    "old_name": "test_digits__less__[1, 6, 0, 3, 3]__1772151430.png",
+    "new_name": "16833_d0418acd.png",
+    "recognized_number": "16833",
+    "confidence": 0.9823552966117859
+  },
+  {
+    "old_name": "test_digits__less__[1, 6, 5, 6, 1]__1772182662.png",
+    "new_name": "16967_89c3d609.png",
+    "recognized_number": "16967",
+    "confidence": 0.9890493154525757
+  },
+  {
+    "old_name": "test_digits__less__[1, 6, 8, 3, 3]__1772130899.png",
+    "new_name": "16833_9ecc061d.png",
+    "recognized_number": "16833",
+    "confidence": 0.9964008331298828
+  },
+  {
+    "old_name": "test_digits__less__[1, 6, 0, 3, 3]__1772144575.png",
+    "new_name": "16833_a6b17453.png",
+    "recognized_number": "16833",
+    "confidence": 0.6070058941841125
+  },
+  {
+    "old_name": "test_digits__less__[1, 6, 8, 3, 3]__1772126877.png",
+    "new_name": "16833_d783c7a8.png",
+    "recognized_number": "16833",
+    "confidence": 0.9759288430213928
+  },
+  {
+    "old_name": "test_digits__less__[1, 7, 1, 8, 7]__1772270270.png",
+    "new_name": "17187_ccbd31ff.png",
+    "recognized_number": "17187",
+    "confidence": 0.5266458988189697
+  },
+  {
+    "old_name": "test_digits__less__[1, 6, 8, 3, 3]__1772142887.png",
+    "new_name": "16833_cefce277.png",
+    "recognized_number": "16833",
+    "confidence": 0.9939289093017578
+  },
+  {
+    "old_name": "test_digits__less__[1, 7, 4, 3, 0]__1772370212.png",
+    "new_name": "17438_80803e46.png",
+    "recognized_number": "17438",
+    "confidence": 0.97978276014328
+  },
+  {
+    "old_name": "test_digits__less__[1, 7, 2, 6, 5]__1772289792.png",
+    "new_name": "18265_7fd05538.png",
+    "recognized_number": "18265",
+    "confidence": 0.31329894065856934
+  },
+  {
+    "old_name": "test_digits__less__[1, 6, 7, 3, 3]__1772146227.png",
+    "new_name": "16833_f7d79619.png",
+    "recognized_number": "16833",
+    "confidence": 0.9880185127258301
+  },
+  {
+    "old_name": "test_digits__less__[1, 6, 0, 3, 7]__1772161835.png",
+    "new_name": "16033_a5f8cba0.png",
+    "recognized_number": "16033",
+    "confidence": 0.6187052726745605
+  },
+  {
+    "old_name": "test_digits__less__[1, 7, 2, 7, 5]__1772290003.png",
+    "new_name": "17275_09943aca.png",
+    "recognized_number": "17275",
+    "confidence": 0.5134127736091614
+  },
+  {
+    "old_name": "test_digits__less__[1, 6, 8, 3, 3]__1772155086.png",
+    "new_name": "16833_aa56c7f9.png",
+    "recognized_number": "16833",
+    "confidence": 0.9979192614555359
+  },
+  {
+    "old_name": "test_digits__less__[1, 6, 0, 5, 3]__1772167426.png",
+    "new_name": "16853_d03656f2.png",
+    "recognized_number": "16853",
+    "confidence": 0.882288932800293
+  },
+  {
+    "old_name": "test_digits__less__[1, 6, 5, 6, 0]__1772117224.png",
+    "new_name": "16568_da50e8bf.png",
+    "recognized_number": "16568",
+    "confidence": 0.9976098537445068
+  },
+  {
+    "old_name": "test_digits__less__[1, 6, 8, 3, 3]__1772161625.png",
+    "new_name": "16833_0133c8cf.png",
+    "recognized_number": "16833",
+    "confidence": 0.998022198677063
+  },
+  {
+    "old_name": "test_digits__less__[1, 6, 0, 4, 0]__1772167285.png",
+    "new_name": "16846_913f9254.png",
+    "recognized_number": "16846",
+    "confidence": 0.916053295135498
+  },
+  {
+    "old_name": "test_digits__less__[1, -1, 4, 6, 7]__1771600741.png",
+    "new_name": "14467_da6430f9.png",
+    "recognized_number": "14467",
+    "confidence": 0.9504550695419312
+  },
+  {
+    "old_name": "test_digits__less__[1, 6, 5, 3, 0]__1772110122.png",
+    "new_name": "16538_a9e3260e.png",
+    "recognized_number": "16538",
+    "confidence": 0.9900651574134827
+  },
+  {
+    "old_name": "test_digits__less__[1, 7, 1, 6, 1]__1772257783.png",
+    "new_name": "17167_f8166513.png",
+    "recognized_number": "17167",
+    "confidence": 0.9967131614685059
+  },
+  {
+    "old_name": "test_digits__less__[1, 6, 8, 3, 3]__1772146368.png",
+    "new_name": "16833_e8e7db64.png",
+    "recognized_number": "16833",
+    "confidence": 0.996549129486084
+  },
+  {
+    "old_name": "test_digits__less__[1, 7, 0, 5, 7]__1772518433.png",
+    "new_name": "17857_de89b7f2.png",
+    "recognized_number": "17857",
+    "confidence": 0.8069108128547668
+  },
+  {
+    "old_name": "test_digits__less__[1, 5, 0, 8, 9]__1771998533.png",
+    "new_name": "15889_9a5e3afd.png",
+    "recognized_number": "15889",
+    "confidence": 0.9755540490150452
+  },
+  {
+    "old_name": "test_digits__less__[1, 7, 0, 3, 1]__1772513018.png",
+    "new_name": "17837_0141dcd8.png",
+    "recognized_number": "17837",
+    "confidence": 0.8827025890350342
+  },
+  {
+    "old_name": "test_digits__less__[1, 6, 8, 3, 3]__1772142360.png",
+    "new_name": "16833_eb593cab.png",
+    "recognized_number": "16833",
+    "confidence": 0.9935682415962219
+  },
+  {
+    "old_name": "test_digits__less__[1, 6, 8, 3, 3]__1772157617.png",
+    "new_name": "16833_a88f53c2.png",
+    "recognized_number": "16833",
+    "confidence": 0.9962255954742432
+  },
+  {
+    "old_name": "test_digits__less__[1, 6, 7, 3, 7]__1772160043.png",
+    "new_name": "16833_6e068fb7.png",
+    "recognized_number": "16833",
+    "confidence": 0.6212523579597473
+  },
+  {
+    "old_name": "test_digits__less__[1, 6, 8, 3, 3]__1772131039.png",
+    "new_name": "16833_48530d43.png",
+    "recognized_number": "16833",
+    "confidence": 0.9968388080596924
+  },
+  {
+    "old_name": "test_digits__less__[1, 6, 8, 3, 3]__1772144821.png",
+    "new_name": "16833_53f4d516.png",
+    "recognized_number": "16833",
+    "confidence": 0.9948151707649231
+  },
+  {
+    "old_name": "test_digits__less__[1, 7, 0, 3, 1]__1772233770.png",
+    "new_name": "18031_713004f9.png",
+    "recognized_number": "18031",
+    "confidence": 0.5115006566047668
+  },
+  {
+    "old_name": "test_digits__less__[1, 6, 8, 3, 3]__1772149672.png",
+    "new_name": "16833_ee9fae9b.png",
+    "recognized_number": "16833",
+    "confidence": 0.9967310428619385
+  },
+  {
+    "old_name": "test_digits__less__[1, 7, 0, 3, 1]__1772512913.png",
+    "new_name": "17031_f604102d.png",
+    "recognized_number": "17031",
+    "confidence": 0.5672151446342468
+  },
+  {
+    "old_name": "test_digits__less__[1, 6, 7, 3, 7]__1772141376.png",
+    "new_name": "16833_41ee942f.png",
+    "recognized_number": "16833",
+    "confidence": 0.9132147431373596
+  },
+  {
+    "old_name": "test_digits__less__[1, 5, 0, 3, 7]__1771952473.png",
+    "new_name": "15837_d8ba671d.png",
+    "recognized_number": "15837",
+    "confidence": 0.6698313355445862
+  },
+  {
+    "old_name": "test_digits__less__[1, 5, 0, 9, 5]__1771998638.png",
+    "new_name": "15895_43c0fede.png",
+    "recognized_number": "15895",
+    "confidence": 0.9458824992179871
+  },
+  {
+    "old_name": "test_digits__less__[1, 5, 9, 8, 0]__1772030831.png",
+    "new_name": "15988_b089028c.png",
+    "recognized_number": "15988",
+    "confidence": 0.9796819686889648
+  },
+  {
+    "old_name": "test_digits__less__[1, 6, 0, 7, 7]__1772136560.png",
+    "new_name": "16833_e4090fb6.png",
+    "recognized_number": "16833",
+    "confidence": 0.9885031580924988
+  },
+  {
+    "old_name": "test_digits__less__[1, 6, 0, 3, 3]__1772145173.png",
+    "new_name": "16833_959feecf.png",
+    "recognized_number": "16833",
+    "confidence": 0.5370560884475708
+  },
+  {
+    "old_name": "test_digits__less__[1, 5, 0, 3, 2]__1771952368.png",
+    "new_name": "15832_44696447.png",
+    "recognized_number": "15832",
+    "confidence": 0.8467721343040466
+  },
+  {
+    "old_name": "test_digits__less__[1, 6, 2, 3, 0]__1772037831.png",
+    "new_name": "16238_6054a98d.png",
+    "recognized_number": "16238",
+    "confidence": 0.9932249188423157
+  },
+  {
+    "old_name": "test_digits__less__[1, 7, 3, 0, 0]__1772303297.png",
+    "new_name": "17308_c8b738de.png",
+    "recognized_number": "17308",
+    "confidence": 0.9770174026489258
+  },
+  {
+    "old_name": "test_digits__less__[1, 7, 0, 4, 5]__1772513159.png",
+    "new_name": "17845_98cb3240.png",
+    "recognized_number": "17845",
+    "confidence": 0.8335022926330566
+  },
+  {
+    "old_name": "test_digits__less__[1, 6, 8, 3, 3]__1772154735.png",
+    "new_name": "16833_b70f62d2.png",
+    "recognized_number": "16833",
+    "confidence": 0.9940685033798218
+  },
+  {
+    "old_name": "test_digits__less__[1, 6, 8, 3, 3]__1772128318.png",
+    "new_name": "16833_d3ce0ef5.png",
+    "recognized_number": "16833",
+    "confidence": 0.9984409213066101
+  },
+  {
+    "old_name": "test_digits__less__[1, 7, 1, 2, 4]__1772255357.png",
+    "new_name": "17124_9e0d3b45.png",
+    "recognized_number": "17124",
+    "confidence": 0.739112377166748
+  },
+  {
+    "old_name": "test_digits__less__[1, 6, 6, 2, 0]__1772117944.png",
+    "new_name": "16626_1366343f.png",
+    "recognized_number": "16626",
+    "confidence": 0.9928995370864868
+  },
+  {
+    "old_name": "test_digits__less__[1, 6, 0, 3, 7]__1772134837.png",
+    "new_name": "16833_fd6771f1.png",
+    "recognized_number": "16833",
+    "confidence": 0.5914863348007202
+  },
+  {
+    "old_name": "test_digits__less__[1, 5, 3, 7, 0]__1771851366.png",
+    "new_name": "15378_15bd0d7c.png",
+    "recognized_number": "15378",
+    "confidence": 0.859356164932251
+  },
+  {
+    "old_name": "test_digits__less__[1, 6, 8, 3, 3]__1772132763.png",
+    "new_name": "16833_cd1eeb82.png",
+    "recognized_number": "16833",
+    "confidence": 0.9938288331031799
+  },
+  {
+    "old_name": "test_digits__less__[1, 6, 1, 1, 0]__1772036495.png",
+    "new_name": "16119_4c18f588.png",
+    "recognized_number": "16119",
+    "confidence": 0.9956538677215576
+  },
+  {
+    "old_name": "test_digits__less__[1, 5, 9, 8, 0]__1772019507.png",
+    "new_name": "15988_c0fe03e4.png",
+    "recognized_number": "15988",
+    "confidence": 0.9436429142951965
+  },
+  {
+    "old_name": "test_digits__less__[1, 6, 0, 3, 7]__1772161343.png",
+    "new_name": "16833_b188165b.png",
+    "recognized_number": "16833",
+    "confidence": 0.5312017798423767
+  },
+  {
+    "old_name": "test_digits__less__[1, 6, 0, 3, 7]__1772156035.png",
+    "new_name": "16833_d7266715.png",
+    "recognized_number": "16833",
+    "confidence": 0.9955021739006042
+  },
+  {
+    "old_name": "test_digits__less__[1, 5, 9, 2, 0]__1772017284.png",
+    "new_name": "15928_83083f5e.png",
+    "recognized_number": "15928",
+    "confidence": 0.9790841341018677
+  },
+  {
+    "old_name": "test_digits__less__[1, 6, 0, 3, 3]__1772143696.png",
+    "new_name": "16833_fa1d54ef.png",
+    "recognized_number": "16833",
+    "confidence": 0.9957595467567444
+  },
+  {
+    "old_name": "test_digits__less__[1, 6, 8, 3, 3]__1772161906.png",
+    "new_name": "16833_ad137186.png",
+    "recognized_number": "16833",
+    "confidence": 0.997000515460968
+  },
+  {
+    "old_name": "test_digits__less__[1, 5, 8, 0, 0]__1771951735.png",
+    "new_name": "15808_11708137.png",
+    "recognized_number": "15808",
+    "confidence": 0.9789441823959351
+  },
+  {
+    "old_name": "test_digits__less__[1, 6, 0, 3, 7]__1772157090.png",
+    "new_name": "16833_572ca515.png",
+    "recognized_number": "16833",
+    "confidence": 0.9931934475898743
+  },
+  {
+    "old_name": "test_digits__less__[-1, 2, 2, 1]__1771512582.png",
+    "new_name": "14221_02e06b43.png",
+    "recognized_number": "14221",
+    "confidence": 0.9309062957763672
+  },
+  {
+    "old_name": "test_digits__less__[1, 7, 4, 3, 0]__1772352808.png",
+    "new_name": "17438_cbbf0f78.png",
+    "recognized_number": "17438",
+    "confidence": 0.981689453125
+  },
+  {
+    "old_name": "test_digits__less__[1, 5, 7, 9, 0]__1771951559.png",
+    "new_name": "15798_5143b2bc.png",
+    "recognized_number": "15798",
+    "confidence": 0.9251741766929626
+  },
+  {
+    "old_name": "test_digits__less__[1, 7, 2, 0, -1]__1772280682.png",
+    "new_name": "17207_a69e22a2.png",
+    "recognized_number": "17207",
+    "confidence": 0.9304248094558716
+  },
+  {
+    "old_name": "test_digits__less__[1, 6, 0, 3, 7]__1772130512.png",
+    "new_name": "16833_bc22989c.png",
+    "recognized_number": "16833",
+    "confidence": 0.984399676322937
+  },
+  {
+    "old_name": "test_digits__less__[1, 6, 8, 3, 3]__1772152168.png",
+    "new_name": "16833_69997499.png",
+    "recognized_number": "16833",
+    "confidence": 0.9953110814094543
+  },
+  {
+    "old_name": "test_digits__less__[1, 7, 4, 4, 5]__1772373977.png",
+    "new_name": "13445_de5a2fbf.png",
+    "recognized_number": "13445",
+    "confidence": 0.4174705445766449
+  },
+  {
+    "old_name": "test_digits__less__[1, 6, 8, 3, 3]__1772134485.png",
+    "new_name": "16833_7602413d.png",
+    "recognized_number": "16833",
+    "confidence": 0.9984744191169739
+  },
+  {
+    "old_name": "test_digits__less__[1, 6, 8, 3, 3]__1772165491.png",
+    "new_name": "16833_9459f6bc.png",
+    "recognized_number": "16833",
+    "confidence": 0.998563826084137
+  },
+  {
+    "old_name": "test_digits__less__[1, 7, 7, 6, 0]__1772473889.png",
+    "new_name": "17768_508052a3.png",
+    "recognized_number": "17768",
+    "confidence": 0.6470568180084229
+  },
+  {
+    "old_name": "test_digits__less__[1, 7, 0, 0, 9]__1772474698.png",
+    "new_name": "17809_167ecd52.png",
+    "recognized_number": "17809",
+    "confidence": 0.9545463919639587
+  },
+  {
+    "old_name": "test_digits__less__[1, -1, 2, 2]__1771511873.png",
+    "new_name": "14221_b92247a4.png",
+    "recognized_number": "14221",
+    "confidence": 0.8719748258590698
+  },
+  {
+    "old_name": "test_digits__less__[1, 7, 0, 0, 2]__1772474558.png",
+    "new_name": "17802_fdc354ee.png",
+    "recognized_number": "17802",
+    "confidence": 0.9843346476554871
+  },
+  {
+    "old_name": "test_digits__less__[1, 7, 2, 0, 0]__1772294118.png",
+    "new_name": "17280_7b5131db.png",
+    "recognized_number": "17280",
+    "confidence": 0.7830198407173157
+  },
+  {
+    "old_name": "test_digits__less__[1, 6, 6, 7, 0]__1772119245.png",
+    "new_name": "16678_43ffec39.png",
+    "recognized_number": "16678",
+    "confidence": 0.9939069151878357
+  },
+  {
+    "old_name": "test_digits__less__[1, 6, 0, 3, 7]__1772165667.png",
+    "new_name": "16833_0421da52.png",
+    "recognized_number": "16833",
+    "confidence": 0.9928411245346069
+  },
+  {
+    "old_name": "test_digits__less__[1, 6, 6, 2, 4]__1772117873.png",
+    "new_name": "16624_8b3355ce.png",
+    "recognized_number": "16624",
+    "confidence": 0.6451443433761597
+  },
+  {
+    "old_name": "test_digits__less__[1, 7, 1, 9, 1]__1772280401.png",
+    "new_name": "17191_e977d045.png",
+    "recognized_number": "17191",
+    "confidence": 0.5044109225273132
+  },
+  {
+    "old_name": "test_digits__less__[1, 7, 0, 0, 5]__1772254548.png",
+    "new_name": "17085_860a0975.png",
+    "recognized_number": "17085",
+    "confidence": 0.5417528748512268
+  },
+  {
+    "old_name": "test_digits__less__[1, 5, 0, 0, 2]__1771951629.png",
+    "new_name": "15802_2f8c04d7.png",
+    "recognized_number": "15802",
+    "confidence": 0.9873461127281189
+  },
+  {
+    "old_name": "test_digits__less__[1, 5, 9, 8, 0]__1772022602.png",
+    "new_name": "15988_c7f22b10.png",
+    "recognized_number": "15988",
+    "confidence": 0.8412215113639832
+  },
+  {
+    "old_name": "test_digits__less__[1, 6, 0, 3, 7]__1772129517.png",
+    "new_name": "16833_33728bec.png",
+    "recognized_number": "16833",
+    "confidence": 0.8651570677757263
+  },
+  {
+    "old_name": "test_digits__less__[1, 6, 3, 9, 0]__1772083753.png",
+    "new_name": "16398_f8b725fc.png",
+    "recognized_number": "16398",
+    "confidence": 0.9876186847686768
+  },
+  {
+    "old_name": "test_digits__less__[1, 5, 9, 8, 0]__1772028476.png",
+    "new_name": "15988_95e1855e.png",
+    "recognized_number": "15988",
+    "confidence": 0.9944076538085938
+  },
+  {
+    "old_name": "test_digits__less__[1, 6, 5, 2, 1]__1772109981.png",
+    "new_name": "16527_5592e5de.png",
+    "recognized_number": "16527",
+    "confidence": 0.9896973967552185
+  },
+  {
+    "old_name": "test_digits__less__[1, 5, 9, 8, 0]__1772025379.png",
+    "new_name": "15988_a7fc3752.png",
+    "recognized_number": "15988",
+    "confidence": 0.9771673083305359
+  },
+  {
+    "old_name": "test_digits__less__[1, 6, 8, 3, 3]__1772128529.png",
+    "new_name": "16833_578691a0.png",
+    "recognized_number": "16833",
+    "confidence": 0.9978126287460327
+  },
+  {
+    "old_name": "test_digits__less__[1, 6, 7, 3, 3]__1772162152.png",
+    "new_name": "16033_201e09dc.png",
+    "recognized_number": "16033",
+    "confidence": 0.6579167246818542
+  },
+  {
+    "old_name": "test_digits__less__[1, 5, 6, 4, 0]__1771921915.png",
+    "new_name": "15648_197b738e.png",
+    "recognized_number": "15648",
+    "confidence": 0.9645140171051025
+  },
+  {
+    "old_name": "test_digits__less__[1, 7, 5, 0, 1]__1772434046.png",
+    "new_name": "17581_cee46378.png",
+    "recognized_number": "17581",
+    "confidence": 0.8112181425094604
+  },
+  {
+    "old_name": "test_digits__less__[1, 5, 0, 4, 9]__1771952684.png",
+    "new_name": "15849_c0b91f8f.png",
+    "recognized_number": "15849",
+    "confidence": 0.9613208770751953
+  },
+  {
+    "old_name": "test_digits__less__[1, 7, 2, 5, 0]__1772289651.png",
+    "new_name": "17258_c3eeea08.png",
+    "recognized_number": "17258",
+    "confidence": 0.95320063829422
+  },
+  {
+    "old_name": "test_digits__less__[1, 5, 9, 8, 0]__1772023551.png",
+    "new_name": "15988_63c0ef25.png",
+    "recognized_number": "15988",
+    "confidence": 0.8956393003463745
+  },
+  {
+    "old_name": "test_digits__less__[1, -1, 2, 2, 1]__1771510838.png",
+    "new_name": "14221_de7f5dda.png",
+    "recognized_number": "14221",
+    "confidence": 0.9734557867050171
+  },
+  {
+    "old_name": "test_digits__less__[1, -1, 1, 8, 7]__1772279803.png",
+    "new_name": "13187_6589abd9.png",
+    "recognized_number": "13187",
+    "confidence": 0.38802534341812134
+  },
+  {
+    "old_name": "test_digits__less__[1, 7, 0, 9, 9]__1772529828.png",
+    "new_name": "17899_3eba5b82.png",
+    "recognized_number": "17899",
+    "confidence": 0.9005424380302429
+  },
+  {
+    "old_name": "test_digits__less__[1, 6, 0, 3, 7]__1772124766.png",
+    "new_name": "16033_130da6e8.png",
+    "recognized_number": "16033",
+    "confidence": 0.6176995635032654
+  },
+  {
+    "old_name": "test_digits__less__[1, 6, 8, 3, 3]__1772138317.png",
+    "new_name": "16833_ac416656.png",
+    "recognized_number": "16833",
+    "confidence": 0.9966524243354797
+  },
+  {
+    "old_name": "test_digits__less__[1, 6, 8, 6, 0]__1772167742.png",
+    "new_name": "16868_5f400032.png",
+    "recognized_number": "16868",
+    "confidence": 0.9970332384109497
+  },
+  {
+    "old_name": "test_digits__less__[1, 6, 8, 3, 3]__1772129095.png",
+    "new_name": "16833_7ed75fa4.png",
+    "recognized_number": "16833",
+    "confidence": 0.9956119060516357
+  },
+  {
+    "old_name": "test_digits__less__[1, 7, 2, 6, 0]__1772289862.png",
+    "new_name": "17268_e4b5f6ea.png",
+    "recognized_number": "17268",
+    "confidence": 0.9531417489051819
+  },
+  {
+    "old_name": "test_digits__less__[1, 6, 8, 3, 3]__1772141692.png",
+    "new_name": "16833_84e4dcea.png",
+    "recognized_number": "16833",
+    "confidence": 0.9988499879837036
+  },
+  {
+    "old_name": "test_digits__less__[1, 7, 1, 1, 0]__1772255216.png",
+    "new_name": "17118_91b3dfc3.png",
+    "recognized_number": "17118",
+    "confidence": 0.983232319355011
+  },
+  {
+    "old_name": "test_digits__less__[1, 6, 5, 4, 0]__1772113461.png",
+    "new_name": "16548_18fd6e89.png",
+    "recognized_number": "16548",
+    "confidence": 0.9204132556915283
+  },
+  {
+    "old_name": "test_digits__less__[1, 6, 0, 3, 7]__1772139864.png",
+    "new_name": "16833_c78b84a3.png",
+    "recognized_number": "16833",
+    "confidence": 0.9113966822624207
+  },
+  {
+    "old_name": "test_digits__less__[1, 7, 5, 0, 1]__1772434152.png",
+    "new_name": "17587_2c2b9629.png",
+    "recognized_number": "17587",
+    "confidence": 0.9905084371566772
+  },
+  {
+    "old_name": "test_digits__less__[1, 7, 0, 6, 6]__1772518644.png",
+    "new_name": "17866_6872ed7c.png",
+    "recognized_number": "17866",
+    "confidence": 0.3496399521827698
+  },
+  {
+    "old_name": "test_digits__less__[1, 6, 8, 3, 3]__1772148372.png",
+    "new_name": "16833_3e92fbb9.png",
+    "recognized_number": "16833",
+    "confidence": 0.9946645498275757
+  },
+  {
+    "old_name": "test_digits__less__[1, 7, 0, 1, 5]__1772199796.png",
+    "new_name": "17015_dfa48cfb.png",
+    "recognized_number": "17015",
+    "confidence": 0.5336558222770691
+  },
+  {
+    "old_name": "test_digits__less__[1, 6, 8, 3, 3]__1772158320.png",
+    "new_name": "16833_59dbaa8a.png",
+    "recognized_number": "16833",
+    "confidence": 0.9922240972518921
+  },
+  {
+    "old_name": "test_digits__less__[1, -1, 2, 2, 1]__1771509808.png",
+    "new_name": "14221_8b12ea6a.png",
+    "recognized_number": "14221",
+    "confidence": 0.9455633759498596
+  },
+  {
+    "old_name": "test_digits__less__[1, 7, 3, 3, 4]__1772342009.png",
+    "new_name": "17339_f520a205.png",
+    "recognized_number": "17339",
+    "confidence": 0.6897506713867188
+  },
+  {
+    "old_name": "test_digits__less__[1, 6, 8, 3, 3]__1772126420.png",
+    "new_name": "16833_8c52ba26.png",
+    "recognized_number": "16833",
+    "confidence": 0.9974303841590881
+  },
+  {
+    "old_name": "test_digits__less__[1, 7, 1, 0, 7]__1772277025.png",
+    "new_name": "17187_4f44bf79.png",
+    "recognized_number": "17187",
+    "confidence": 0.9775022864341736
+  },
+  {
+    "old_name": "test_digits__less__[1, 7, 7, 1, 5]__1772472834.png",
+    "new_name": "17715_5a882a11.png",
+    "recognized_number": "17715",
+    "confidence": 0.7428253293037415
+  },
+  {
+    "old_name": "test_digits__less__[1, 7, 0, 9, 0]__1772519242.png",
+    "new_name": "17890_23c0362e.png",
+    "recognized_number": "17890",
+    "confidence": 0.9687671661376953
+  },
+  {
+    "old_name": "test_digits__less__[1, 6, 8, 3, 3]__1772144680.png",
+    "new_name": "16833_5e782b55.png",
+    "recognized_number": "16833",
+    "confidence": 0.99131178855896
+  },
+  {
+    "old_name": "test_digits__less__[1, 6, 8, 3, 3]__1772160254.png",
+    "new_name": "16833_afe0cb6b.png",
+    "recognized_number": "16833",
+    "confidence": 0.997459352016449
+  },
+  {
+    "old_name": "test_digits__less__[1, 7, 4, 3, 8]__1772351542.png",
+    "new_name": "18438_0533001b.png",
+    "recognized_number": "18438",
+    "confidence": 0.39266571402549744
+  },
+  {
+    "old_name": "test_digits__less__[1, 6, 7, 3, 7]__1772155332.png",
+    "new_name": "16833_1e922dcb.png",
+    "recognized_number": "16833",
+    "confidence": 0.981866717338562
+  },
+  {
+    "old_name": "test_digits__less__[1, 5, 4, 3, 0]__1771853935.png",
+    "new_name": "15438_9ceb33e9.png",
+    "recognized_number": "15438",
+    "confidence": 0.8641568422317505
+  },
+  {
+    "old_name": "test_digits__less__[1, 6, 0, 3, 7]__1772138353.png",
+    "new_name": "16033_8fed37b6.png",
+    "recognized_number": "16033",
+    "confidence": 0.8370096683502197
+  },
+  {
+    "old_name": "test_digits__less__[1, 7, 4, 3, 0]__1772369368.png",
+    "new_name": "17438_ceb68e91.png",
+    "recognized_number": "17438",
+    "confidence": 0.9706757664680481
+  },
+  {
+    "old_name": "test_digits__less__[1, 5, 0, 7, 2]__1771953107.png",
+    "new_name": "15872_980d2505.png",
+    "recognized_number": "15872",
+    "confidence": 0.9887757301330566
+  },
+  {
+    "old_name": "test_digits__less__[1, 7, 4, 3, 0]__1772361071.png",
+    "new_name": "17438_ad20a7a4.png",
+    "recognized_number": "17438",
+    "confidence": 0.9870807528495789
+  },
+  {
+    "old_name": "test_digits__less__[1, 6, 2, 4, 0]__1772037937.png",
+    "new_name": "16248_0e7ad723.png",
+    "recognized_number": "16248",
+    "confidence": 0.9896770119667053
+  },
+  {
+    "old_name": "test_digits__less__[1, 7, 4, 3, 0]__1772370528.png",
+    "new_name": "17438_d67164ae.png",
+    "recognized_number": "17438",
+    "confidence": 0.9776822924613953
+  },
+  {
+    "old_name": "test_digits__less__[1, 6, 0, 3, 7]__1772155016.png",
+    "new_name": "16833_14aad177.png",
+    "recognized_number": "16833",
+    "confidence": 0.8867265582084656
+  },
+  {
+    "old_name": "test_digits__less__[1, 6, 8, 3, 3]__1772159656.png",
+    "new_name": "16833_e2223483.png",
+    "recognized_number": "16833",
+    "confidence": 0.9977957010269165
+  },
+  {
+    "old_name": "test_digits__less__[1, 6, 0, 6, 0]__1772170767.png",
+    "new_name": "16868_2a641539.png",
+    "recognized_number": "16868",
+    "confidence": 0.7648267149925232
+  },
+  {
+    "old_name": "test_digits__less__[1, 6, 8, 3, 3]__1772142500.png",
+    "new_name": "16833_aaacac57.png",
+    "recognized_number": "16833",
+    "confidence": 0.9974959492683411
+  },
+  {
+    "old_name": "test_digits__less__[1, 5, 0, 1, 4]__1771951840.png",
+    "new_name": "15814_17b2efa5.png",
+    "recognized_number": "15814",
+    "confidence": 0.9885467290878296
+  },
+  {
+    "old_name": "test_digits__less__[1, 6, 9, 7, 0]__1772195049.png",
+    "new_name": "16978_7d06e2d2.png",
+    "recognized_number": "16978",
+    "confidence": 0.9952423572540283
+  },
+  {
+    "old_name": "test_digits__less__[1, 6, 0, 0, 5]__1772035616.png",
+    "new_name": "16085_03216618.png",
+    "recognized_number": "16085",
+    "confidence": 0.9686199426651001
+  },
+  {
+    "old_name": "test_digits__less__[1, 6, 0, 3, 3]__1772149707.png",
+    "new_name": "16833_8c7d68a0.png",
+    "recognized_number": "16833",
+    "confidence": 0.9765824675559998
+  },
+  {
+    "old_name": "test_digits__less__[1, 6, 7, 3, 3]__1772146016.png",
+    "new_name": "16833_bd27a1ad.png",
+    "recognized_number": "16833",
+    "confidence": 0.9945212602615356
+  },
+  {
+    "old_name": "test_digits__less__[1, 7, 0, 1, 5]__1772474804.png",
+    "new_name": "17015_696242fa.png",
+    "recognized_number": "17015",
+    "confidence": 0.9432463645935059
+  },
+  {
+    "old_name": "test_digits__less__[1, 6, 8, 3, 3]__1772133044.png",
+    "new_name": "16833_ef5a5dfd.png",
+    "recognized_number": "16833",
+    "confidence": 0.9951339364051819
+  },
+  {
+    "old_name": "test_digits__less__[1, 6, 3, 2, 0]__1772079252.png",
+    "new_name": "16328_bc262b7c.png",
+    "recognized_number": "16328",
+    "confidence": 0.9952823519706726
+  },
+  {
+    "old_name": "test_digits__less__[1, 6, 0, 6, 0]__1772169220.png",
+    "new_name": "16868_f3157f5d.png",
+    "recognized_number": "16868",
+    "confidence": 0.5162320137023926
+  },
+  {
+    "old_name": "test_digits__less__[1, 7, 3, 2, 0]__1772303649.png",
+    "new_name": "17328_aea92c34.png",
+    "recognized_number": "17328",
+    "confidence": 0.5350248217582703
+  },
+  {
+    "old_name": "test_digits__less__[1, 5, 5, 6, 0]__1771913573.png",
+    "new_name": "15568_48b0c4b8.png",
+    "recognized_number": "15568",
+    "confidence": 0.9867573976516724
+  },
+  {
+    "old_name": "test_digits__less__[1, 5, 0, 5, 7]__1771952825.png",
+    "new_name": "15857_29fd1120.png",
+    "recognized_number": "15857",
+    "confidence": 0.6722018718719482
+  },
+  {
+    "old_name": "test_digits__less__[1, 6, 0, 6, 0]__1772035334.png",
+    "new_name": "16068_8a519c06.png",
+    "recognized_number": "16068",
+    "confidence": 0.9876145124435425
+  },
+  {
+    "old_name": "test_digits__less__[1, 6, 5, 3, 0]__1772111563.png",
+    "new_name": "16538_42f8c125.png",
+    "recognized_number": "16538",
+    "confidence": 0.9932825565338135
+  },
+  {
+    "old_name": "test_digits__less__[1, 5, 0, 8, 4]__1771998427.png",
+    "new_name": "15884_8efd70d0.png",
+    "recognized_number": "15884",
+    "confidence": 0.7992498874664307
+  },
+  {
+    "old_name": "test_digits__less__[1, 7, 3, 0, 9]__1772343873.png",
+    "new_name": "17389_078c626e.png",
+    "recognized_number": "17389",
+    "confidence": 0.9771245121955872
+  },
+  {
+    "old_name": "test_digits__less__[1, 6, 8, 3, 3]__1772132552.png",
+    "new_name": "16833_25fd07b2.png",
+    "recognized_number": "16833",
+    "confidence": 0.9949818253517151
+  },
+  {
+    "old_name": "test_digits__less__[1, 7, 0, 0, 7]__1772196103.png",
+    "new_name": "17003_c3de0658.png",
+    "recognized_number": "17003",
+    "confidence": 0.6646159291267395
+  },
+  {
+    "old_name": "test_digits__less__[1, 6, 8, 3, 3]__1772135013.png",
+    "new_name": "16833_693f334a.png",
+    "recognized_number": "16833",
+    "confidence": 0.9973927736282349
+  },
+  {
+    "old_name": "test_digits__less__[1, 6, 8, 3, 3]__1772153539.png",
+    "new_name": "16833_3d93da8b.png",
+    "recognized_number": "16833",
+    "confidence": 0.9979974627494812
+  },
+  {
+    "old_name": "test_digits__less__[1, 7, 6, 1, 4]__1772448184.png",
+    "new_name": "17619_86d5d5bb.png",
+    "recognized_number": "17619",
+    "confidence": 0.6220846772193909
+  },
+  {
+    "old_name": "test_digits__less__[1, 7, 0, 4, 0]__1772253740.png",
+    "new_name": "17048_0dd00291.png",
+    "recognized_number": "17048",
+    "confidence": 0.9476521015167236
+  },
+  {
+    "old_name": "test_digits__less__[1, 7, 2, 2, 0]__1772284516.png",
+    "new_name": "17228_a811f27b.png",
+    "recognized_number": "17228",
+    "confidence": 0.9884175658226013
+  },
+  {
+    "old_name": "test_digits__less__[1, 6, 8, 3, 3]__1772154840.png",
+    "new_name": "16833_a2c16ba1.png",
+    "recognized_number": "16833",
+    "confidence": 0.9898344278335571
+  },
+  {
+    "old_name": "test_digits__less__[1, 7, 6, 2, 4]__1772448677.png",
+    "new_name": "18629_f67c5120.png",
+    "recognized_number": "18629",
+    "confidence": 0.36559435725212097
+  },
+  {
+    "old_name": "test_digits__less__[1, 6, 0, 3, 3]__1772165527.png",
+    "new_name": "16833_9bd04eb5.png",
+    "recognized_number": "16833",
+    "confidence": 0.9893674254417419
+  },
+  {
+    "old_name": "test_digits__less__[1, 5, 9, 1, 0]__1772004335.png",
+    "new_name": "15918_4260543c.png",
+    "recognized_number": "15918",
+    "confidence": 0.9725391268730164
+  },
+  {
+    "old_name": "test_digits__less__[1, 7, 1, 8, 4]__1772258451.png",
+    "new_name": "13189_c0e38d8c.png",
+    "recognized_number": "13189",
+    "confidence": 0.40459495782852173
+  },
+  {
+    "old_name": "test_digits__less__[1, 7, 7, 6, 4]__1772473819.png",
+    "new_name": "18769_c7c73bf2.png",
+    "recognized_number": "18769",
+    "confidence": 0.5331100225448608
+  },
+  {
+    "old_name": "test_digits__less__[1, 6, 8, 3, 3]__1772136700.png",
+    "new_name": "16833_9177a901.png",
+    "recognized_number": "16833",
+    "confidence": 0.9953227639198303
+  },
+  {
+    "old_name": "test_digits__less__[1, 6, 8, 3, 3]__1772145981.png",
+    "new_name": "16833_c3ccea40.png",
+    "recognized_number": "16833",
+    "confidence": 0.9944210648536682
+  },
+  {
+    "old_name": "test_digits__less__[1, 6, 9, 8, 4]__1772195400.png",
+    "new_name": "16989_19e2b9ee.png",
+    "recognized_number": "16989",
+    "confidence": 0.8270383477210999
+  },
+  {
+    "old_name": "test_digits__less__[1, 6, 9, 8, 0]__1772195787.png",
+    "new_name": "16988_066cf326.png",
+    "recognized_number": "16988",
+    "confidence": 0.8300790786743164
+  },
+  {
+    "old_name": "test_digits__less__[1, 6, 8, 3, 3]__1772140040.png",
+    "new_name": "16833_8c9f4daf.png",
+    "recognized_number": "16833",
+    "confidence": 0.9980844259262085
+  },
+  {
+    "old_name": "test_digits__less__[1, 6, 0, 2, 4]__1772124520.png",
+    "new_name": "16824_7c453770.png",
+    "recognized_number": "16824",
+    "confidence": 0.6616647839546204
+  },
+  {
+    "old_name": "test_digits__less__[1, 6, 8, 3, 3]__1772136982.png",
+    "new_name": "16833_d5e4d811.png",
+    "recognized_number": "16833",
+    "confidence": 0.9992363452911377
+  },
+  {
+    "old_name": "test_digits__less__[1, 5, 3, -1, 7]__1771851542.png",
+    "new_name": "15387_bcaf3942.png",
+    "recognized_number": "15387",
+    "confidence": 0.9983170032501221
+  },
+  {
+    "old_name": "test_digits__less__[1, 7, 8, 5, 5]__1772518398.png",
+    "new_name": "18855_65157d48.png",
+    "recognized_number": "18855",
+    "confidence": 0.6137866973876953
+  },
+  {
+    "old_name": "test_digits__less__[1, 6, 8, 3, 3]__1772154242.png",
+    "new_name": "16833_510f34f4.png",
+    "recognized_number": "16833",
+    "confidence": 0.9954532384872437
+  },
+  {
+    "old_name": "test_digits__less__[1, 5, 9, 8, 0]__1772027983.png",
+    "new_name": "15988_b4ce59eb.png",
+    "recognized_number": "15988",
+    "confidence": 0.9940387010574341
+  },
+  {
+    "old_name": "test_digits__less__[1, 7, 6, 0, 6]__1772463236.png",
+    "new_name": "17686_661b5317.png",
+    "recognized_number": "17686",
+    "confidence": 0.9914789795875549
+  },
+  {
+    "old_name": "test_digits__less__[1, 6, 0, 9, 0]__1772171365.png",
+    "new_name": "16890_63b92826.png",
+    "recognized_number": "16890",
+    "confidence": 0.9795809388160706
+  },
+  {
+    "old_name": "test_digits__less__[1, 5, 9, 3, 0]__1772017671.png",
+    "new_name": "15938_4b4d242d.png",
+    "recognized_number": "15938",
+    "confidence": 0.9428227543830872
+  },
+  {
+    "old_name": "test_digits__less__[1, 7, 4, 3, 8]__1772356465.png",
+    "new_name": "17438_60930a0f.png",
+    "recognized_number": "17438",
+    "confidence": 0.5321170091629028
+  },
+  {
+    "old_name": "test_digits__less__[1, 6, 0, 6, 0]__1772169431.png",
+    "new_name": "16868_caaf5218.png",
+    "recognized_number": "16868",
+    "confidence": 0.9073939919471741
+  },
+  {
+    "old_name": "test_digits__less__[1, 6, 8, 3, 3]__1772142641.png",
+    "new_name": "16833_ef6dfb1f.png",
+    "recognized_number": "16833",
+    "confidence": 0.9973624348640442
+  },
+  {
+    "old_name": "test_digits__less__[1, 6, 0, 3, 7]__1772128813.png",
+    "new_name": "16033_71dabb27.png",
+    "recognized_number": "16033",
+    "confidence": 0.8193578720092773
+  },
+  {
+    "old_name": "test_digits__less__[1, 6, 8, 3, 3]__1772164999.png",
+    "new_name": "16833_c9abe12d.png",
+    "recognized_number": "16833",
+    "confidence": 0.9989306330680847
+  },
+  {
+    "old_name": "test_digits__less__[1, 6, 8, 3, 3]__1772139829.png",
+    "new_name": "16833_64321e7a.png",
+    "recognized_number": "16833",
+    "confidence": 0.9932646751403809
+  },
+  {
+    "old_name": "test_digits__less__[1, 6, 4, 0, 0]__1772083964.png",
+    "new_name": "16408_13ae7e60.png",
+    "recognized_number": "16408",
+    "confidence": 0.9602941274642944
+  },
+  {
+    "old_name": "test_digits__less__[1, 5, 0, 2, 6]__1771952262.png",
+    "new_name": "15826_747c0313.png",
+    "recognized_number": "15826",
+    "confidence": 0.9141265749931335
+  },
+  {
+    "old_name": "test_digits__less__[1, 6, 8, 3, 3]__1772130793.png",
+    "new_name": "16833_3d4bbe49.png",
+    "recognized_number": "16833",
+    "confidence": 0.9976600408554077
+  },
+  {
+    "old_name": "test_digits__less__[1, 6, 6, 3, 0]__1772118295.png",
+    "new_name": "16636_93213146.png",
+    "recognized_number": "16636",
+    "confidence": 0.9290241599082947
+  },
+  {
+    "old_name": "test_digits__less__[1, 6, 7, 3, 7]__1772146122.png",
+    "new_name": "16833_d4b76d15.png",
+    "recognized_number": "16833",
+    "confidence": 0.9909242987632751
+  },
+  {
+    "old_name": "test_digits__less__[1, 7, 0, 0, 3]__1772196138.png",
+    "new_name": "17003_765ce1c4.png",
+    "recognized_number": "17003",
+    "confidence": 0.8052018880844116
+  },
+  {
+    "old_name": "test_digits__less__[1, 6, 8, 3, 3]__1772157758.png",
+    "new_name": "16833_8bd0a76a.png",
+    "recognized_number": "16833",
+    "confidence": 0.9985155463218689
+  },
+  {
+    "old_name": "test_digits__less__[1, 5, -1, 6, 5]__1771952966.png",
+    "new_name": "15865_a389d613.png",
+    "recognized_number": "15865",
+    "confidence": 0.9922307133674622
+  },
+  {
+    "old_name": "test_digits__less__[1, 6, 8, 3, 3]__1772143626.png",
+    "new_name": "16833_5b5c2386.png",
+    "recognized_number": "16833",
+    "confidence": 0.9965213537216187
+  },
+  {
+    "old_name": "test_digits__less__[1, 6, 8, 3, 3]__1772149848.png",
+    "new_name": "16833_1e9aa440.png",
+    "recognized_number": "16833",
+    "confidence": 0.998134195804596
+  },
+  {
+    "old_name": "test_digits__less__[1, 6, 8, 3, 3]__1772127896.png",
+    "new_name": "16833_cb1b8c7c.png",
+    "recognized_number": "16833",
+    "confidence": 0.9970731735229492
+  },
+  {
+    "old_name": "test_digits__less__[1, 7, 6, 7, 0]__1772463095.png",
+    "new_name": "17678_bb7b0092.png",
+    "recognized_number": "17678",
+    "confidence": 0.9708176255226135
+  },
+  {
+    "old_name": "test_digits__less__[1, -1, 2, 3, 0]__1771520492.png",
+    "new_name": "14230_91adbb29.png",
+    "recognized_number": "14230",
+    "confidence": 0.7060340046882629
+  },
+  {
+    "old_name": "test_digits__less__[1, 6, 1, 3, 0]__1772036741.png",
+    "new_name": "16138_439f8330.png",
+    "recognized_number": "16138",
+    "confidence": 0.9633862972259521
+  },
+  {
+    "old_name": "test_digits__less__[1, 7, 0, 6, 7]__1772518539.png",
+    "new_name": "17863_40fdaccf.png",
+    "recognized_number": "17863",
+    "confidence": 0.9868887662887573
+  },
+  {
+    "old_name": "test_digits__less__[1, 6, 0, 3, 0]__1772034243.png",
+    "new_name": "16038_ceecaf58.png",
+    "recognized_number": "16038",
+    "confidence": 0.9970632195472717
+  },
+  {
+    "old_name": "test_digits__less__[1, 7, 0, 2, 4]__1772512807.png",
+    "new_name": "17829_e6bfc4ad.png",
+    "recognized_number": "17829",
+    "confidence": 0.7510577440261841
+  },
+  {
+    "old_name": "test_digits__less__[1, 6, 8, 3, 3]__1772165843.png",
+    "new_name": "16833_029a9a6b.png",
+    "recognized_number": "16833",
+    "confidence": 0.9988017082214355
+  },
+  {
+    "old_name": "test_digits__less__[1, 6, 7, 0, 0]__1772122762.png",
+    "new_name": "16788_e85321ff.png",
+    "recognized_number": "16788",
+    "confidence": 0.9102824926376343
+  },
+  {
+    "old_name": "test_digits__less__[1, 7, 5, 2, 0]__1772380765.png",
+    "new_name": "17528_4cd1cac4.png",
+    "recognized_number": "17528",
+    "confidence": 0.9757333397865295
+  },
+  {
+    "old_name": "test_digits__less__[1, 6, 8, 3, 3]__1772135364.png",
+    "new_name": "16833_0e31fce3.png",
+    "recognized_number": "16833",
+    "confidence": 0.9987784028053284
+  },
+  {
+    "old_name": "test_digits__less__[1, 7, 0, 2, 0]__1772474909.png",
+    "new_name": "17820_df091efb.png",
+    "recognized_number": "17820",
+    "confidence": 0.5053523182868958
+  },
+  {
+    "old_name": "test_digits__less__[1, 7, 4, 1, 0]__1772345878.png",
+    "new_name": "17418_71f7bddc.png",
+    "recognized_number": "17418",
+    "confidence": 0.9877525568008423
+  },
+  {
+    "old_name": "test_digits__less__[1, 7, 5, 4, 1]__1772387238.png",
+    "new_name": "17541_c3630f3c.png",
+    "recognized_number": "17541",
+    "confidence": 0.3916666805744171
+  },
+  {
+    "old_name": "test_digits__less__[1, 7, 5, 7, 3]__1772432393.png",
+    "new_name": "17573_395502ac.png",
+    "recognized_number": "17573",
+    "confidence": 0.4521799385547638
+  },
+  {
+    "old_name": "test_digits__less__[1, 6, 0, 3, 3]__1772134521.png",
+    "new_name": "16033_74c0031d.png",
+    "recognized_number": "16033",
+    "confidence": 0.8244135975837708
+  },
+  {
+    "old_name": "test_digits__less__[1, 7, 8, 8, 0]__1772519207.png",
+    "new_name": "13888_b306b60e.png",
+    "recognized_number": "13888",
+    "confidence": 0.4420192241668701
+  },
+  {
+    "old_name": "test_digits__less__[1, 6, 8, 3, 3]__1772152977.png",
+    "new_name": "16833_ee63589f.png",
+    "recognized_number": "16833",
+    "confidence": 0.9996371269226074
+  },
+  {
+    "old_name": "test_digits__less__[1, 6, 8, 3, 3]__1772137403.png",
+    "new_name": "16833_816c5ff6.png",
+    "recognized_number": "16833",
+    "confidence": 0.9966961145401001
+  },
+  {
+    "old_name": "test_digits__less__[1, 6, 4, 2, 0]__1772097081.png",
+    "new_name": "16428_74ef241a.png",
+    "recognized_number": "16428",
+    "confidence": 0.9957277774810791
+  },
+  {
+    "old_name": "test_digits__less__[1, 6, 8, 3, 3]__1772151395.png",
+    "new_name": "16833_d10dd013.png",
+    "recognized_number": "16833",
+    "confidence": 0.9962538480758667
+  },
+  {
+    "old_name": "test_digits__less__[1, 6, 8, 3, 3]__1772124731.png",
+    "new_name": "16833_222b8968.png",
+    "recognized_number": "16833",
+    "confidence": 0.9974222183227539
+  },
+  {
+    "old_name": "test_digits__less__[1, 7, 2, 1, 5]__1772284200.png",
+    "new_name": "13215_e0953400.png",
+    "recognized_number": "13215",
+    "confidence": 0.4894700348377228
+  },
+  {
+    "old_name": "test_digits__less__[1, 7, 0, 2, 9]__1772449169.png",
+    "new_name": "17629_fb5dcc36.png",
+    "recognized_number": "17629",
+    "confidence": 0.968596875667572
+  },
+  {
+    "old_name": "test_digits__less__[1, 6, 0, 3, 3]__1772138950.png",
+    "new_name": "16833_d2581422.png",
+    "recognized_number": "16833",
+    "confidence": 0.8631479740142822
+  },
+  {
+    "old_name": "test_digits__less__[1, 6, 0, 3, 7]__1772141727.png",
+    "new_name": "16833_2deac3d3.png",
+    "recognized_number": "16833",
+    "confidence": 0.8025222420692444
+  },
+  {
+    "old_name": "test_digits__less__[1, 7, -1, 8, 7]__1772276955.png",
+    "new_name": "17187_379e141d.png",
+    "recognized_number": "17187",
+    "confidence": 0.7347294688224792
+  },
+  {
+    "old_name": "test_digits__less__[1, 5, 7, 0, 0]__1771951383.png",
+    "new_name": "15708_e966a223.png",
+    "recognized_number": "15708",
+    "confidence": 0.6565402746200562
+  },
+  {
+    "old_name": "test_digits__less__[1, 6, 0, 3, 7]__1772135400.png",
+    "new_name": "16833_204fb49e.png",
+    "recognized_number": "16833",
+    "confidence": 0.8160693645477295
+  },
+  {
+    "old_name": "test_digits__less__[1, 6, 7, 8, 4]__1772171259.png",
+    "new_name": "16884_bb1e39da.png",
+    "recognized_number": "16884",
+    "confidence": 0.828424334526062
+  },
+  {
+    "old_name": "test_digits__less__[1, 5, 9, 8, 0]__1772033434.png",
+    "new_name": "15988_b69654ae.png",
+    "recognized_number": "15988",
+    "confidence": 0.9575706124305725
+  },
+  {
+    "old_name": "test_digits__less__[1, 6, 5, 7, 0]__1772117330.png",
+    "new_name": "16578_599bb951.png",
+    "recognized_number": "16578",
+    "confidence": 0.9367976784706116
+  },
+  {
+    "old_name": "test_digits__less__[1, 6, 8, 3, 3]__1772160008.png",
+    "new_name": "16833_9f6baef3.png",
+    "recognized_number": "16833",
+    "confidence": 0.9989956021308899
+  },
+  {
+    "old_name": "test_digits__less__[1, 6, 0, 3, 3]__1772144856.png",
+    "new_name": "16833_deedabf2.png",
+    "recognized_number": "16833",
+    "confidence": 0.959535539150238
+  },
+  {
+    "old_name": "test_digits__less__[1, 6, 8, 3, 3]__1772151500.png",
+    "new_name": "16833_8f9df4d2.png",
+    "recognized_number": "16833",
+    "confidence": 0.9941353797912598
+  },
+  {
+    "old_name": "test_digits__less__[-1, 2, 2, 1]__1771512288.png",
+    "new_name": "14221_5273f779.png",
+    "recognized_number": "14221",
+    "confidence": 0.617283284664154
+  },
+  {
+    "old_name": "test_digits__less__[1, 6, 4, 6, 9]__1772102074.png",
+    "new_name": "16469_4ee6b225.png",
+    "recognized_number": "16469",
+    "confidence": 0.9495651125907898
+  },
+  {
+    "old_name": "test_digits__less__[1, 6, 0, 3, 9]__1772167145.png",
+    "new_name": "16839_36921363.png",
+    "recognized_number": "16839",
+    "confidence": 0.9530220627784729
+  },
+  {
+    "old_name": "test_digits__less__[1, 6, 0, 9, 7]__1772171470.png",
+    "new_name": "16897_1093ced3.png",
+    "recognized_number": "16897",
+    "confidence": 0.8815450072288513
+  },
+  {
+    "old_name": "test_digits__less__[1, 6, 8, 3, 3]__1772161308.png",
+    "new_name": "16833_2be4ba42.png",
+    "recognized_number": "16833",
+    "confidence": 0.997527539730072
+  },
+  {
+    "old_name": "test_digits__less__[1, 6, 8, 3, 3]__1772152731.png",
+    "new_name": "16833_f3972af1.png",
+    "recognized_number": "16833",
+    "confidence": 0.9952232241630554
+  },
+  {
+    "old_name": "test_digits__less__[1, 6, 0, 0, 0]__1772033715.png",
+    "new_name": "16008_46ea7657.png",
+    "recognized_number": "16008",
+    "confidence": 0.9936479926109314
+  },
+  {
+    "old_name": "test_digits__less__[1, 6, 8, 3, 7]__1772141657.png",
+    "new_name": "16833_e1128afe.png",
+    "recognized_number": "16833",
+    "confidence": 0.995502769947052
+  },
+  {
+    "old_name": "test_digits__less__[1, 6, 0, 6, 0]__1772169747.png",
+    "new_name": "16868_13cbc274.png",
+    "recognized_number": "16868",
+    "confidence": 0.9715449810028076
+  },
+  {
+    "old_name": "test_digits__less__[1, 6, 6, 9, 0]__1772119737.png",
+    "new_name": "16698_2795b2c2.png",
+    "recognized_number": "16698",
+    "confidence": 0.9853274822235107
+  },
+  {
+    "old_name": "test_digits__less__[1, 6, 0, 6, 0]__1772168270.png",
+    "new_name": "16868_2d230459.png",
+    "recognized_number": "16868",
+    "confidence": 0.9349104166030884
+  },
+  {
+    "old_name": "test_digits__less__[1, 6, 8, 3, 3]__1772146192.png",
+    "new_name": "16833_2492ae6f.png",
+    "recognized_number": "16833",
+    "confidence": 0.9975946545600891
+  },
+  {
+    "old_name": "test_digits__less__[1, 6, 8, 3, 3]__1772150129.png",
+    "new_name": "16833_9e1bec42.png",
+    "recognized_number": "16833",
+    "confidence": 0.9891790151596069
+  },
+  {
+    "old_name": "test_digits__less__[1, 6, 8, 3, 3]__1772158426.png",
+    "new_name": "16833_5cff65a5.png",
+    "recognized_number": "16833",
+    "confidence": 0.9910973310470581
+  },
+  {
+    "old_name": "test_digits__less__[1, 7, 0, 5, 2]__1772518328.png",
+    "new_name": "17852_596df57f.png",
+    "recognized_number": "17852",
+    "confidence": 0.9786754250526428
+  },
+  {
+    "old_name": "test_digits__less__[1, 7, 6, 3, 5]__1772452757.png",
+    "new_name": "17635_e7bea60b.png",
+    "recognized_number": "17635",
+    "confidence": 0.6897894144058228
+  },
+  {
+    "old_name": "test_digits__less__[1, 6, 8, 3, 3]__1772162117.png",
+    "new_name": "16833_7200484a.png",
+    "recognized_number": "16833",
+    "confidence": 0.9947850108146667
+  },
+  {
+    "old_name": "test_digits__less__[1, 3, 0, 7, 1]__1771414447.png",
+    "new_name": "13871_a9e73ed5.png",
+    "recognized_number": "13871",
+    "confidence": 0.990856945514679
+  },
+  {
+    "old_name": "test_digits__less__[1, 7, 1, 9, 5]__1772280471.png",
+    "new_name": "17195_fdbf7b02.png",
+    "recognized_number": "17195",
+    "confidence": 0.5812092423439026
+  },
+  {
+    "old_name": "test_digits__less__[1, 7, 3, 9, 1]__1772344014.png",
+    "new_name": "17397_b9bc9e08.png",
+    "recognized_number": "17397",
+    "confidence": 0.8684012293815613
+  },
+  {
+    "old_name": "test_digits__less__[1, -1, 2, 3, 0]__1771518057.png",
+    "new_name": "14230_59076de9.png",
+    "recognized_number": "14230",
+    "confidence": 0.902459442615509
+  },
+  {
+    "old_name": "test_digits__less__[1, 6, 7, 1, 0]__1772120089.png",
+    "new_name": "16716_5f55bc09.png",
+    "recognized_number": "16716",
+    "confidence": 0.9918696880340576
+  },
+  {
+    "old_name": "test_digits__less__[1, 6, 8, 3, 3]__1772148547.png",
+    "new_name": "16833_dc454ef3.png",
+    "recognized_number": "16833",
+    "confidence": 0.9935130476951599
+  },
+  {
+    "old_name": "test_digits__less__[1, 6, 0, 3, 3]__1772160289.png",
+    "new_name": "16033_fbbe6256.png",
+    "recognized_number": "16033",
+    "confidence": 0.5573239326477051
+  },
+  {
+    "old_name": "test_digits__less__[1, 6, 0, 3, 3]__1772137017.png",
+    "new_name": "16833_6da6c929.png",
+    "recognized_number": "16833",
+    "confidence": 0.7182517647743225
+  }
+]
