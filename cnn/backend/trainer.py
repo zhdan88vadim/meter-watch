@@ -10,6 +10,12 @@ import torchvision.utils as vutils
 from torch.utils.tensorboard import SummaryWriter
 from models.digit_recognizer import DigitRecognizer
 import yaml
+import numpy as np
+import matplotlib.pyplot as plt
+from sklearn.metrics import confusion_matrix, classification_report
+import seaborn as sns
+from pathlib import Path
+from sklearn.metrics import confusion_matrix, classification_report
 
 def load_config(config_path='config/config.yaml'):
     """Loads the configuration"""
@@ -142,6 +148,10 @@ class ModelTrainer:
             global_step = 0
             best_accuracy = 0
             model_path = None
+
+            # Store predictions for final confusion matrix
+            all_val_preds = []
+            all_val_labels = []            
             
             for epoch in range(epochs):
                 self.model.train()
@@ -175,12 +185,17 @@ class ModelTrainer:
                 writer.add_scalar('Training/Epoch Loss', avg_loss, epoch)
                 
                 if val_loader:
-                    val_accuracy = self._validate(val_loader, criterion)
+                    val_accuracy, val_preds, val_labels = self._validate_with_predictions(val_loader, criterion)
                     self.val_accuracies.append(val_accuracy)
                     scheduler.step(100 - val_accuracy)
                     writer.add_scalar('Validation/Accuracy', val_accuracy, epoch)
                     writer.add_scalar('Validation/Loss', 100 - val_accuracy, epoch)
-                
+                    
+                    # Store predictions for confusion matrix
+                    all_val_preds.extend(val_preds)
+                    all_val_labels.extend(val_labels)
+
+
                 if (epoch + 1) % 5 == 0 or epoch == 0:
                     progress = f"Epoch [{epoch+1}/{epochs}] - Loss: {avg_loss:.4f}"
                     if val_loader:
@@ -191,7 +206,37 @@ class ModelTrainer:
                     best_accuracy = val_accuracy
                     model_path = self._save_model()
                     print(f"Saved new best model with accuracy: {val_accuracy:.2f}%")                    
-            
+
+
+            # After training, create confusion matrix
+            if all_val_preds and all_val_labels:
+                self._plot_confusion_matrix(
+                    all_val_labels, 
+                    all_val_preds, 
+                    classes,
+                    writer,
+                    epoch
+                )
+                
+                # Generate classification report
+                report = classification_report(
+                    all_val_labels, 
+                    all_val_preds, 
+                    target_names=classes,
+                    digits=3
+                )
+                print("\n📊 Classification Report:")
+                print(report)
+                
+                # Save report to file
+                report_path = Path("classification_report.txt")
+                with open(report_path, 'w') as f:
+                    f.write("Classification Report\n")
+                    f.write("=" * 50 + "\n")
+                    f.write(report)
+                    f.write(f"\n\nBest Accuracy: {best_accuracy:.2f}%")
+                print(f"✅ Report saved to {report_path}")
+
             training_time = time.time() - start_time
             print(f"Training completed in {training_time:.2f}s")
             
@@ -302,13 +347,72 @@ class ModelTrainer:
         
         return Config.MODEL_PATH
 
-    def _validate(self, val_loader, criterion):
+    def _plot_confusion_matrix(self, y_true, y_pred, classes, writer, epoch):
+            """
+            Создает и сохраняет confusion matrix в TensorBoard и локально
+            """
+            # Compute confusion matrix
+            cm = confusion_matrix(y_true, y_pred)
+            
+            # Normalize confusion matrix (percentage)
+            cm_normalized = cm.astype('float') / cm.sum(axis=1)[:, np.newaxis]
+            cm_normalized = np.nan_to_num(cm_normalized)  # Replace NaN with 0
+            
+            # Create figure with two subplots
+            fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(20, 8))
+            
+            # Plot 1: Raw counts
+            sns.heatmap(cm, annot=True, fmt='d', cmap='Blues', 
+                        xticklabels=classes, yticklabels=classes,
+                        ax=ax1, cbar=True)
+            ax1.set_title('Confusion Matrix (Counts)', fontsize=16, fontweight='bold')
+            ax1.set_xlabel('Predicted', fontsize=12)
+            ax1.set_ylabel('True', fontsize=12)
+            
+            # Plot 2: Normalized (percentages)
+            sns.heatmap(cm_normalized, annot=True, fmt='.2f', cmap='Reds',
+                        xticklabels=classes, yticklabels=classes,
+                        ax=ax2, cbar=True)
+            ax2.set_title('Confusion Matrix (Normalized)', fontsize=16, fontweight='bold')
+            ax2.set_xlabel('Predicted', fontsize=12)
+            ax2.set_ylabel('True', fontsize=12)
+            
+            plt.tight_layout()
+            
+            # Save to TensorBoard
+            writer.add_figure('Validation/Confusion_Matrix', fig, epoch)
+            
+            # Save locally
+            os.makedirs('logs/confusion_matrices', exist_ok=True)
+            timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+            fig.savefig(f'logs/confusion_matrices/confusion_matrix_{timestamp}.png', 
+                        dpi=300, bbox_inches='tight', facecolor='white')
+            fig.savefig(f'logs/confusion_matrices/confusion_matrix_epoch_{epoch}.png', 
+                        dpi=300, bbox_inches='tight', facecolor='white')
+            plt.close()
+            
+            # Print class-wise accuracy
+            print("\n📊 Class-wise Accuracy:")
+            print("=" * 40)
+            for i, class_name in enumerate(classes):
+                if cm[i].sum() > 0:
+                    class_acc = cm[i, i] / cm[i].sum() * 100
+                    print(f"{class_name}: {class_acc:.2f}%")
+            
+            # Calculate overall metrics
+            accuracy = np.trace(cm) / np.sum(cm) * 100
+            print(f"\n📊 Overall Accuracy: {accuracy:.2f}%")
+
+
+    def _validate_with_predictions(self, val_loader, criterion):
         """Validate the model"""
         self.model.eval()
         correct = 0
         total = 0
         val_loss = 0.0
-        
+        all_preds = []
+        all_labels = []        
+
         with torch.no_grad():
             for images, labels in val_loader:
                 images, labels = images.to(self.device), labels.to(self.device)
@@ -319,17 +423,23 @@ class ModelTrainer:
                 _, predicted = torch.max(outputs.data, 1)
                 total += labels.size(0)
                 correct += (predicted == labels).sum().item()
+                
+                # Store predictions
+                all_preds.extend(predicted.cpu().numpy())
+                all_labels.extend(labels.cpu().numpy())                
         
         accuracy = 100 * correct / total
-        return accuracy
+        return accuracy, all_preds, all_labels
 
 
 if __name__ == '__main__':
     trainer = ModelTrainer()
     trainer.train_from_folder(
-        dataset_path="/media/vadim/1TB_SSD/my_github/meter-watch/dataset",
+        # dataset_path="/media/vadim/1TB_SSD/my_github/meter-watch/dataset",
+        # dataset_path="/media/vadim/1TB_SSD/my_github/meter-watch/dataset_val_test",
+        dataset_path="/media/vadim/1TB_SSD/my_github/meter-watch/dataset_val",
         # dataset_path=Config.TRAINING_DATA_DIR,
-        epochs=50,
+        epochs=90,
         batch_size=64,
         learning_rate=0.0005
     )

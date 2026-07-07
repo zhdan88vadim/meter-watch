@@ -3,6 +3,7 @@ import cv2
 import torch
 from torchvision import transforms
 import numpy as np
+from typing import Union, Tuple
 
 from PIL import Image, ImageDraw, ImageFilter, ImageOps
 import random
@@ -41,12 +42,12 @@ class AdaptiveAugmentationBuilder:
 
         return transforms.Compose([
             transforms.Grayscale(num_output_channels=1),
-            ExtractLetterWithMargin(margin=10, fill_white=False),
-            SquarePad(fill_white=False),
-            transforms.Resize(image_size),
+            # SquarePadAdaptBackground(min_size=128),
+            # ExtractLetterWithMargin(margin=10, fill_white=False),
+            # transforms.Resize(image_size),
             # Binarize(threshold=20, fill_white=True),
             # transforms.RandomResizedCrop(image_size, scale=(0.8, 1.0)),
-            transforms.RandomRotation(15),
+            transforms.RandomRotation(2),
             # AddRandomBlobs(p=0.5, num_blobs=(3, 5), 
             #               blob_size=params['blob_size'], intensity=(250, 255)),
             # AddRandomBlobs(p=0.5, num_blobs=(3, 5),
@@ -56,11 +57,11 @@ class AdaptiveAugmentationBuilder:
             # RandomStrokeWidth(p=0.5, thickness_range=params['stroke_width']),
             # RandomBleed(p=0.5, blur_radius=params['blur_radius']),
             # RandomMissingPart(p=0.5, cut_size=params['cut_size']),
-            transforms.RandomAffine(
-                degrees=params['degrees'],
-                translate=params['translate'],
-                shear=params['shear']
-            ),
+            # transforms.RandomAffine(
+            #     degrees=params['degrees'],
+            #     translate=params['translate'],
+            #     shear=params['shear']
+            # ),
             transforms.ToTensor(),         
             transforms.Normalize(mean=[0.5], std=[0.5])
         ])
@@ -70,8 +71,8 @@ class AdaptiveAugmentationBuilder:
         return transforms.Compose([
             transforms.Grayscale(num_output_channels=1),
             # Invert(),
-            ExtractLetterWithMargin(margin=10, fill_white=False),
-            SquarePad(fill_white=False),
+            ExtractLetterWithMargin(margin=10, fill_white=None),
+            SquarePadAdaptBackground(),
             transforms.Resize(image_size),
             # Binarize(threshold=20, fill_white=True),
             # Invert(),
@@ -126,7 +127,102 @@ class Binarize:
 #         else:
 #             # Полностью бинарное: выше порога - белые, ниже - черные
 #             return torch.where(image > threshold_norm, torch.tensor(1.0), torch.tensor(0.0))
+ 
+class OnlyBrighten:
+    """Увеличивает яркость случайным образом, но не уменьшает."""
+    
+    def __init__(self, max_brightness=2):
+        """
+        Args:
+            max_brightness: Максимальный коэффициент увеличения яркости (1.0 - без изменений)
+        """
+        self.max_brightness = max_brightness
+    
+    def __call__(self, img):
+        # Случайный коэффициент от 1.0 до max_brightness
+        brightness_factor = 1.0 + random.random() * (self.max_brightness - 1.0)
+        return transforms.functional.adjust_brightness(img, brightness_factor)
+
+class SquarePadAdaptBackground:
+    """
+    Дополняет изображение до квадрата или до минимальных размеров,
+    заливая фон средним цветом краев.
+    
+    Args:
+        border_size: Сколько пикселей брать с края для вычисления цвета фона
+        min_size: Минимальный размер (ширина, высота) или одно число для обеих сторон.
+                  Если None, то дополняет до квадрата по максимальной стороне.
+                  Если задано, то доводит каждую сторону как минимум до этого значения.
+    """
+    def __init__(self, border_size: int = 2, min_size: Union[int, Tuple[int, int]] = None):
+        self.border_size = border_size
         
+        # Нормализуем min_size
+        if min_size is None:
+            self.min_size = None
+        elif isinstance(min_size, int):
+            self.min_size = (min_size, min_size)
+        else:
+            self.min_size = tuple(min_size)  # (width, height)
+
+    def __call__(self, img: Image.Image) -> Image.Image:
+        img_np = np.array(img)
+        h, w = img_np.shape[:2]
+        
+        # Определяем целевые размеры
+        if self.min_size is not None:
+            target_w = max(w, self.min_size[0])
+            target_h = max(h, self.min_size[1])
+        else:
+            # Старое поведение - квадрат по максимальной стороне
+            target_w = target_h = max(w, h)
+        
+        # Если уже подходит по размерам, возвращаем как есть
+        if w >= target_w and h >= target_h:
+            return img
+        
+        # Вычисляем цвет фона
+        fill_color = self._compute_fill_color(img_np)
+        
+        # Считаем отступы
+        pad_left = (target_w - w) // 2
+        pad_top = (target_h - h) // 2
+        pad_right = target_w - w - pad_left
+        pad_bottom = target_h - h - pad_top
+        
+        padding = (pad_left, pad_top, pad_right, pad_bottom)
+        img_padded = ImageOps.expand(img, padding, fill=fill_color)
+        
+        return img_padded
+    
+    def _compute_fill_color(self, img_np: np.ndarray):
+        """Вычисляет средний цвет краев изображения."""
+        b = self.border_size
+        h, w = img_np.shape[:2]
+        
+        if len(img_np.shape) == 2:
+            # Градации серого
+            edges = np.concatenate([
+                img_np[:b, :].ravel(),
+                img_np[-b:, :].ravel(),
+                img_np[:, :b].ravel(),
+                img_np[:, -b:].ravel()
+            ])
+            median_val = np.median(edges).astype(np.uint8)
+            
+            if isinstance(median_val, np.ndarray):
+                return int(median_val[0])
+            return int(median_val)
+        else:
+            # Цветное (RGB)
+            edges = np.concatenate([
+                img_np[:b, :].reshape(-1, img_np.shape[2]),
+                img_np[-b:, :].reshape(-1, img_np.shape[2]),
+                img_np[:, :b].reshape(-1, img_np.shape[2]),
+                img_np[:, -b:].reshape(-1, img_np.shape[2])
+            ])
+            median_val = np.median(edges, axis=0).astype(np.uint8)
+            return tuple(map(int, median_val)) 
 
 class SquarePad:
     """

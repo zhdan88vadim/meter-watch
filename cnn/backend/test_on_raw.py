@@ -59,14 +59,17 @@ def process_and_rename_images(input_dir, output_dir, recognize_image_func):
 
 
             for digit in result['digits']:
+
+                # if digit['confidence'] > 0.5:
                 unique_id = str(uuid.uuid4())[:8]
                 dir = f"../../dataset_val/{digit['prediction']}/"
                 filepath = os.path.join(dir, f"{digit['prediction']}__{digit['confidence']:.2f}_{unique_id}.jpg")
+                filepath_original = os.path.join(dir, f"orgnl__{digit['prediction']}__{digit['confidence']:.2f}_{unique_id}.jpg")
                 print(filepath)
                 Path(dir).mkdir(parents=True, exist_ok=True)
                 cv2.imwrite(filepath, digit['raw_image'])
-                cv2.imwrite(filepath, digit['source_image'])
-            
+                cv2.imwrite(filepath_original, digit['source_image'])
+        
             # Получаем распознанное число
             new_digits = list(result['full_number'])
             recognized_number = result['full_number']
