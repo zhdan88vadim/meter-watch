@@ -1,4 +1,5 @@
 import cv2
+from fps import FPS
 from ultralytics import YOLO
 import time
 from datetime import datetime
@@ -30,20 +31,30 @@ class FaceRecognizer:
             return
         
         print("🔄 Training face encodings...")
+        trained_count = 0
+        
         for filename in os.listdir(self.known_faces_dir):
             if filename.lower().endswith(('.jpg', '.jpeg', '.png')):
                 name = os.path.splitext(filename)[0]
                 image_path = os.path.join(self.known_faces_dir, filename)
                 
-                # Load image and get face encoding
+                # Load image
                 image = face_recognition.load_image_file(image_path)
+                
+                # Detect faces
                 face_locations = face_recognition.face_locations(image)
                 
                 if face_locations:
-                    face_encoding = face_recognition.face_encodings(image, face_locations)[0]
-                    self.known_face_encodings.append(face_encoding)
-                    self.known_face_names.append(name)
-                    print(f"   ✅ Trained: {name}")
+                    # Get encoding - use the first face found
+                    face_encodings = face_recognition.face_encodings(image, known_face_locations=face_locations)
+                    if face_encodings:
+                        face_encoding = face_encodings[0]
+                        self.known_face_encodings.append(face_encoding)
+                        self.known_face_names.append(name)
+                        trained_count += 1
+                        print(f"   ✅ Trained: {name}")
+                    else:
+                        print(f"   ⚠️ Could not encode face in: {filename}")
                 else:
                     print(f"   ⚠️ No face found in: {filename}")
         
@@ -55,6 +66,8 @@ class FaceRecognizer:
                     'names': self.known_face_names
                 }, f)
             print(f"💾 Saved {len(self.known_face_encodings)} face encodings")
+        else:
+            print(f"⚠️ No faces were trained! Please add clear face photos to {self.known_faces_dir}")
     
     def load_encodings(self):
         """Load pre-trained face encodings"""
@@ -64,36 +77,64 @@ class FaceRecognizer:
                 self.known_face_encodings = data['encodings']
                 self.known_face_names = data['names']
             print(f"✅ Loaded {len(self.known_face_encodings)} face encodings")
-        except:
-            print("⚠️ Could not load encodings, training from scratch...")
+        except Exception as e:
+            print(f"⚠️ Could not load encodings: {e}")
+            print("Training from scratch...")
             self.train_known_faces()
     
     def recognize_face(self, face_image):
-        """Recognize a face in the image"""
-        if not self.known_face_encodings:
-            return "Unknown", 0.0
-        
-        # Get face encoding
-        face_locations = face_recognition.face_locations(face_image)
-        if not face_locations:
-            return None, 0.0
-        
-        face_encodings = face_recognition.face_encodings(face_image, face_locations)
-        if not face_encodings:
-            return None, 0.0
-        
-        # Compare with known faces
-        face_encoding = face_encodings[0]
-        distances = face_recognition.face_distance(self.known_face_encodings, face_encoding)
-        
-        if len(distances) > 0:
-            best_match_index = np.argmin(distances)
-            confidence = 1 - distances[best_match_index]  # Convert distance to confidence
+        """Recognize a face in the image with robust error handling"""
+        try:
+            if not self.known_face_encodings:
+                return "Unknown", 0.0
             
-            if confidence > 0.5:  # Threshold for recognition
-                return self.known_face_names[best_match_index], confidence
-        
-        return "Unknown", 0.0
+            # Validate input
+            if face_image is None or face_image.size == 0:
+                return "Unknown", 0.0
+            
+            # Check image dimensions
+            if len(face_image.shape) != 3:
+                return "Unknown", 0.0
+            
+            h, w = face_image.shape[:2]
+            if h < 20 or w < 20:
+                return "Unknown", 0.0
+            
+            # Convert BGR to RGB (face_recognition expects RGB)
+            try:
+                face_rgb = cv2.cvtColor(face_image, cv2.COLOR_BGR2RGB)
+            except:
+                face_rgb = face_image
+            
+            # Detect face locations
+            face_locations = face_recognition.face_locations(face_rgb)
+            
+            if not face_locations:
+                return "Unknown", 0.0
+            
+            # Get face encodings - FIXED: pass face_locations correctly
+            face_encodings = face_recognition.face_encodings(face_rgb, known_face_locations=face_locations)
+            
+            if not face_encodings:
+                return "Unknown", 0.0
+            
+            # Compare with known faces
+            face_encoding = face_encodings[0]
+            distances = face_recognition.face_distance(self.known_face_encodings, face_encoding)
+            
+            if len(distances) > 0:
+                best_match_index = np.argmin(distances)
+                confidence = 1 - distances[best_match_index]
+                
+                # Lower threshold for testing
+                if confidence > 0.4:
+                    return self.known_face_names[best_match_index], confidence
+            
+            return "Unknown", 0.0
+            
+        except Exception as e:
+            print(f"   ⚠️ Face recognition error: {e}")
+            return "Unknown", 0.0
 
 # ==================== MAIN TRACKING CLASS ====================
 class PersonTrackerWithFaces:
@@ -105,6 +146,7 @@ class PersonTrackerWithFaces:
         self.entry_times = {}
         self.person_names = {}  # track_id -> name
         self.face_recognizer = FaceRecognizer()
+        self.fps_calculator = FPS(avg_window=30)
         
         # Create log file with headers
         with open("tracking_log.csv", "w") as f:
@@ -155,7 +197,7 @@ class PersonTrackerWithFaces:
         
         face_region = frame[face_y1:face_y2, face_x1:face_x2]
         
-        self.save_face_debug(face_region, track_id)
+        # self.save_face_debug(face_region, track_id)
 
         if face_region.size == 0:
             return "Unknown", 0.0
@@ -175,18 +217,19 @@ class PersonTrackerWithFaces:
         
         frame_count = 0
         last_recognition_time = {}
-        
+          
         while self.cap.isOpened():
             success, frame = self.cap.read()
             if not success:
                 break
             
             frame_count += 1
+            current_fps = self.fps_calculator.update()
             
             # Запуск детекции и трекинга
             results = self.model.track(frame, persist=True, tracker="bytetrack.yaml", 
                                       classes=[0], verbose=False)
-            
+
             if results[0].boxes.id is not None:
                 boxes = results[0].boxes.xyxy.cpu().numpy().astype(int)
                 track_ids = results[0].boxes.id.cpu().numpy().astype(int)
@@ -200,6 +243,8 @@ class PersonTrackerWithFaces:
                         self.log_person_exit(track_id, self.entry_times.pop(track_id))
                         if track_id in self.person_names:
                             del self.person_names[track_id]
+
+
                 # Обрабатываем каждого человека
                 for i, track_id in enumerate(track_ids):
                     # Регистрируем нового человека
@@ -215,7 +260,7 @@ class PersonTrackerWithFaces:
                             self.person_names[track_id] = name
                             print(f"   ✅ Распознан как: {name} (уверенность: {face_conf:.2f})")
                         else:
-                            print(f"   ❌ Лицо не распознано (будет повторная попытка)")
+                            print("   ❌ Лицо не распознано (будет повторная попытка)")
                     
                     # Периодическое распознавание (каждые 30 кадров)
                     elif frame_count % 30 == 0:
@@ -228,7 +273,9 @@ class PersonTrackerWithFaces:
                             if name and name != "Unknown":
                                 self.person_names[track_id] = name
                                 print(f"   🔄 Перераспознан как: {name} (уверенность: {face_conf:.2f})")
-                    
+                            else:
+                                print("   ❌ Лицо не распознано (будет повторная попытка)")                                
+                        
                     # Рисуем рамку и информацию
                     x1, y1, x2, y2 = boxes[i]
                     # Цвет рамки: зеленый для известных, красный для неизвестных
@@ -253,6 +300,9 @@ class PersonTrackerWithFaces:
             # Показываем FPS
             cv2.putText(frame, f"People: {len(self.entry_times)}", 
                         (10, 60), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (255, 255, 255), 2)
+            
+            cv2.putText(frame, f"FPS: {current_fps:.1f}", 
+                        (10, 90), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 255), 2)            
             
             cv2.imshow("YOLOv8 + ByteTrack + Face Recognition", frame)
             
