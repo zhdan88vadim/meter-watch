@@ -1,0 +1,84 @@
+version: '3.8'
+
+services:
+  # Сервис Redis
+  redis:
+    image: redis:7.2-alpine
+    container_name: person_tracker_redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"  # Пробрасываем порт для доступа с хоста
+    volumes:
+      - redis_data:/data
+    command: redis-server --appendonly yes --requirepass ${REDIS_PASSWORD:-}
+    environment:
+      - REDIS_PASSWORD=${REDIS_PASSWORD:-}
+    networks:
+      - tracker_network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # # Сервис приложения (детектор)
+  # app:
+  #   build: .
+  #   container_name: person_tracker_app
+  #   restart: unless-stopped
+  #   depends_on:
+  #     redis:
+  #       condition: service_healthy
+  #   environment:
+  #     - REDIS_HOST=redis
+  #     - REDIS_PORT=6379
+  #     - REDIS_PASSWORD=${REDIS_PASSWORD:-}
+  #     - DISPLAY=${DISPLAY:-:0}  # Для GUI (если нужно)
+  #     - QT_X11_NO_MITSHM=1
+  #   volumes:
+  #     # Монтируем код для разработки (опционально)
+  #     - ./app:/app
+  #     # Монтируем директорию с записями
+  #     - ./recordings:/app/recordings
+  #     # Монтируем модели YOLO (для кеширования)
+  #     - yolov8_models:/root/.cache/Ultralytics
+  #     # Для доступа к веб-камере (Linux)
+  #     - /dev/video0:/dev/video0
+  #     # Для доступа к X11 (для отображения)
+  #     - /tmp/.X11-unix:/tmp/.X11-unix:rw
+  #   devices:
+  #     # Для доступа к GPU (если есть)
+  #     - /dev/dri:/dev/dri
+  #   privileged: true  # Для доступа к камере
+  #   networks:
+  #     - tracker_network
+  #   # Для отладки можно оставить интерактивным
+  #   stdin_open: true
+  #   tty: true
+
+  # Опционально: Redis Commander для просмотра данных
+  redis-commander:
+    image: rediscommander/redis-commander:latest
+    container_name: redis_commander
+    restart: unless-stopped
+    depends_on:
+      - redis
+    environment:
+      - REDIS_HOSTS=local:redis:6379
+      - REDIS_PASSWORD=${REDIS_PASSWORD:-}
+    ports:
+      - "8081:8081"
+    networks:
+      - tracker_network
+    profiles:
+      - tools  # Запускается только с профилем tools
+
+volumes:
+  redis_data:
+    driver: local
+  yolov8_models:
+    driver: local
+
+networks:
+  tracker_network:
+    driver: bridge
