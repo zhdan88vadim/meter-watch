@@ -1,10 +1,10 @@
+from typing import Union
+
 import cv2
 from ultralytics import YOLO
 import time
 import threading
 import numpy as np
-import json
-from typing import Union, Optional, Dict, Set
 from app.config import config
 from app.redis_manager import RedisManager
 from app.video_buffer import VideoBuffer
@@ -26,15 +26,11 @@ class PersonTracker:
         self.post_roll_seconds = post_roll_seconds
         self.frame_skip = frame_skip
         
-        # Простые переменные состояния
-        self.is_recording = False          # Идет ли запись
-        self.current_person_id = None      # ID текущего записываемого человека
-        self.recording_start_time = None   # Время начала записи
+        # Состояние
+        self.is_recording = False
+        self.last_seen = {}           # Когда видели каждого
         self.frame_count = 0
         self.running = False
-        
-        # Храним время последнего появления каждого человека
-        self.last_seen: Dict[int, float] = {}
         
         # Модель
         self.model = YOLO('yolov8n.pt')
@@ -43,91 +39,44 @@ class PersonTracker:
         self.cap = cv2.VideoCapture(source)
         self.fps = self.cap.get(cv2.CAP_PROP_FPS) or config.DEFAULT_FPS
         
-        # Буфер и монитор
+        # Буфер
         self.buffer = VideoBuffer(buffer_seconds, self.fps)
         self.safety_monitor = SafetyMonitor()
         
-        # Очищаем Redis при старте
+        # Очистка при старте
         self._cleanup_redis()
-        
-        # Маркируем запуск
         self._mark_startup()
-        
-        # Подписываемся на команды
-        self._subscribe_commands()
     
     def _cleanup_redis(self):
-        """Простая очистка Redis"""
+        """Очистка Redis"""
         try:
             conn = RedisManager.get_connection()
-            
-            # Удаляем активных людей
-            conn.delete(config.REDIS_KEYS['active_people'])
-            
-            # Удаляем флаги тревоги
+            # conn.delete(config.REDIS_KEYS['active_people'])
             conn.delete(config.REDIS_KEYS['alert_triggered'])
             conn.delete(config.REDIS_KEYS['alert_cooldown'])
-            
-            # Помечаем незавершенные записи
-            for key in conn.keys(f"{config.REDIS_KEYS['recording_prefix']}*"):
-                conn.hset(key, 'status', 'interrupted')
-                conn.hset(key, 'end_time', time.time())
-            
-            # Устанавливаем время старта
-            conn.set(config.REDIS_KEYS['human_last_seen'], str(time.time()))
-            
             logger.info("✅ Redis cleaned")
-        except Exception as e:
-            logger.error(f"❌ Redis cleanup error: {e}")
+        except:
+            pass
     
     def _mark_startup(self):
-        """Отмечает запуск"""
+        """Отметка запуска"""
         RedisManager.set_timestamp_key(
             config.REDIS_KEYS['startup'], 
             config.STARTUP_DURATION
         )
-        logger.info(f"🔄 System started, startup mode {config.STARTUP_DURATION//60} min")
         telegram_bot.send_alert('startup')
     
-    def _subscribe_commands(self):
-        """Подписка на команды"""
-        def listener():
-            while self.running:
-                try:
-                    pubsub = RedisManager.get_connection().pubsub()
-                    pubsub.subscribe('system:commands')
-                    
-                    for msg in pubsub.listen():
-                        if not self.running:
-                            break
-                        if msg['type'] == 'message':
-                            try:
-                                cmd = json.loads(msg['data'])
-                                if cmd['command'] == 'stop_recording':
-                                    self._stop_recording()
-                            except:
-                                pass
-                except:
-                    time.sleep(5)
-        
-        threading.Thread(target=listener, daemon=True).start()
-    
-    def _start_recording(self, person_id: int):
-        """Начинает запись"""
+    def _start_recording(self):
+        """Начать запись"""
         if self.is_recording:
-            return  # Уже идет запись
-        
-        if not self.buffer.start_recording(str(person_id)):
             return
         
+        self.buffer.start_recording("recording")
         self.is_recording = True
-        self.current_person_id = person_id
-        self.recording_start_time = time.time()
-        
-        logger.info(f"📹 Recording started for person {person_id}")
+        logger.info("📹 Recording STARTED")
     
     def _stop_recording(self):
-        """Останавливает запись"""
+        """Остановить запись"""
         if not self.is_recording:
             return
         
@@ -136,103 +85,116 @@ class PersonTracker:
         
         self.buffer.stop_recording()
         self.is_recording = False
-        self.current_person_id = None
-        self.recording_start_time = None
-        
-        logger.info("🛑 Recording stopped")
+        logger.info("🛑 Recording STOPPED")
     
-    def process_frame(self, frame: np.ndarray):
-        """Обрабатывает кадр"""
+    def process_frame(self, frame):
+        """Обработка кадра - простая логика"""
+        # Добавляем в буфер
         self.buffer.add_frame(frame)
         
-        # Пропуск кадров
+        # Пропускаем кадры
         self.frame_count += 1
         if self.frame_count % self.frame_skip != 0:
             return
         
-        # Детекция
+        # Детекция людей
         try:
             results = self.model.track(
                 frame, 
                 persist=True, 
                 tracker="bytetrack.yaml",
-                classes=[0], 
+                classes=[0],  # Только люди
                 verbose=False
             )
         except:
             return
         
-        current_ids = set()
         current_time = time.time()
+        current_people = set()
         
-        # Если есть обнаружения
+        # Получаем ID людей в кадре
         if results and results[0].boxes.id is not None:
-            boxes = results[0].boxes.xyxy.cpu().numpy().astype(int)
             track_ids = results[0].boxes.id.cpu().numpy().astype(int)
+            current_people = set(int(x) for x in track_ids)
             
-            current_ids = set(track_ids)
-            
-            # Обновляем время последнего появления для каждого
-            for track_id in track_ids:
-                track_id = int(track_id)
-                self.last_seen[track_id] = current_time
-                
-                # Обновляем Redis
+            # Обновляем время появления каждого
+            for person_id in current_people:
+                self.last_seen[person_id] = current_time
                 RedisManager.set_key(
                     config.REDIS_KEYS['human_last_seen'], 
                     str(current_time)
                 )
-                
-                # Рисуем рамку
-                idx = list(track_ids).index(track_id)
+            
+            # Рисуем рамки
+            boxes = results[0].boxes.xyxy.cpu().numpy().astype(int)
+            for idx, person_id in enumerate(track_ids):
                 x1, y1, x2, y2 = boxes[idx]
                 cv2.rectangle(frame, (x1, y1), (x2, y2), (0, 255, 0), 2)
                 cv2.putText(
                     frame, 
-                    f"ID: {track_id}", 
+                    f"ID: {int(person_id)}", 
                     (x1, y1 - 10),
                     cv2.FONT_HERSHEY_SIMPLEX, 
                     0.6, 
                     (0, 255, 0), 
                     2
                 )
-            
-            # ПРОСТАЯ ЛОГИКА ЗАПИСИ:
-            # Если запись не идет - начинаем с первым обнаруженным человеком
+        
+        # ===== ПРОСТАЯ ЛОГИКА ЗАПИСИ =====
+        
+        # Есть люди в кадре
+        if current_people:
+            # Если запись не идет - начинаем
             if not self.is_recording:
-                first_person = min(current_ids)  # Берем первого
-                self._start_recording(first_person)
-            
-            # Если запись идет, но текущего человека нет в кадре - ищем замену
-            elif self.is_recording and self.current_person_id not in current_ids:
-                # Проверяем, не вернулся ли он (если прошло мало времени)
-                last_time = self.last_seen.get(self.current_person_id, 0)
-                if current_time - last_time > 3.0:  # 3 секунды нет - меняем
-                    logger.info(f"🔄 Person {self.current_person_id} lost, switching to {min(current_ids)}")
-                    self._stop_recording()
-                    self._start_recording(min(current_ids))
+                self._start_recording()
+            # Если запись идет - продолжаем
+            # (ничего не делаем)
         
-        # Если нет людей в кадре
+        # Нет людей в кадре
         else:
-            # Если запись идет и человека нет больше 3 секунд - останавливаем
+            # Если запись идет - проверяем, может кто-то вышел
             if self.is_recording:
-                if self.current_person_id:
-                    last_time = self.last_seen.get(self.current_person_id, 0)
+                # Проверяем всех, кого видели
+                people_to_remove = []
+                for person_id, last_time in self.last_seen.items():
+                    # Если человека нет больше 3 секунд - удаляем
                     if current_time - last_time > 3.0:
-                        logger.info(f"🚶 Person {self.current_person_id} left")
-                        threading.Thread(target=self._stop_recording, daemon=True).start()
+                        people_to_remove.append(person_id)
+                
+                # Удаляем тех, кого давно нет
+                for person_id in people_to_remove:
+                    del self.last_seen[person_id]
+                    logger.info(f"🚶 Person {person_id} left")
+                
+                # Если больше нет активных людей - останавливаем запись
+                if not self.last_seen:
+                    self._stop_recording()
         
-        # Показываем статус
+        # Отображаем статус
         status = "🔴 REC" if self.is_recording else "⏸ IDLE"
-        cv2.putText(frame, status, (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 0.7, 
-                   (0, 0, 255) if self.is_recording else (0, 255, 255), 2)
+        cv2.putText(
+            frame, 
+            status, 
+            (10, 30), 
+            cv2.FONT_HERSHEY_SIMPLEX, 
+            0.7,
+            (0, 0, 255) if self.is_recording else (0, 255, 255), 
+            2
+        )
         
-        if self.is_recording and self.current_person_id:
-            cv2.putText(frame, f"Person: {self.current_person_id}", (10, 60),
-                       cv2.FONT_HERSHEY_SIMPLEX, 0.6, (255, 255, 255), 2)
+        # Количество людей
+        cv2.putText(
+            frame,
+            f"People: {len(current_people)}",
+            (10, 60),
+            cv2.FONT_HERSHEY_SIMPLEX,
+            0.6,
+            (255, 255, 255),
+            2
+        )
     
     def run(self):
-        """Основной цикл"""
+        """Запуск"""
         self.running = True
         logger.info("🎯 Starting tracker...")
         
@@ -261,7 +223,7 @@ class PersonTracker:
         self.safety_monitor.stop()
         
         if self.is_recording:
-            self.buffer.stop_recording()
+            self._stop_recording()
         
         self.cap.release()
         cv2.destroyAllWindows()

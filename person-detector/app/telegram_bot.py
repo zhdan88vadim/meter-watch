@@ -24,7 +24,7 @@ class TelegramBot:
         self.command_handlers = {
             '/start': self._handle_start,
             '/status': self._handle_status,
-            '/last_recording': self._handle_last_recording,
+            # '/last_recording': self._handle_last_recording,
             '/silence_alert': self._handle_silence_alert,
             '/reset': self._handle_reset,
             '/help': self._handle_help
@@ -106,7 +106,6 @@ class TelegramBot:
             f"👋 **Добро пожаловать в систему безопасности!**\n\n"
             f"🤖 Доступные команды:\n"
             f"/status - статус системы\n"
-            f"/last_recording - последняя запись\n"
             f"/silence - отключить звук\n"
             f"/reset - сбросить тревогу\n"
             f"/help - помощь"
@@ -133,25 +132,25 @@ class TelegramBot:
         
         return status
     
-    def _handle_last_recording(self, args=None) -> str:
-        # Получаем последнюю запись из Redis
-        keys = RedisManager.get_connection().keys(f"{config.REDIS_KEYS['recording_prefix']}*")
-        if not keys:
-            return "❌ Нет доступных записей"
+    # def _handle_last_recording(self, args=None) -> str:
+    #     # Получаем последнюю запись из Redis
+    #     keys = RedisManager.get_connection().keys(f"{config.REDIS_KEYS['recording_prefix']}*")
+    #     if not keys:
+    #         return "❌ Нет доступных записей"
         
-        latest = max(keys, key=lambda k: RedisManager.get_connection().hget(k, 'start_time') or 0)
-        data = RedisManager.hgetall(latest)
+    #     latest = max(keys, key=lambda k: RedisManager.get_connection().hget(k, 'start_time') or 0)
+    #     data = RedisManager.hgetall(latest)
         
-        if not data:
-            return "❌ Не удалось получить информацию о записи"
+    #     if not data:
+    #         return "❌ Не удалось получить информацию о записи"
         
-        return (
-            f"📹 **Последняя запись**\n\n"
-            f"📝 Файл: {data.get('filename', 'Неизвестно')}\n"
-            f"👤 ID: {data.get('person_id', 'Неизвестно')}\n"
-            f"⏱ Длительность: {float(data.get('duration', 0)):.1f} секунд\n"
-            f"🕐 Начало: {datetime.fromtimestamp(float(data.get('start_time', 0))).strftime('%H:%M:%S')}"
-        )
+    #     return (
+    #         f"📹 **Последняя запись**\n\n"
+    #         f"📝 Файл: {data.get('filename', 'Неизвестно')}\n"
+    #         f"👤 ID: {data.get('person_id', 'Неизвестно')}\n"
+    #         f"⏱ Длительность: {float(data.get('duration', 0)):.1f} секунд\n"
+    #         f"🕐 Начало: {datetime.fromtimestamp(float(data.get('start_time', 0))).strftime('%H:%M:%S')}"
+    #     )
     
     def _handle_silence_alert(self, args=None) -> str:
         RedisManager.set_key(config.REDIS_KEYS['alert_cooldown'], '1', config.ALERT_COOLDOWN)
@@ -172,7 +171,6 @@ class TelegramBot:
             f"🤖 **Доступные команды:**\n\n"
             f"/start - приветствие\n"
             f"/status - текущий статус системы\n"
-            f"/last_recording - последняя видеозапись\n"
             f"/silence - отключить звук и сбросить тревогу\n"
             f"/reset - сбросить состояние системы\n"
             f"/help - эта справка"

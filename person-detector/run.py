@@ -6,7 +6,6 @@ import sys
 from app.person_tracker import PersonTracker
 from app.telegram_bot import telegram_bot
 from app.api import start_api
-from app.web_dashboard import start_web_dashboard
 from app.config import config
 
 logging.basicConfig(
@@ -36,10 +35,12 @@ def main():
     
     # Запуск Telegram бота
     telegram_bot.start()
+
+    rtsp_url = "rtsp://192.168.0.102:8554/balcony_camera_hero_4mp_wifi_h264"
     
     # Запуск трекера в отдельном потоке
     tracker = PersonTracker(
-        source=0,
+        source=rtsp_url,
         buffer_seconds=config.BUFFER_SECONDS,
         post_roll_seconds=config.POST_ROLL_SECONDS,
         frame_skip=config.FRAME_SKIP
@@ -51,16 +52,7 @@ def main():
     # Запуск API в отдельном потоке
     api_thread = threading.Thread(target=start_api, daemon=True)
     api_thread.start()
-    
-    # Запуск веб-дашборда в отдельном потоке
-    # dashboard_thread = threading.Thread(
-    #     target=start_web_dashboard, 
-    #     args=(tracker.cap,),
-    #     daemon=True
-    # )
-    # dashboard_thread.start()
-    
-    # Ожидаем завершения
+
     try:
         while True:
             import time

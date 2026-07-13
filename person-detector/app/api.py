@@ -63,47 +63,6 @@ def get_status():
     
     return jsonify(status)
 
-@app.route('/api/recording/start', methods=['POST'])
-def start_recording():
-    """Начать запись видео"""
-    # if not require_auth():
-    #     return jsonify({'error': 'Unauthorized'}), 401
-    
-    system_status['recording'] = True
-    system_status['last_updated'] = time.time()
-    
-    # Публикуем событие в Redis
-    RedisManager.publish('system:commands', json.dumps({
-        'command': 'start_recording',
-        'timestamp': time.time()
-    }))
-    
-    return jsonify({
-        'success': True,
-        'message': 'Recording started',
-        'timestamp': datetime.now().isoformat()
-    })
-
-@app.route('/api/recording/stop', methods=['POST'])
-def stop_recording():
-    """Остановить запись видео"""
-    # if not require_auth():
-    #     return jsonify({'error': 'Unauthorized'}), 401
-    
-    system_status['recording'] = False
-    system_status['last_updated'] = time.time()
-    
-    RedisManager.publish('system:commands', json.dumps({
-        'command': 'stop_recording',
-        'timestamp': time.time()
-    }))
-    
-    return jsonify({
-        'success': True,
-        'message': 'Recording stopped',
-        'timestamp': datetime.now().isoformat()
-    })
-
 @app.route('/api/alert/reset', methods=['POST'])
 def reset_alert():
     """Сбросить тревогу"""
@@ -118,89 +77,6 @@ def reset_alert():
         'success': True,
         'message': 'Alert reset',
         'timestamp': datetime.now().isoformat()
-    })
-
-@app.route('/api/recordings', methods=['GET'])
-def get_recordings():
-    """Получить список записей"""
-    # if not require_auth():
-    #     return jsonify({'error': 'Unauthorized'}), 401
-    
-    keys = RedisManager.get_connection().keys(f"{config.REDIS_KEYS['recording_prefix']}*")
-    recordings = []
-    
-    for key in keys:
-        data = RedisManager.hgetall(key)
-        if data:
-            recordings.append({
-                'id': key.replace(config.REDIS_KEYS['recording_prefix'], ''),
-                'filename': data.get('filename', ''),
-                'start_time': float(data.get('start_time', 0)),
-                'end_time': float(data.get('end_time', 0)),
-                'duration': float(data.get('duration', 0)),
-                'person_id': data.get('person_id', '')
-            })
-    
-    # Сортируем по времени начала
-    recordings.sort(key=lambda x: x['start_time'], reverse=True)
-    
-    return jsonify({
-        'recordings': recordings,
-        'total': len(recordings)
-    })
-
-@app.route('/api/recordings/<recording_id>', methods=['GET'])
-def get_recording(recording_id):
-    """Получить информацию о записи"""
-    # if not require_auth():
-    #     return jsonify({'error': 'Unauthorized'}), 401
-    
-    key = f"{config.REDIS_KEYS['recording_prefix']}{recording_id}"
-    data = RedisManager.hgetall(key)
-    
-    if not data:
-        return jsonify({'error': 'Recording not found'}), 404
-    
-    return jsonify({
-        'id': recording_id,
-        'filename': data.get('filename', ''),
-        'start_time': float(data.get('start_time', 0)),
-        'end_time': float(data.get('end_time', 0)),
-        'duration': float(data.get('duration', 0)),
-        'person_id': data.get('person_id', '')
-    })
-
-@app.route('/api/stats', methods=['GET'])
-def get_stats():
-    """Получить статистику"""
-    # if not require_auth():
-    #     return jsonify({'error': 'Unauthorized'}), 401
-    
-    # Получаем историю
-    history = RedisManager.get_connection().lrange(
-        config.REDIS_KEYS['detection_history'], 0, 99
-    )
-    
-    entries = 0
-    exits = 0
-    total_duration = 0
-    
-    for item in history:
-        try:
-            event = json.loads(item)
-            if event['type'] == 'person_entered':
-                entries += 1
-            elif event['type'] == 'person_exited':
-                exits += 1
-                total_duration += event['data'].get('duration', 0)
-        except:
-            pass
-    
-    return jsonify({
-        'total_entries': entries,
-        'total_exits': exits,
-        'avg_duration': total_duration / exits if exits > 0 else 0,
-        'recordings_count': len(RedisManager.get_connection().keys(f"{config.REDIS_KEYS['recording_prefix']}*"))
     })
 
 @app.route('/api/system/control', methods=['POST'])
@@ -233,6 +109,20 @@ def system_control():
         })
     
     return jsonify({'error': 'Invalid action'}), 400
+
+@app.route('/api/set/gas_flow', methods=['GET'])
+def set_gas_flow():
+    """Сбросить тревогу"""
+    # if not require_auth():
+    #     return jsonify({'error': 'Unauthorized'}), 401
+    
+    RedisManager.set_key(config.REDIS_KEYS['gas_flow'], 1, 60 * 5)
+    
+    return jsonify({
+        'success': True,
+        'message': 'set gas_flow',
+        'timestamp': datetime.now().isoformat()
+    })
 
 def start_api():
     """Запускает API сервер"""
