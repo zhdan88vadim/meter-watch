@@ -11,10 +11,20 @@ import random
 
 class AdaptiveAugmentationBuilder:
     """Адаптивные аугментации с кэшированием параметров"""
-    
+
     def __init__(self, base_size=64):
         self.base_size = base_size
         self.size_cache = {}
+
+                
+        self.adaptive_preprocess_params = {
+            'blur_ksize': 7,           # Уменьшено с 7 до 3
+            'blur_sigma': 5,           # Уменьшено с 5 до 1
+            'adaptive_block_size': 57, # Уменьшено с 57 до 11 (должно быть > 1 и нечетное)
+            'adaptive_c': 5,           # Уменьшено с 5 до 3
+            'morph_kernel': 2,         # Уменьшено с 2 до 1
+            'morph_iter': 1            # Оставлено 1
+        }
     
     def get_adaptive_params(self, current_size):
         """Вычисляет параметры аугментаций на основе размера"""
@@ -38,16 +48,54 @@ class AdaptiveAugmentationBuilder:
         return params
     
     def build_train_transform(self, image_size):
-        params = self.get_adaptive_params(image_size)
+        # params = self.get_adaptive_params(image_size)
 
         return transforms.Compose([
             transforms.Grayscale(num_output_channels=1),
+            # BinarizeNP(apply_prob=1, threshold=100),
+            ExtractLetterWithMargin(margin=20, fill_white=None),
+            SquarePadAdaptBackground(min_size=128),
+            # BinarizeCV(),
+            # Invert(),
+            AdaptivePreprocess(apply_prob=1, params=self.adaptive_preprocess_params),
+            # transforms.Resize((128, 128)),
+            transforms.RandomRotation(10),
+            transforms.RandomAffine(
+                degrees=0,              # Угол поворота в градусах (-180 до 180) или (min, max)
+                translate=(0.1, 0.1),   # Сдвиг: (по_горизонтали_макс%, по_вертикали_макс%)
+                scale=(0.8, 1.1),       # Масштабирование: (мин_коэф, макс_коэф)
+                shear=4,                # Наклон в градусах или (min, max) или (x_min, x_max, y_min, y_max)
+                interpolation=2,        # Метод интерполяции (NEAREST=0, BILINEAR=2, BICUBIC=3)
+                fill=0,                 # Цвет заливки для новых пикселей
+            ),
+            transforms.CenterCrop((90, 90)),
+            transforms.Resize((28, 28)),
+            # OnlyBrighten(max_brightness=2.5),
+            RemoveSmallObjects(min_area=5, apply_prob=0.5),
+            # MorphologicalTransform(
+            #     erosion=(0, 2),      # эрозия 0-2 итерации
+            #     dilation=(0, 2),     # дилатация 0-2 итерации
+            #     kernel_size=(1, 3),  # ядро 1-3
+            #     prob=1            # 50% вероятность
+            # ),            
+            
+            # Binarize(),
+            # OnlyBrighten(max_brightness=2),
+            # transforms.Resize(64),
+            # AdaptivePreprocess(),
+            # ContourFilter(
+            #     min_height=2,      # минимальная высота
+            #     min_width=2,       # минимальная ширина
+            #     min_area=5,       # минимальная площадь
+            #     max_aspect_ratio=5, # макс соотношение сторон
+            #     apply_prob=1.0     # вероятность применения (1.0 = всегда)
+            # ),            
             # SquarePadAdaptBackground(min_size=128),
             # ExtractLetterWithMargin(margin=10, fill_white=False),
             # transforms.Resize(image_size),
             # Binarize(threshold=20, fill_white=True),
             # transforms.RandomResizedCrop(image_size, scale=(0.8, 1.0)),
-            transforms.RandomRotation(2),
+            # transforms.RandomRotation(2),
             # AddRandomBlobs(p=0.5, num_blobs=(3, 5), 
             #               blob_size=params['blob_size'], intensity=(250, 255)),
             # AddRandomBlobs(p=0.5, num_blobs=(3, 5),
@@ -58,22 +106,39 @@ class AdaptiveAugmentationBuilder:
             # RandomBleed(p=0.5, blur_radius=params['blur_radius']),
             # RandomMissingPart(p=0.5, cut_size=params['cut_size']),
             # transforms.RandomAffine(
-            #     degrees=params['degrees'],
-            #     translate=params['translate'],
-            #     shear=params['shear']
+            #     degrees=0,
+            #     translate=(0.1, 0.2),
+            #     shear=3
             # ),
             transforms.ToTensor(),         
             transforms.Normalize(mean=[0.5], std=[0.5])
         ])
     
     def build_val_transform(self, image_size):
-        
+            
+        adaptive_preprocess_params_for_small_images = {
+                'blur_ksize': 3,           # Уменьшено с 7 до 3
+                'blur_sigma': 1,           # Уменьшено с 5 до 1
+                'adaptive_block_size': 11, # Уменьшено с 57 до 11 (должно быть > 1 и нечетное)
+                'adaptive_c': 3,           # Уменьшено с 5 до 3
+                'morph_kernel': 2,         # Уменьшено с 2 до 1
+                'morph_iter': 1            # Оставлено 1
+            }
+
         return transforms.Compose([
             transforms.Grayscale(num_output_channels=1),
+            # BinarizeCV(),
+            # Invert(),            
+            # SquarePadAdaptBackground(min_size=128),
+            # AdaptivePreprocess(apply_prob=1, params=adaptive_preprocess_params_for_small_images),   
+            # ExtractLetterWithMargin(margin=20, fill_white=None),            
+            # transforms.CenterCrop((90, 90)),
+            # transforms.Resize((28, 28)),
+
             # Invert(),
-            ExtractLetterWithMargin(margin=10, fill_white=None),
-            SquarePadAdaptBackground(),
-            transforms.Resize(image_size),
+            # ExtractLetterWithMargin(margin=10, fill_white=None),
+            # SquarePadAdaptBackground(),
+            # transforms.Resize(image_size),
             # Binarize(threshold=20, fill_white=True),
             # Invert(),
             # SimpleThinOrThicken(p=1, strength='medium', min_thickness=1),
@@ -85,15 +150,288 @@ class AdaptiveAugmentationBuilder:
             transforms.Normalize(mean=[0.5], std=[0.5])
         ])
 
-class Binarize:
+
+class RemoveSmallObjects:
+    """Удаляет маленькие белые объекты, не связанные с большими"""
+    
+    def __init__(self, min_area=50, apply_prob=1.0, debug=False):
+        """
+        Args:
+            min_area: минимальная площадь объекта (количество пикселей)
+            apply_prob: вероятность применения
+            debug: если True - показывает отладку
+        """
+        self.min_area = min_area
+        self.apply_prob = apply_prob
+        self.debug = debug
+    
+    def __call__(self, image):
+        import cv2
+        import numpy as np
+        import random
+        from PIL import Image
+        
+        if random.random() > self.apply_prob:
+            return image
+        
+        if hasattr(image, 'convert'):
+            image_np = np.array(image.convert('L'))
+        else:
+            image_np = image
+        
+        if len(image_np.shape) == 3:
+            gray = cv2.cvtColor(image_np, cv2.COLOR_BGR2GRAY)
+        else:
+            gray = image_np
+        
+        # Бинаризация (белые объекты на черном фоне)
+        # _, thresh = cv2.threshold(gray, 0, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)
+        _, thresh = cv2.threshold(gray, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
+        
+        # НАХОДИМ ВСЕ СВЯЗАННЫЕ КОМПОНЕНТЫ (области)
+        num_labels, labels, stats, centroids = cv2.connectedComponentsWithStats(
+            thresh, connectivity=8
+        )
+        
+        # Создаем маску для больших объектов
+        mask = np.zeros_like(thresh)
+        
+        # stats содержит: [x, y, w, h, area]
+        for i in range(1, num_labels):  # i=0 это фон
+            area = stats[i, cv2.CC_STAT_AREA]
+            
+            # Если объект достаточно большой - сохраняем
+            if area >= self.min_area:
+                mask[labels == i] = 255
+        
+        # Применяем маску к оригинальному изображению
+        result = cv2.bitwise_and(gray, gray, mask=mask)
+       
+        return Image.fromarray(result)
+
+class MorphologicalTransform:
+    """
+    PyTorch трансформация для применения эрозии и дилатации
+    
+    Пример:
+        transform = transforms.Compose([
+            transforms.Resize((28, 28)),
+            MorphologicalTransform(
+                erosion=(0, 2),
+                dilation=(0, 2),
+                kernel_size=(1, 3)
+            ),
+            transforms.ToTensor(),
+        ])
+    """
+    
+    def __init__(
+        self,
+        erosion: tuple = (0, 2),          # (мин, макс) итераций эрозии
+        dilation: tuple = (0, 2),         # (мин, макс) итераций дилатации
+        kernel_size: tuple = (1, 3),      # (мин, макс) размер ядра
+        kernel_type: str = 'ellipse',     # 'rect', 'ellipse', 'cross'
+        prob: float = 0.5                 # вероятность применения
+    ):
+        self.erosion = erosion
+        self.dilation = dilation
+        self.kernel_size = kernel_size
+        self.kernel_type = kernel_type
+        self.prob = prob
+    
+    def __call__(self, img):
+        # Проверка вероятности
+        if random.random() > self.prob:
+            return img
+        
+        # Конвертируем PIL в numpy
+        if isinstance(img, Image.Image):
+            img_np = np.array(img)
+        else:
+            img_np = img
+        
+        # Сохраняем информацию о цвете
+        is_color = len(img_np.shape) == 3
+        
+        # В оттенки серого
+        if is_color:
+            gray = cv2.cvtColor(img_np, cv2.COLOR_RGB2GRAY)
+        else:
+            gray = img_np
+        
+        # Случайные параметры
+        erosion_iter = random.randint(self.erosion[0], self.erosion[1])
+        dilation_iter = random.randint(self.dilation[0], self.dilation[1])
+        
+        # Размер ядра (нечетный)
+        ksize = random.randint(self.kernel_size[0], self.kernel_size[1])
+        if ksize % 2 == 0:
+            ksize += 1
+        
+        # Если ничего не делаем
+        if erosion_iter == 0 and dilation_iter == 0:
+            return img
+        
+        # Адаптивный порог
+        block_size = random.randint(11, 51)
+        if block_size % 2 == 0:
+            block_size += 1
+        
+        processed = cv2.adaptiveThreshold(
+            gray, 255,
+            cv2.ADAPTIVE_THRESH_GAUSSIAN_C,
+            cv2.THRESH_BINARY_INV,
+            block_size,
+            random.randint(2, 10)
+        )
+        
+        # Создаем ядро
+        if self.kernel_type == 'rect':
+            kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (ksize, ksize))
+        elif self.kernel_type == 'ellipse':
+            kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (ksize, ksize))
+        else:  # cross
+            kernel = cv2.getStructuringElement(cv2.MORPH_CROSS, (ksize, ksize))
+        
+        # Применяем
+        if erosion_iter > 0:
+            processed = cv2.erode(processed, kernel, iterations=erosion_iter)
+        if dilation_iter > 0:
+            processed = cv2.dilate(processed, kernel, iterations=dilation_iter)
+        
+        # Обратно в PIL
+        if is_color:
+            processed = cv2.cvtColor(processed, cv2.COLOR_GRAY2RGB)
+        
+        return Image.fromarray(processed)
+
+class BinarizeCV:
+    def __init__(self, apply_prob=1.0):
+        self.apply_prob = apply_prob
+    
+    def __call__(self, image):
+        import cv2
+        import numpy as np
+        import random
+        
+        if random.random() > self.apply_prob:
+            return image
+        
+        # Конвертируем в numpy
+        if hasattr(image, 'convert'):
+            image_np = np.array(image.convert('L'))
+        else:
+            image_np = image
+        
+        # Адаптивная бинаризация
+        # Используем адаптивный порог для разных фонов
+        binary = cv2.adaptiveThreshold(
+            image_np, 255, 
+            cv2.ADAPTIVE_THRESH_GAUSSIAN_C, 
+            cv2.THRESH_BINARY, 11, 2
+        )
+        
+        # Или Otsu (проще, но менее адаптивно)
+        # _, binary = cv2.threshold(image_np, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
+        
+        # # Инвертируем если цифры белые на черном
+        # if np.mean(binary) > 127:  # если больше белого
+        #     binary = 255 - binary
+        
+        from PIL import Image
+        return Image.fromarray(binary)
+
+class ContourFilter:
+    """Фильтр мелких контуров"""
+    
+    def __init__(self, min_height=5, min_width=5, min_area=50, max_aspect_ratio=10, apply_prob=1.0):
+        """
+        Args:
+            min_height: минимальная высота контура
+            min_width: минимальная ширина контура
+            min_area: минимальная площадь контура
+            max_aspect_ratio: максимальное соотношение сторон
+            apply_prob: вероятность применения (0.0 - 1.0)
+        """
+        self.min_height = min_height
+        self.min_width = min_width
+        self.min_area = min_area
+        self.max_aspect_ratio = max_aspect_ratio
+        self.apply_prob = apply_prob
+    
+    def __call__(self, image):
+        
+        # Вероятность применения
+        if random.random() > self.apply_prob:
+            return image
+        
+        # # Конвертируем в numpy
+        if hasattr(image, 'convert'):
+            image_np = np.array(image.convert('L'))
+        else:
+            image_np = image
+        
+        # if len(image_np.shape) == 3:
+        #     gray = cv2.cvtColor(image_np, cv2.COLOR_BGR2GRAY)
+        # else:
+        #     gray = image_np
+        
+        # # Бинаризация
+        # _, thresh = cv2.threshold(gray, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
+        
+        # 3. Поиск контуров и фильтрация
+        cnts, _ = cv2.findContours(image_np, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+        
+        filtered_contours = []
+        for c in cnts:
+            (x, y, w, h) = cv2.boundingRect(c)
+            area = cv2.contourArea(c)
+            aspect_ratio = w / h if h > 0 else 0
+            
+            if h > self.min_height and w > self.min_width and area > self.min_area and aspect_ratio < self.max_aspect_ratio:
+                filtered_contours.append(c)
+        
+        if not filtered_contours:
+            return image
+        
+        # 4. Создание маски
+        mask = np.zeros_like(image_np)
+        cv2.drawContours(mask, filtered_contours, -1, 255, -1)
+        
+        # 5. Добавление рамки и морфологическое закрытие
+        padding = 70
+        mask_padded = cv2.copyMakeBorder(
+            mask.copy(),
+            padding, padding, padding, padding,
+            cv2.BORDER_CONSTANT,
+            value=0
+        )
+        
+        y_gap_threshold = 5
+        kernel_height = y_gap_threshold * 2
+        kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (3, kernel_height))
+        closed = cv2.morphologyEx(mask_padded, cv2.MORPH_CLOSE, kernel)
+        
+        # Удаление рамки
+        closed = closed[padding:-padding, padding:-padding]
+        
+        # Применяем маску
+        result = cv2.bitwise_and(image_np, image_np, mask=closed)
+
+        return Image.fromarray(result)
+
+class BinarizeNP:
     """Преобразует PIL Image в бинарное (черно-белое) с порогом"""
-    def __init__(self, threshold=200, fill_white=True):
+    def __init__(self, threshold=200, fill_white=True, apply_prob=1):
         self.threshold = threshold
         self.fill_white = fill_white
+        self.apply_prob = apply_prob
     
     def __call__(self, image):
         # image - PIL Image
-        import numpy as np
+        if random.random() > self.apply_prob:
+            return image   
+                     
         img_np = np.array(image)
         
         if self.fill_white:
@@ -106,6 +444,95 @@ class Binarize:
         
         return Image.fromarray(result)
 
+
+class AdaptivePreprocess:
+    """
+    Адаптивная предобработка изображения с использованием OpenCV.
+    Применяет CLAHE, адаптивный порог и морфологию.
+    """
+    def __init__(self, params=None, apply_prob=1):
+        """
+        Args:
+            params: Словарь с параметрами предобработки
+        """
+        self.apply_prob = apply_prob
+        
+        if params is None:
+            # self.params = {
+            #     'blur_ksize': 7,
+            #     'blur_sigma': 5,
+            #     'adaptive_block_size': 57,
+            #     'adaptive_c': 5,
+            #     'morph_kernel': 2,
+            #     'morph_iter': 1
+            # }
+
+            # Оптимизированные параметры для 28x28
+            self.params = {
+                'blur_ksize': 3,           # Уменьшено с 7 до 3
+                'blur_sigma': 1,           # Уменьшено с 5 до 1
+                'adaptive_block_size': 11, # Уменьшено с 57 до 11 (должно быть > 1 и нечетное)
+                'adaptive_c': 3,           # Уменьшено с 5 до 3
+                'morph_kernel': 1,         # Уменьшено с 2 до 1
+                'morph_iter': 1            # Оставлено 1
+            }            
+        else:
+            self.params = params
+    
+    def __call__(self, image):
+        """
+        Применяет предобработку к PIL Image.
+        Возвращает PIL Image.
+        """
+        import random
+        
+        if random.random() > self.apply_prob:
+            return image
+        
+        # Конвертируем PIL в numpy (RGB)
+        img_np = np.array(image)
+        
+        # Если изображение в оттенках серого (1 канал), конвертируем в RGB
+        if len(img_np.shape) == 2:
+            img_np = cv2.cvtColor(img_np, cv2.COLOR_GRAY2RGB)
+        elif img_np.shape[2] == 1:
+            img_np = cv2.cvtColor(img_np, cv2.COLOR_GRAY2RGB)
+        
+        # Применяем предобработку
+        processed = self._preprocess_image(img_np, self.params)
+        
+        # Конвертируем обратно в PIL
+        return Image.fromarray(processed)
+    
+    def _preprocess_image(self, image, params):
+        """
+        Ваша оригинальная функция предобработки
+        """
+        gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+        blurred = cv2.GaussianBlur(
+            gray, 
+            (params['blur_ksize'], params['blur_ksize']), 
+            params['blur_sigma']
+        )
+        
+        thresh = cv2.adaptiveThreshold(
+            blurred, 255,
+            cv2.ADAPTIVE_THRESH_GAUSSIAN_C,
+            cv2.THRESH_BINARY_INV,
+            params['adaptive_block_size'],
+            params['adaptive_c']
+        )
+        
+        kernel = np.ones((params['morph_kernel'], params['morph_kernel']), dtype=np.uint8)
+        opened = cv2.morphologyEx(
+            thresh, 
+            cv2.MORPH_OPEN, 
+            kernel, 
+            iterations=params['morph_iter']
+        )
+        
+        return opened
+    
 # class Binarize:
 #     """Преобразует изображение в бинарное (черно-белое) с порогом"""
 #     def __init__(self, threshold=200, fill_white=True):

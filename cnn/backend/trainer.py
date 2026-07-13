@@ -15,7 +15,8 @@ import matplotlib.pyplot as plt
 from sklearn.metrics import confusion_matrix, classification_report
 import seaborn as sns
 from pathlib import Path
-from sklearn.metrics import confusion_matrix, classification_report
+from torchvision.datasets import ImageFolder
+from torch.utils.data import DataLoader
 
 def load_config(config_path='config/config.yaml'):
     """Loads the configuration"""
@@ -31,39 +32,10 @@ class ModelTrainer:
         self.train_losses = []
         self.val_accuracies = []
 
-    def prepare_data_from_folders(self, dataset_path, batch_size=32, validation_split=0.2, num_workers=4):
+    def prepare_data_from_folders(self, dataset_path, val_dataset_path, batch_size=32, validation_split=0.2, num_workers=4):
         try:
-            from torchvision import transforms
-            from torchvision.datasets import ImageFolder
-            from torch.utils.data import DataLoader, random_split, Subset
-
             config = load_config()
             aug_builder = AdaptiveAugmentationBuilder(base_size=config['data']['image_size'])
-                
-            # # Define transforms
-            # train_transform = transforms.Compose([
-            #     transforms.Grayscale(num_output_channels=1),
-            #     transforms.Resize((28, 28)),
-            #     transforms.RandomRotation(degrees=10),
-            #     transforms.RandomAffine(
-            #         degrees=0,
-            #         translate=(0.2, 0.2),
-            #         scale=(0.9, 1.1),
-            #         shear=5
-            #     ),
-            #     transforms.RandomPerspective(distortion_scale=0.3, p=0.3),
-            #     transforms.GaussianBlur(kernel_size=3, sigma=(0.1, 1.0)),
-            #     transforms.ToTensor(),
-            #     transforms.Lambda(lambda x: x + torch.randn_like(x) * 0.05),
-            #     transforms.Normalize((0.5,), (0.5,))
-            # ])
-            
-            # val_transform = transforms.Compose([
-            #     transforms.Grayscale(num_output_channels=1),
-            #     transforms.Resize((28, 28)),
-            #     transforms.ToTensor(),
-            #     transforms.Normalize((0.5,), (0.5,))
-            # ])
 
             train_transform = aug_builder.build_train_transform(
                 (config['data']['image_size'], config['data']['image_size'])
@@ -73,56 +45,37 @@ class ModelTrainer:
             )
             
             # Load dataset
-            full_dataset = ImageFolder(root=dataset_path)
-            
-            # Split indices
-            train_size = int((1 - validation_split) * len(full_dataset))
-            val_size = len(full_dataset) - train_size
-            train_indices, val_indices = random_split(
-                range(len(full_dataset)), 
-                [train_size, val_size],
-                generator=torch.Generator().manual_seed(42)
-            )
-            
-            # Get index lists
-            train_idx = train_indices.indices
-            val_idx = val_indices.indices
-            
-            # Create datasets with appropriate transforms
             train_dataset = ImageFolder(root=dataset_path, transform=train_transform)
-            val_dataset = ImageFolder(root=dataset_path, transform=val_transform)
-            
-            # Apply indices
-            train_dataset = Subset(train_dataset, train_idx)
-            val_dataset = Subset(val_dataset, val_idx)
+            val_dataset = ImageFolder(root=val_dataset_path, transform=val_transform)
             
             # DataLoaders
             train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True,
                                     num_workers=num_workers, pin_memory=True, drop_last=True)
-            val_loader = DataLoader(val_dataset, batch_size=batch_size, shuffle=False,
+            
+            # shuffle=True --- for debug image only
+            val_loader = DataLoader(val_dataset, batch_size=batch_size, shuffle=True,
                                 num_workers=num_workers, pin_memory=True, drop_last=True)
             
-            return train_loader, val_loader, full_dataset
+            return train_loader, val_loader
             
         except Exception as e:
             print(f"Error: {e}")
             return None, None, None
 
-    def train_from_folder(self, dataset_path, epochs, batch_size, learning_rate):
+    def train_from_folder(self, dataset_path, val_dataset_path, epochs, batch_size, learning_rate):
         """Train the model on data from a folder-based dataset with TensorBoard logging"""
         print("\nStarting model training...")
         
         try:
-            train_loader, val_loader, dataset = self.prepare_data_from_folders(dataset_path, batch_size)
+            train_loader, val_loader = self.prepare_data_from_folders(dataset_path, val_dataset_path, batch_size)
             
             if train_loader is None:
                 return {"success": False, "error": "No training data available"}
             
-            if hasattr(dataset, 'classes'):
-                classes = dataset.classes
-            elif hasattr(train_loader.dataset.dataset, 'classes'):
-                classes = train_loader.dataset.dataset.classes
+            if hasattr(train_loader.dataset, 'classes'):
+                classes = train_loader.dataset.classes
             else:
+                # Fallback: extract unique labels from the dataset
                 unique_labels = set()
                 for _, labels in train_loader:
                     unique_labels.update(labels.numpy())
@@ -162,6 +115,13 @@ class ModelTrainer:
                     images, labels = next(dataiter)
                     img_grid = vutils.make_grid(images[:32], nrow=4, normalize=True)
                     writer.add_image(f'Training/Epoch_{epoch}', img_grid, epoch)
+
+
+                    dataiter_val = iter(val_loader)
+                    images_val, labels_val = next(dataiter_val)
+                    img_grid_val = vutils.make_grid(images_val[:32], nrow=4, normalize=True)
+                    writer.add_image(f'Val/Epoch_{epoch}', img_grid_val, epoch)
+
                 
                 for i, (images, labels) in enumerate(train_loader):
                     images, labels = images.to(self.device), labels.to(self.device)
@@ -269,7 +229,7 @@ class ModelTrainer:
             print(f"Training error: {e}")
             return {"success": False, "error": str(e)}
 
-    def log_detailed_embeddings(self, writer, train_loader, val_loader, classes, max_samples=500):
+    def log_detailed_embeddings(self, writer, train_loader, classes, max_samples=500):
         """Log embeddings from model's intermediate layer"""
         
         all_images = []
@@ -437,9 +397,13 @@ if __name__ == '__main__':
     trainer.train_from_folder(
         # dataset_path="/media/vadim/1TB_SSD/my_github/meter-watch/dataset",
         # dataset_path="/media/vadim/1TB_SSD/my_github/meter-watch/dataset_val_test",
-        dataset_path="/media/vadim/1TB_SSD/my_github/meter-watch/dataset_val",
+        # dataset_path="/media/vadim/1TB_SSD/my_github/meter-watch/dataset_val",
+        dataset_path = "/media/vadim/1TB_SSD/my_github/meter-watch/dataset_val_clean/",
+        # val_dataset_path="/media/vadim/1TB_SSD/my_github/meter-watch/dataset_val/",
+        # val_dataset_path="/media/vadim/1TB_SSD/my_github/meter-watch/dataset_val_low_transform/",
+        val_dataset_path="/media/vadim/1TB_SSD/my_github/meter-watch/dataset_val_low_transform_bi/",
         # dataset_path=Config.TRAINING_DATA_DIR,
-        epochs=90,
+        epochs=40,
         batch_size=64,
         learning_rate=0.0005
     )

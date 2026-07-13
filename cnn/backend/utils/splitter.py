@@ -2,7 +2,7 @@ import cv2
 import numpy as np
 
 
-def split_number(thresh):
+def split_number(thresh, original):
     # 3. Поиск контуров и фильтрация
     cnts, _ = cv2.findContours(thresh, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
     
@@ -60,6 +60,7 @@ def split_number(thresh):
 
     # 9. Вырезаем каждый контур как отдельное изображение
     digits = []
+    original_digits = []
     height, width = thresh.shape[:2]
 
     for i, cnt in enumerate(filtered_new_contours):
@@ -75,17 +76,19 @@ def split_number(thresh):
         
         # Вырезаем область из оригинального изображения
         digit = thresh[y1:y2, x1:x2]
+        original_digit = original[y1:y2, x1:x2]
         
         # Если вырезанная область пуста, создаем пустое изображение
         if digit.size == 0:
             digit = np.zeros((h + 2*padding_crop, w + 2*padding_crop, 3), dtype=np.uint8)
         
         digits.append(digit)
+        original_digits.append(original_digit)
         
         # Для отладки: можно нарисовать bounding box на оригинальном изображении
         # cv2.rectangle(original_img, (x1, y1), (x2, y2), (0, 255, 0), 2)
 
-    return digits
+    return digits, original_digits
 
 def split_number_simple(img, start_x=8, digit_width=60):
     height, width = img.shape[:2]

@@ -1,5 +1,5 @@
 import os
-from utils.augmentation import Binarize, ExtractLetterWithMargin, OnlyBrighten, SquarePad, SquarePadAdaptBackground
+from utils.augmentation import  AdaptivePreprocess, ExtractLetterWithMargin, OnlyBrighten, RemoveSmallObjects, SquarePadAdaptBackground
 import torch
 from PIL import Image
 from torchvision import transforms
@@ -35,7 +35,7 @@ def process_dataset(dataset_path, transform, output_suffix="_aug"):
                     
                     # Сохраняем рядом с оригиналом
                     new_filename = f"{Path(file).stem}_{unique_id}_{output_suffix}{Path(file).suffix}"
-                    output_path = Path("/media/vadim/1TB_SSD/my_github/meter-watch/dataset_val/") / img_path.parent.name / new_filename
+                    output_path = Path("/media/vadim/1TB_SSD/my_github/meter-watch/dataset_val_low_transform_bi/") / img_path.parent.name / new_filename
 
                     output_path.parent.mkdir(parents=True, exist_ok=True)
 
@@ -75,20 +75,31 @@ if __name__ == "__main__":
     # Ваши трансформации
     image_size = (28, 28)  # Или другой размер
     
+    adaptive_preprocess_params = {
+        'blur_ksize': 7,           # Уменьшено с 7 до 3
+        'blur_sigma': 5,           # Уменьшено с 5 до 1
+        'adaptive_block_size': 57, # Уменьшено с 57 до 11 (должно быть > 1 и нечетное)
+        'adaptive_c': 5,           # Уменьшено с 5 до 3
+        'morph_kernel': 2,         # Уменьшено с 2 до 1
+        'morph_iter': 1            # Оставлено 1
+    }
+
     transform = transforms.Compose([
         transforms.Grayscale(num_output_channels=1),
         # Binarize(threshold=100, fill_white=False),  # Раскомментируйте если нужен
         ExtractLetterWithMargin(margin=20, fill_white=None),
         SquarePadAdaptBackground(min_size=128),
+        AdaptivePreprocess(apply_prob=1, params=adaptive_preprocess_params),
         # transforms.Resize((128, 128)),
-        transforms.RandomRotation(15),
+        transforms.RandomRotation(5),
         transforms.RandomAffine(
             degrees=0,  # Измените на нужные значения
-            translate=(0.1, 0.1),
-            shear=0
+            translate=(0.01, 0.1),
+            shear=4
         ),    
         transforms.CenterCrop((90, 90)),
         transforms.Resize((28, 28)),
+        RemoveSmallObjects(min_area=5, apply_prob=0.5),
         OnlyBrighten(max_brightness=2.5),
         transforms.ToTensor(),
         transforms.Normalize(mean=[0.5], std=[0.5])

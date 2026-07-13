@@ -9,7 +9,7 @@ def recognize_image(image):
     min_conf = 1
     thresh = preprocess_image(image)
 
-    digits = split_number(thresh)
+    digits, original_digits = split_number(thresh, image)
 
     result = {
         'digits': [],
@@ -19,7 +19,7 @@ def recognize_image(image):
     for i, digit in enumerate(digits):
         centered = center_digits(digit)
 
-        pred, conf, cam, saliency, resized_square = predict_digit(centered)
+        pred, conf, cam, saliency, resized_square, prepared = predict_digit(centered)
         if conf < min_conf:
             min_conf = conf
         
@@ -35,7 +35,8 @@ def recognize_image(image):
             'heatmap_saliency': image_to_base64(cv2.applyColorMap(saliency_vis, cv2.COLORMAP_HOT)),
             'digit_image': image_to_base64(centered),
             'raw_image': resized_square,
-            'source_image': source_image,
+            'prepared_model_image': prepared,
+            'source_image': original_digits[i],
         })
         result['full_number'] += str(pred)
     

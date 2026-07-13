@@ -47,4 +47,4 @@ def predict_digit(roi):
     cam, _, _ = heatmap_gen.generate(tensor)
     saliency, _, _ = heatmap_gen.generate_saliency(tensor)
     
-    return prediction, confidence, cam, saliency, resized_square
+    return prediction, confidence, cam, saliency, resized_square, prepared
