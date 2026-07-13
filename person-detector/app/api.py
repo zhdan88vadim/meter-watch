@@ -6,7 +6,7 @@ from datetime import datetime
 from typing import Dict, Any
 from app.config import config
 from app.redis_manager import RedisManager
-from app.telegram_bot import telegram_bot
+from app.safety_monitor import SafetyMonitor
 import logging
 
 logger = logging.getLogger(__name__)
@@ -14,12 +14,7 @@ logger = logging.getLogger(__name__)
 app = Flask(__name__)
 CORS(app)
 
-# Состояние системы
-system_status = {
-    'recording': False,
-    'tracking': True,
-    'last_updated': time.time()
-}
+safety_monitor = SafetyMonitor()
 
 def require_auth():
     """Проверка API ключа"""
@@ -42,8 +37,6 @@ def get_status():
     status = {
         'timestamp': datetime.now().isoformat(),
         'system': {
-            'recording': system_status['recording'],
-            'tracking': system_status['tracking'],
             'startup_mode': startup_mode
         },
         'gas': {
@@ -53,7 +46,7 @@ def get_status():
         'person': {
             'last_seen': float(last_seen) if last_seen else None,
             'last_seen_str': datetime.fromtimestamp(float(last_seen)).strftime('%H:%M:%S') if last_seen else None,
-            'is_present': last_seen and (time.time() - float(last_seen) < 300)
+            'is_present': last_seen and (time.time() - float(last_seen) < config.PERSON_ABSENCE_THRESHOLD)
         },
         'alert': {
             'active': alert_active,
@@ -69,9 +62,7 @@ def reset_alert():
     # if not require_auth():
     #     return jsonify({'error': 'Unauthorized'}), 401
     
-    RedisManager.delete_key(config.REDIS_KEYS['alert_triggered'])
-    RedisManager.delete_key(config.REDIS_KEYS['alert_cooldown'])
-    RedisManager.set_key(config.REDIS_KEYS['human_last_seen'], str(time.time()))
+    safety_monitor.reset_alert()
     
     return jsonify({
         'success': True,

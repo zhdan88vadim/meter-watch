@@ -154,18 +154,7 @@ class SafetyMonitor:
         RedisManager.delete_key(config.REDIS_KEYS['alert_cooldown'])
         RedisManager.set_key(config.REDIS_KEYS['human_last_seen'], str(time.time()))
         logger.info("🔄 Alert reset")
-    
-    def get_status(self) -> Dict:
-        time_since_seen = RedisManager.get_time_since(config.REDIS_KEYS['human_last_seen'])
-        return {
-            'running': self.running,
-            'gas_flowing': RedisManager.get_key(config.REDIS_KEYS['gas_flow']) == '1',
-            'startup_mode': RedisManager.key_exists(config.REDIS_KEYS['startup']),
-            'person_present': time_since_seen is not None and time_since_seen < 60,
-            'alert_active': RedisManager.key_exists(config.REDIS_KEYS['alert_triggered']),
-            'alert_count': self.alert_count
-        }
-    
+
     def add_on_alert_callback(self, callback: Callable):
         self.on_alert_callbacks.append(callback)
     

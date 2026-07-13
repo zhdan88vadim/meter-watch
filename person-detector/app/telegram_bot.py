@@ -5,6 +5,7 @@ from datetime import datetime
 from typing import Optional
 from app.config import config
 from app.redis_manager import RedisManager
+from app.safety_monitor import SafetyMonitor
 import logging
 
 logger = logging.getLogger(__name__)
@@ -13,6 +14,7 @@ class TelegramBot:
     def __init__(self):
         self.bot_token = config.TELEGRAM_BOT_TOKEN
         self.chat_id = config.TELEGRAM_CHAT_ID
+        self.safety_monitor = SafetyMonitor()
         self.last_update_id = 0
         self.running = False
         self.thread = None
@@ -24,7 +26,6 @@ class TelegramBot:
         self.command_handlers = {
             '/start': self._handle_start,
             '/status': self._handle_status,
-            # '/last_recording': self._handle_last_recording,
             '/silence_alert': self._handle_silence_alert,
             '/reset': self._handle_reset,
             '/help': self._handle_help
@@ -132,38 +133,13 @@ class TelegramBot:
         
         return status
     
-    # def _handle_last_recording(self, args=None) -> str:
-    #     # Получаем последнюю запись из Redis
-    #     keys = RedisManager.get_connection().keys(f"{config.REDIS_KEYS['recording_prefix']}*")
-    #     if not keys:
-    #         return "❌ Нет доступных записей"
-        
-    #     latest = max(keys, key=lambda k: RedisManager.get_connection().hget(k, 'start_time') or 0)
-    #     data = RedisManager.hgetall(latest)
-        
-    #     if not data:
-    #         return "❌ Не удалось получить информацию о записи"
-        
-    #     return (
-    #         f"📹 **Последняя запись**\n\n"
-    #         f"📝 Файл: {data.get('filename', 'Неизвестно')}\n"
-    #         f"👤 ID: {data.get('person_id', 'Неизвестно')}\n"
-    #         f"⏱ Длительность: {float(data.get('duration', 0)):.1f} секунд\n"
-    #         f"🕐 Начало: {datetime.fromtimestamp(float(data.get('start_time', 0))).strftime('%H:%M:%S')}"
-    #     )
-    
     def _handle_silence_alert(self, args=None) -> str:
         RedisManager.set_key(config.REDIS_KEYS['alert_cooldown'], '1', config.ALERT_COOLDOWN)
         RedisManager.delete_key(config.REDIS_KEYS['alert_triggered'])
         return "🔇 Звук отключен на 10 минут. Тревога сброшена."
     
     def _handle_reset(self, args=None) -> str:
-        RedisManager.delete_key(config.REDIS_KEYS['alert_triggered'])
-        RedisManager.delete_key(config.REDIS_KEYS['alert_cooldown'])
-        
-        # Обновляем время человека
-        RedisManager.set_key(config.REDIS_KEYS['human_last_seen'], str(time.time()))
-        
+        self.safety_monitor.reset_alert()
         return "🔄 Система сброшена. Тревога деактивирована."
     
     def _handle_help(self, args=None) -> str:
@@ -240,5 +216,4 @@ class TelegramBot:
                 self.send_message(response)
                 break
 
-# Глобальный экземпляр бота
 telegram_bot = TelegramBot()
