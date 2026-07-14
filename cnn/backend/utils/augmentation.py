@@ -63,12 +63,14 @@ class AdaptiveAugmentationBuilder:
             transforms.RandomAffine(
                 degrees=0,              # Угол поворота в градусах (-180 до 180) или (min, max)
                 translate=(0.1, 0.1),   # Сдвиг: (по_горизонтали_макс%, по_вертикали_макс%)
-                scale=(0.8, 1.1),       # Масштабирование: (мин_коэф, макс_коэф)
+                scale=(0.7, 1.1),       # Масштабирование: (мин_коэф, макс_коэф)
                 shear=4,                # Наклон в градусах или (min, max) или (x_min, x_max, y_min, y_max)
                 interpolation=2,        # Метод интерполяции (NEAREST=0, BILINEAR=2, BICUBIC=3)
                 fill=0,                 # Цвет заливки для новых пикселей
             ),
             transforms.CenterCrop((90, 90)),
+            transforms.Resize((28, 28)),
+            transforms.Pad(padding=4, fill=0),
             transforms.Resize((28, 28)),
             # OnlyBrighten(max_brightness=2.5),
             RemoveSmallObjects(min_area=5, apply_prob=0.5),
@@ -127,6 +129,9 @@ class AdaptiveAugmentationBuilder:
 
         return transforms.Compose([
             transforms.Grayscale(num_output_channels=1),
+            transforms.Resize((28, 28)),
+            transforms.Pad(padding=4, fill=0),
+            transforms.Resize((28, 28)),            
             # BinarizeCV(),
             # Invert(),            
             # SquarePadAdaptBackground(min_size=128),

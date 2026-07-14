@@ -29,6 +29,8 @@ def analyze_model_errors(model_path, dataset_path, num_examples=10):
         # AdaptivePreprocess(), 
         # SquarePad(fill_white=False),       
         transforms.Resize((28, 28)),
+        transforms.Pad(padding=4, fill=0),
+        transforms.Resize((28, 28)),
         transforms.ToTensor(),
         transforms.Normalize((0.5,), (0.5,))
     ])
