@@ -5,7 +5,7 @@ from datetime import datetime
 from typing import Optional
 from app.config import config
 from app.redis_manager import RedisManager
-from app.safety_monitor import SafetyMonitor
+from app.state_manager import StateManager
 import logging
 
 logger = logging.getLogger(__name__)
@@ -14,7 +14,7 @@ class TelegramBot:
     def __init__(self):
         self.bot_token = config.TELEGRAM_BOT_TOKEN
         self.chat_id = config.TELEGRAM_CHAT_ID
-        self.safety_monitor = SafetyMonitor()
+        self.state_manager = StateManager()
         self.last_update_id = 0
         self.running = False
         self.thread = None
@@ -139,7 +139,7 @@ class TelegramBot:
         return "🔇 Звук отключен на 10 минут. Тревога сброшена."
     
     def _handle_reset(self, args=None) -> str:
-        self.safety_monitor.reset_alert()
+        self.state_manager.reset_alert()
         return "🔄 Система сброшена. Тревога деактивирована."
     
     def _handle_help(self, args=None) -> str:

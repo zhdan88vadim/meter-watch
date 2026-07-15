@@ -17,30 +17,71 @@ services:
       timeout: 5s
       retries: 5
 
-  # app:
-  #   build: .
-  #   container_name: person_tracker_app
-  #   restart: unless-stopped
-  #   depends_on:
-  #     redis:
-  #       condition: service_healthy
-  #   environment:
-  #     - REDIS_HOST=redis
-  #     - REDIS_PORT=6379
-  #     - DISPLAY=${DISPLAY:-:0}
-  #   volumes:
-  #     - ./app:/app
-  #     - ./recordings:/app/recordings
-  #     - yolov8_models:/root/.cache/Ultralytics
-  #     - /dev/video0:/dev/video0
-  #     - /tmp/.X11-unix:/tmp/.X11-unix:rw
-  #   devices:
-  #     - /dev/dri:/dev/dri
-  #   privileged: true
-  #   networks:
-  #     - tracker_network
-  #   stdin_open: true
-  #   tty: true
+  # Person Detector Python App
+  person-detector:
+    build:
+      context: ./person-detector
+      dockerfile: Dockerfile
+    container_name: person-detector-app
+    restart: unless-stopped
+    depends_on:
+      - redis
+    env_file:
+      - .env  # Загружает .env из той же папки что и docker-compose.yml      
+    # environment:
+      # - REDIS_HOST=redis
+      # - TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN}
+      # - TELEGRAM_CHAT_ID=${TELEGRAM_CHAT_ID}
+      # - API_SECRET_KEY=${API_SECRET_KEY}
+    ports:
+      - "5000:5000"
+      - "5001:5001"
+    volumes:
+      - ./recordings:/app/recordings
+      # - ./models:/app/models
+      - ./person-detector:/app_pd
+    devices:
+      - /dev/video0:/dev/video0
+    privileged: true
+    networks:
+      - tracker_network    
+
+  # CNN Model Recognition App
+  cnn-recognizer:
+    build:
+      context: ./cnn/backend
+      dockerfile: Dockerfile
+    container_name: cnn-recognition-app
+    ports:
+      - "5002:5002"  # Different port to avoid conflict
+    env_file:
+      - .env  # Загружает .env из той же папки что и docker-compose.yml      
+    # environment:
+    #   - REDIS_HOST=redis
+    #   - REDIS_PORT=6379
+    #   - MODEL_PATH=/app/models/cnn_model.h5
+    volumes:
+      - ./cnn/backend:/app_cnn
+      # - ./models:/app/models
+    depends_on:
+      - redis
+      - person-detector
+    restart: unless-stopped
+    privileged: true
+    networks:
+      - tracker_network
+
+  frontend:
+    build: ./web
+    image: meter-watch-frontend:latest
+    container_name: angular-frontend
+    ports:
+      - "8080:80"
+    depends_on:
+      - cnn-recognizer
+    networks:
+      - tracker_network
+    restart: unless-stopped
 
   redis-commander:
     image: rediscommander/redis-commander:latest

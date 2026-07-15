@@ -4,16 +4,36 @@ from typing import Optional
 from pathlib import Path
 from dotenv import load_dotenv
 
-# Загружаем .env ДО ВСЕГО
-BASE_DIR = Path(__file__).resolve().parent.parent
-load_dotenv(BASE_DIR / '.env')
+
+def load_environment():
+    """Загрузка переменных окружения"""
+    # Проверяем, запущены ли мы в Docker
+    in_docker = os.path.exists('/.dockerenv') or os.path.exists('/app_pd')
+    
+    if in_docker:
+        print("🐳 Running in Docker, using environment variables")
+        # В Docker переменные уже есть в окружении
+        return
+    
+    # Локальная разработка - загружаем .env
+    base_dir = Path(__file__).resolve().parent.parent
+    env_file = base_dir / '.env'
+    
+    if env_file.exists():
+        load_dotenv(env_file)
+        print(f"✅ Loaded .env from {env_file}")
+    else:
+        print(f"⚠️ No .env file found at {env_file}")
+
+# Загружаем переменные
+load_environment()
 
 @dataclass
 class Config:
     # Redis
-    REDIS_HOST: str = os.getenv('REDIS_HOST', 'localhost')
-    REDIS_PORT: int = int(os.getenv('REDIS_PORT', 6379))
-    REDIS_PASSWORD: str = os.getenv('REDIS_PASSWORD', '')
+    REDIS_HOST: str = os.getenv('REDIS_HOST')
+    REDIS_PORT: int = int(os.getenv('REDIS_PORT', 0))
+    REDIS_PASSWORD: str = os.getenv('REDIS_PASSWORD')
     REDIS_DB: int = 0
     REDIS_TIMEOUT: int = 5
     
@@ -60,3 +80,10 @@ class Config:
     }
 
 config = Config()
+
+print("-"*20)
+print("-"*20)
+print(config.TELEGRAM_BOT_TOKEN)
+print(config.REDIS_HOST)
+print(config.REDIS_PASSWORD)
+print("-"*20)
