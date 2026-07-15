@@ -1,5 +1,5 @@
-from app.redis_manager import RedisManager
-from app.config import config
+from meter_watch_shared.config import config
+from meter_watch_shared.redis_manager import RedisManager
 import logging
 import time
 

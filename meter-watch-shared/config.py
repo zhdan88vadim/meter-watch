@@ -8,7 +8,7 @@ from dotenv import load_dotenv
 def load_environment():
     """Загрузка переменных окружения"""
     # Проверяем, запущены ли мы в Docker
-    in_docker = os.path.exists('/.dockerenv') or os.path.exists('/app_pd')
+    in_docker = os.path.exists('/.dockerenv')
     
     if in_docker:
         print("🐳 Running in Docker, using environment variables")

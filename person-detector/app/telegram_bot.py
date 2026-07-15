@@ -3,8 +3,8 @@ import requests
 import threading
 from datetime import datetime
 from typing import Optional
-from app.config import config
-from app.redis_manager import RedisManager
+from meter_watch_shared.config import config
+from meter_watch_shared.redis_manager import RedisManager
 from app.state_manager import StateManager
 import logging
 

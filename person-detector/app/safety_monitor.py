@@ -2,8 +2,8 @@ import time
 import threading
 from datetime import datetime
 from typing import Optional, Dict, Callable, List
-from app.config import config
-from app.redis_manager import RedisManager
+from meter_watch_shared.config import config
+from meter_watch_shared.redis_manager import RedisManager
 from app.telegram_bot import telegram_bot
 import logging
 

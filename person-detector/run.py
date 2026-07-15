@@ -6,7 +6,7 @@ import sys
 from app.person_tracker import PersonTracker
 from app.telegram_bot import telegram_bot
 from app.api import start_api
-from app.config import config
+from meter_watch_shared.config import config
 
 logging.basicConfig(
     level=logging.INFO,

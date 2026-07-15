@@ -13,7 +13,7 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 # Copy requirements and install
-COPY requirements.txt .
+COPY person-detector/requirements.txt .
 # RUN pip install --no-cache-dir -r requirements.txt
 RUN --mount=type=cache,target=/root/.cache/pip,id=permanent_pip_cache,sharing=locked \
     pip install -r requirements.txt
@@ -21,10 +21,13 @@ RUN --mount=type=cache,target=/root/.cache/pip,id=permanent_pip_cache,sharing=lo
 RUN apt-get update && apt-get install -y git && apt-get clean
 
 # Copy application
-COPY . .
+# COPY . .
 
-# Create directories
-RUN mkdir -p recordings models static/css static/js templates
+COPY person-detector /app
+
+COPY meter-watch-shared /app/meter_watch_shared
+
+RUN pip install -e /app/meter_watch_shared
 
 # Run
 # CMD ["python", "run.py"]

@@ -3,7 +3,7 @@ import time
 import threading
 from typing import Optional, Any, Dict, List, Union
 from redis.connection import ConnectionPool
-from app.config import config
+from meter_watch_shared.config import config
 import logging
 
 logger = logging.getLogger(__name__)
