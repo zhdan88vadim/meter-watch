@@ -1,0 +1,78 @@
+<div class="digit-display-card">
+  <h2 class="card-title">
+    <i class="fas fa-gauge-high"></i>
+    📊 Показания счётчика
+  </h2>
+
+  <div class="meter-display">
+    <div class="meter-label">Текущие показания</div>
+    <div class="meter-value">
+      <div class="digit" *ngFor="let digit of currentDigits; let i = index" [style.animationDelay]="i * 0.05 + 's'">
+        {{ digit }}
+      </div>
+      <div class="placeholder" *ngIf="currentDigits.length === 0">---</div>
+    </div>
+    <div class="meter-update">
+      <i class="fas fa-clock"></i>
+      Обновлено: {{ latestReading && latestReading.timestamp * 1000 | date:'dd.MM.yyyy HH:mm:ss' }}
+    </div>
+  </div>
+
+  <div class="card-content">
+    <div class="stats-grid">
+      <div class="stat-item">
+        <div class="stat-icon blue">
+          <i class="fas fa-wifi"></i>
+        </div>
+        <div class="stat-value">72%</div>
+        <div class="stat-label">Сигнал</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-icon green">
+          <i class="fas fa-battery-three-quarters"></i>
+        </div>
+        <div class="stat-value">84%</div>
+        <div class="stat-label">Батарея</div>
+      </div>
+    </div>
+
+    <!-- <div class="progress-section">
+      <div class="progress-header">
+        <span class="progress-label">Активность сегодня</span>
+        <span class="progress-value">72%</span>
+      </div>
+      <div class="progress-bar">
+        <div class="progress-fill" style="width: 72%">72%</div>
+      </div>
+    </div> -->
+
+
+    <div class="countdown-section">
+      <div class="countdown-header">
+        <span>Если данных новых давно не поступало, считаем, что газ выключен</span>
+        <span [class.warning]="timeRemaining < 60">{{ timeUntilExpiry }}</span>
+      </div>
+
+      <p-progressBar [value]="progressPercent" [style]="{ height: '24px', borderRadius: '12px' }">
+      </p-progressBar>
+    </div>
+
+
+
+
+    <h3 style="font-size: 14px; color: var(--text-secondary); margin-bottom: 12px;">
+      История показаний
+    </h3>
+    <div class="history-list">
+      <div class="history-section" *ngIf="history.length > 0">
+        <div class="history-list">
+          <div class="history-item" *ngFor="let item of history">
+            <span class="history-value">{{ item.digits.join('') }}</span>
+            <span class="history-time">{{ item.time }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>

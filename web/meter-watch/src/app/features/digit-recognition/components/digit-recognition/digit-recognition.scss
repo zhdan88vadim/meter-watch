@@ -1,0 +1,219 @@
+.digit-recognition-container {
+  display: flex;
+  // gap: 24px; // Расстояние меeжду колонками
+  // padding: 0 20px 20px 20px;
+
+
+  &> :first-child {
+    margin-right: 30px;
+  }
+
+  // Адаптивность: на мобильных колонки встанут друг под друга
+  @media (max-width: 900px) {
+    flex-direction: column;
+  }
+
+}
+
+/* Левая панель */
+.sidebar {
+  flex: 0 0 320px; // Фиксированная ширина ~320px
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+
+  @media (max-width: 900px) {
+    flex: 1 1 auto;
+  }
+}
+
+/* Правая панель (растет, занимая всё место) */
+.main-panel {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  border-radius: 16px;
+  padding: 28px;
+  background: white;
+}
+
+
+
+
+/* Files card styles */
+.files-card {
+  margin-bottom: 16px;
+}
+
+.loading-container {
+  display: flex;
+  justify-content: center;
+  padding: 32px 0;
+}
+
+.no-files-message {
+  color: #6b7280;
+}
+
+/* File list styles */
+.file-list-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.file-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px;
+  background-color: var(--surface-100);
+  border-radius: 8px;
+  transition: all 0.2s ease;
+}
+
+.file-item:hover {
+  background-color: var(--surface-200);
+  transform: translateY(-1px);
+}
+
+/* Paginator styles */
+.paginator-wrapper {
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid var(--surface-200);
+}
+
+.paginator-wrapper ::ng-deep .p-paginator {
+  background: transparent;
+  border: none;
+  padding: 0;
+}
+
+/* Processing card styles */
+.processing-card {
+  text-align: center;
+  padding: 32px 0;
+}
+
+.spinner-center {
+  margin: 0 auto;
+}
+
+.processing-text {
+  margin-top: 16px;
+  color: #6b7280;
+}
+
+/* Result card styles */
+.result-card {
+  margin-bottom: 16px;
+}
+
+.full-number-container {
+  text-align: center;
+  margin-bottom: 24px;
+}
+
+.full-number-title {
+  font-size: 24px;
+  font-weight: bold;
+}
+
+.full-number-value {
+  color: #16a34a;
+}
+
+/* Instruction box styles */
+.instruction-box {
+  background-color: var(--surface-50);
+  padding: 16px;
+  border-radius: 8px;
+  border-left: 4px solid #22c55e;
+  margin-bottom: 16px;
+}
+
+.instruction-title {
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.instruction-text {
+  font-size: 14px;
+  color: #4b5563;
+}
+
+/* Digits grid styles */
+.digits-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  justify-content: flex-start;
+  margin-bottom: 45px;
+}
+
+/* Save button styles */
+.save-button-container {
+  display: flex;
+  justify-content: center;
+}
+
+/* Responsive styles */
+@media (max-width: 640px) {
+  .digit-recognition-container {
+    padding: 12px;
+  }
+
+
+  .file-list-container {
+    gap: 8px;
+  }
+
+  .file-item {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .full-number-title {
+    font-size: 20px;
+  }
+
+  .digits-grid {
+    gap: 12px;
+  }
+
+  .paginator-wrapper ::ng-deep .p-paginator .p-paginator-pages .p-paginator-page {
+    min-width: 32px;
+    height: 32px;
+  }
+}
+
+@media (max-width: 480px) {
+
+  .full-number-title {
+    font-size: 18px;
+  }
+
+  .instruction-title {
+    font-size: 14px;
+  }
+
+  .instruction-text {
+    font-size: 12px;
+  }
+}
+
+
+.full-number {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--success);
+  background: #f0fdf4;
+  padding: 12px 24px;
+  border-radius: 12px;
+}

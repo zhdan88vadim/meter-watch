@@ -1,0 +1,69 @@
+<!-- src/app/features/digit-recognition/components/digit-card/digit-card.component.html -->
+<p-card styleClass="digit-card">
+  <!-- Изображение цифры -->
+  <div class="digit-image-container">
+    <img 
+      [src]="'data:image/png;base64,' + digit().digit_image" 
+      alt="Digit"
+      class="digit-image"
+    />
+  </div>
+
+  <!-- Предсказание и уверенность -->
+  <div class="prediction-container">
+    <div class="prediction-value">
+      Predicted: {{ digit().prediction }}
+    </div>
+    
+    <p-progressBar 
+      [value]="confidencePercent" 
+      [style]="{ height: '10px' }"
+      [mode]="'determinate'"
+      [color]="progressColor"
+    />
+    <div class="confidence-text">{{ confidencePercent }} % confidence</div>
+  </div>
+
+  <!-- Позиция -->
+  <div class="position-text">
+    Position {{ position() + 1 }}
+  </div>
+
+  <!-- Кнопки выбора цифры -->
+  <div class="digit-buttons">
+    @for (d of [0,1,2,3,4,5,6,7,8,9]; track d) {
+      <p-button
+        [label]="d.toString()"
+        [severity]="isSelected(d) ? 'success' : 'secondary'"
+        [outlined]="!isSelected(d)"
+        [size]="'small'"
+        styleClass="digit-button"
+        (onClick)="onDigitClick(d)"
+        pTooltip="Select digit {{ d }}"
+        tooltipPosition="top"
+      />
+    }
+  </div>
+
+  <!-- Heatmaps -->
+  <div class="heatmaps-container">
+    <div class="heatmap-item">
+      <img 
+        [src]="'data:image/png;base64,' + digit().heatmap_gradcam" 
+        alt="Grad-CAM"
+        class="heatmap-image"
+        pTooltip="Grad-CAM Visualization"
+      />
+      <div class="heatmap-label">Grad-CAM</div>
+    </div>
+    <div class="heatmap-item">
+      <img 
+        [src]="'data:image/png;base64,' + digit().heatmap_saliency" 
+        alt="Saliency"
+        class="heatmap-image"
+        pTooltip="Saliency Map"
+      />
+      <div class="heatmap-label">Saliency</div>
+    </div>
+  </div>
+</p-card>

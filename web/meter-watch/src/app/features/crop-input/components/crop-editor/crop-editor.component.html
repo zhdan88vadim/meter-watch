@@ -1,0 +1,64 @@
+<div class="crop-editor-container">
+  <h1 class="page-title">📷 Настройка параметров обрезки</h1>
+
+  <div class="grid">
+    <div class="col-12 md:col-5 lg:col-4">
+      <app-image-source 
+        (cameraClick)="onCameraClick()"
+        (loadTestImageClick)="onLoadTestImageClick()"
+        (fileSelected)="onFileSelected($event)">
+      </app-image-source>
+
+      @if (cropResult && cropResult.original_image) {
+        <app-crop-controls
+          [params]="currentCropParams"
+          [maxTop]="maxTop"
+          [maxBottom]="maxBottom"
+          [maxLeft]="maxLeft"
+          [maxRight]="maxRight"
+          (paramChange)="onParamChange($event)">
+        </app-crop-controls>
+
+        <div class="control-group">
+          <h3>⚙️ Действия</h3>
+          <div class="button-group">
+            <p-button label="👁️ Предпросмотр" (onClick)="previewCrop()" styleClass="p-button-primary"></p-button>
+            <p-button label="💾 Сохранить в конфиг" (onClick)="saveToConfig()" styleClass="p-button-success"></p-button>
+            <p-button label="🔄 Сброс к default" (onClick)="resetToDefault()" styleClass="p-button-danger"></p-button>
+          </div>
+        </div>
+      }
+    </div>
+
+    <div class="col-12 md:col-7 lg:col-8">
+      @if (loading) {
+        <div class="loading-container">
+          <p-progressSpinner [style]="{width: '50px', height: '50px'}" strokeWidth="4" />
+          <p>Обработка изображения...</p>
+        </div>
+      }
+
+      @if (cropResult && cropResult.original_image) {
+        <app-crop-preview
+          [imageBase64]="cropResult.original_image"
+          [params]="currentCropParams"
+          (paramsChange)="updateCropParams($event)"
+          [imageWidth]="imageWidth"
+          [imageHeight]="imageHeight">
+        </app-crop-preview>
+      }
+
+      <app-results-display [result]="cropResult"></app-results-display>
+
+      @if (!cropResult && !loading) {
+        <div class="image-container">
+          <div class="info-text" style="text-align: center; padding: 50px;">
+            <p>📸 Загрузите изображение или получите снимок с камеры для начала работы</p>
+          </div>
+        </div>
+      }
+    </div>
+  </div>
+</div>
+
+<p-toast position="top-right"></p-toast>
