@@ -148,12 +148,6 @@ class SafetyMonitor:
                 logger.error(f"Callback error: {e}")
     
     # === Публичные методы ===
-    
-    def reset_alert(self):
-        RedisManager.delete_key(config.REDIS_KEYS['alert_triggered'])
-        RedisManager.delete_key(config.REDIS_KEYS['alert_cooldown'])
-        RedisManager.set_key(config.REDIS_KEYS['human_last_seen'], str(time.time()))
-        logger.info("🔄 Alert reset")
 
     def add_on_alert_callback(self, callback: Callable):
         self.on_alert_callbacks.append(callback)

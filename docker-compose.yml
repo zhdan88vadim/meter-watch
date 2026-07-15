@@ -26,11 +26,13 @@ services:
     restart: unless-stopped
     depends_on:
       - redis
-    environment:
-      - REDIS_HOST=redis
-      - TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN}
-      - TELEGRAM_CHAT_ID=${TELEGRAM_CHAT_ID}
-      - API_SECRET_KEY=${API_SECRET_KEY}
+    env_file:
+      - .env  # Загружает .env из той же папки что и docker-compose.yml      
+    # environment:
+      # - REDIS_HOST=redis
+      # - TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN}
+      # - TELEGRAM_CHAT_ID=${TELEGRAM_CHAT_ID}
+      # - API_SECRET_KEY=${API_SECRET_KEY}
     ports:
       - "5000:5000"
       - "5001:5001"
@@ -52,10 +54,12 @@ services:
     container_name: cnn-recognition-app
     ports:
       - "5002:5002"  # Different port to avoid conflict
-    environment:
-      - REDIS_HOST=redis
-      - REDIS_PORT=6379
-      - MODEL_PATH=/app/models/cnn_model.h5
+    env_file:
+      - .env  # Загружает .env из той же папки что и docker-compose.yml      
+    # environment:
+    #   - REDIS_HOST=redis
+    #   - REDIS_PORT=6379
+    #   - MODEL_PATH=/app/models/cnn_model.h5
     volumes:
       - ./cnn/backend:/app_cnn
       # - ./models:/app/models

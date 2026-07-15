@@ -6,7 +6,7 @@ from datetime import datetime
 from typing import Dict, Any
 from app.config import config
 from app.redis_manager import RedisManager
-from app.safety_monitor import SafetyMonitor
+from app.state_manager import StateManager
 import logging
 
 logger = logging.getLogger(__name__)
@@ -14,7 +14,7 @@ logger = logging.getLogger(__name__)
 app = Flask(__name__)
 CORS(app)
 
-safety_monitor = SafetyMonitor()
+state_manager = StateManager()
 
 def require_auth():
     """Проверка API ключа"""
@@ -62,7 +62,7 @@ def reset_alert():
     # if not require_auth():
     #     return jsonify({'error': 'Unauthorized'}), 401
     
-    safety_monitor.reset_alert()
+    state_manager.reset_alert()
     
     return jsonify({
         'success': True,

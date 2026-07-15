@@ -1,12 +1,9 @@
 conda activate /mnt/ntfs/learn_ML/test_classes/Тестовое\ Python\ ML,CV/Тестовое_ML/тестовое_ml/.conda
 
-
-tensorboard --logdir=runs
-
-
-
 conda activate YOLO_t0
 
+
+tensorboard --logdir=runs
 
 docker compose --profile tools up -d
 
@@ -58,5 +55,24 @@ docker exec -it redis_commander /bin/bash
 
 
 
+docker compose build 2>&1 | tee ./build.log && (echo -e "\a"; sleep 0.1; echo -e "\a"; sleep 0.2; echo -e "\a"; sleep 0.1; echo -e "\a"; sleep 0.2; echo -e "\a") && echo "✅ Done!" || echo "❌ Failed!"
+
+
+docker compose build && (echo -e "\a"; sleep 0.1; echo -e "\a"; sleep 0.2; echo -e "\a"; sleep 0.1; echo -e "\a"; sleep 0.2; echo -e "\a") && echo "✅ Done!" || echo "❌ Failed!"
+
 
 docker compose up --build
+
+
+# run only redis
+docker compose up redis
+
+
+
+
+
+apt-get update && apt-get install -y iputils-ping
+ping -c 3 192.168.0.102
+
+
+

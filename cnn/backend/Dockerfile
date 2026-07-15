@@ -15,7 +15,11 @@ COPY requirements.txt .
 
 # Copy requirements and install with PERMANENT cache
 RUN --mount=type=cache,target=/root/.cache/pip,id=permanent_pip_cache,sharing=locked \
-    pip install --no-cache-dir -r requirements.txt
+    pip install -r requirements.txt
+
+
+# RUN --mount=type=cache,target=/root/.cache/pip,id=permanent_pip_cache,sharing=locked \
+#     pip install --no-cache-dir -r requirements.txt
 
 
 # Copy application
