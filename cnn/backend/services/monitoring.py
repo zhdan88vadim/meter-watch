@@ -6,6 +6,8 @@ from utils.api_utils import fetch_image, timestamp_ms
 from services.recognition import recognize_image
 from utils.log_data import save_test_image
 from services.config import ConfigKeys, config
+from meter_watch_shared.config import config as meter_watch_shared_config
+from meter_watch_shared.redis_manager import RedisManager
 
 history = []
 last_recognized_digits = []
@@ -103,11 +105,16 @@ def monitor_loop():
                     while len(history) > Config.MAX_HISTORY_SIZE:
                         history.pop(0)
                     print("✅ Обнаружено изменение; новые цифры:", new_digits)
+
+                    RedisManager.set_key(meter_watch_shared_config.REDIS_KEYS['gas_flow'], "1")
+                    RedisManager.set_key(meter_watch_shared_config.REDIS_KEYS['gas_number'], str(result['full_number']))
+                    RedisManager.set_key(meter_watch_shared_config.REDIS_KEYS['gas_last_activity'], time_str)
                     
                     last_nearly_activity_data = {"time": time_str, "digits": new_digits}
                     last_nearly_activity_counter = 0
                 else:
                     print("⏺️ Изменений не обнаружено. Текущие цифры:", new_digits)
+                    RedisManager.set_key(meter_watch_shared_config.REDIS_KEYS['gas_flow'], "0")
                     
                     # if -1 not in new_digits:                            
                     #     last_nearly_activity_counter += 1

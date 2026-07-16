@@ -5,8 +5,8 @@ from collections import deque
 from datetime import datetime
 from typing import Dict, Optional, List, Tuple
 import numpy as np
-from app.config import config
-from app.redis_manager import RedisManager
+from meter_watch_shared.config import config
+from meter_watch_shared.redis_manager import RedisManager
 import logging
 
 logger = logging.getLogger(__name__)

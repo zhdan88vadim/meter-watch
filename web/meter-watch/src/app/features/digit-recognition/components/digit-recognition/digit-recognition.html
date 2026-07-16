@@ -1,0 +1,100 @@
+<div class="digit-recognition-container">
+
+    <aside class="sidebar">
+        <app-digit-display></app-digit-display>
+
+        <!-- 
+        <app-current-reading-card></app-current-reading-card>
+        <app-device-sensors></app-device-sensors>
+        <app-reading-history-list></app-reading-history-list> -->
+    </aside>
+
+
+    <section class="main-panel">
+        <h1 class="page-title">Manual recognition of logged-in photos</h1>
+
+        <app-dataset-selector [selectedDataset]="dataset()" (datasetChange)="onDatasetChange($event)" />
+
+        <p-card header="📁 Available Images" styleClass="files-card">
+            @if (loading()) {
+            <div class="loading-container">
+                <p-progressSpinner />
+            </div>
+            } @else if (files().length === 0) {
+            <p class="no-files-message">❌ No images found in this dataset</p>
+            } @else {
+            <div class="file-list-container">
+                @for (file of paginatedFiles(); track file; let i = $index) {
+                <div class="file-item">
+                    <p-button [label]="file" icon="pi pi-image"
+                        [severity]="currentFile() === file ? 'primary' : 'secondary'" size="small"
+                        (onClick)="recognize(file)" [disabled]="processing()" />
+                    <p-button icon="pi pi-trash" severity="danger" size="small" text (onClick)="requestDelete(file)"
+                        [disabled]="processing()" pTooltip="Delete file" />
+                </div>
+                }
+            </div>
+
+            <!-- Paginator - Simplified version -->
+            @if (totalRecords() > 0) {
+            <div class="paginator-wrapper">
+                <p-paginator [rows]="pageSize()" [totalRecords]="totalRecords()"
+                    [first]="(currentPage() - 1) * pageSize()" (onPageChange)="onPageChange($event)"
+                    [rowsPerPageOptions]="[10, 20, 50]">
+                </p-paginator>
+            </div>
+            }
+            }
+        </p-card>
+
+        <!-- Результат распознавания -->
+        @if (processing() && !recognitionResult()) {
+        <p-card class="processing-card">
+            <p-progressSpinner class="spinner-center" />
+            <p class="processing-text">⏳ Processing image...</p>
+        </p-card>
+        }
+
+        @if (recognitionResult(); as result) {
+        <div class="full-number">
+            <i class="fas fa-hashtag"></i>
+            Full Number: {{ result.full_number }}
+        </div>
+
+
+        <p-card styleClass="result-card">
+            <!-- Инструкция -->
+            <div class="instruction-box">
+                <h4 class="instruction-title">✏️ Select Correct Digits:</h4>
+                <p class="instruction-text">Click on the buttons below to select the correct digit for each position:
+                </p>
+            </div>
+
+            <!-- Карточки цифр -->
+            <div class="digits-grid">
+                @for (digit of result.digits; track digit; let idx = $index) {
+                <app-digit-card [digit]="digit" [position]="idx" [selectedDigit]="selectedDigits().get(idx)"
+                    (digitSelected)="onDigitSelected($event)" (digitDeselected)="onDigitDeselected($event)" />
+                }
+            </div>
+
+            <!-- Кнопка сохранения -->
+            <div class="save-button-container">
+                <p-button label="📤 Save Selected Digits" severity="success"
+                    [disabled]="!hasSelections() || processing()" (onClick)="submitCorrections()"
+                    [loading]="processing()" />
+            </div>
+        </p-card>
+        }
+
+
+
+    </section>
+
+
+    <!-- Toast для уведомлений -->
+    <p-toast position="top-right" />
+
+    <!-- Диалог подтверждения -->
+    <p-confirmDialog />
+</div>

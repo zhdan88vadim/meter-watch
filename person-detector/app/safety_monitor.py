@@ -2,8 +2,8 @@ import time
 import threading
 from datetime import datetime
 from typing import Optional, Dict, Callable, List
-from app.config import config
-from app.redis_manager import RedisManager
+from meter_watch_shared.config import config
+from meter_watch_shared.redis_manager import RedisManager
 from app.telegram_bot import telegram_bot
 import logging
 
@@ -71,8 +71,11 @@ class SafetyMonitor:
         
         # Если человек появился - выходим из режима запуска
         if time_since_seen is not None and time_since_seen < config.STARTUP_PERSON_TIMEOUT:
+            time_str = time.strftime("%H:%M %d:%m:%Y", time.localtime(time.time()))
+
             RedisManager.delete_key(config.REDIS_KEYS['startup'])
             RedisManager.set_key(config.REDIS_KEYS['human_last_seen'], str(time.time()))
+            RedisManager.set_key(config.REDIS_KEYS['human_last_seen_str'], time_str)
             logger.info("👤 Person detected - startup mode cleared")
             self._notify(self.on_person_detected_callbacks)
     

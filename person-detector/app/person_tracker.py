@@ -5,8 +5,8 @@ from ultralytics import YOLO
 import time
 import threading
 import numpy as np
-from app.config import config
-from app.redis_manager import RedisManager
+from meter_watch_shared.config import config
+from meter_watch_shared.redis_manager import RedisManager
 from app.video_buffer import VideoBuffer
 from app.safety_monitor import SafetyMonitor
 from app.telegram_bot import telegram_bot
@@ -120,6 +120,12 @@ class PersonTracker:
             # Обновляем время появления каждого
             for person_id in current_people:
                 self.last_seen[person_id] = current_time
+                time_str = time.strftime("%H:%M %d:%m:%Y", time.localtime(time.time()))
+
+                RedisManager.set_key(
+                    config.REDIS_KEYS['human_last_seen_str'], 
+                    time_str
+                )
                 RedisManager.set_key(
                     config.REDIS_KEYS['human_last_seen'], 
                     str(current_time)
@@ -210,7 +216,7 @@ class PersonTracker:
                     continue
                 
                 self.process_frame(frame)
-                cv2.imshow("Tracker", frame)
+                # cv2.imshow("Tracker", frame)
                 
                 if cv2.waitKey(1) & 0xFF == ord("q"):
                     break

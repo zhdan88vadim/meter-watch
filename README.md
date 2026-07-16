@@ -170,14 +170,25 @@ Input (128x64) → Conv(32) → Conv(64) → Conv(128) → Dense(256) → Dense(
 ## Сбор данных со счетчика
 
 Счетчик закреплен неподвижно, но возможны вибрации и небольшое смещение камеры из-за внешних воздействий.
+<!-- 
+<div style="display: flex; flex-wrap: wrap; gap: 10px;">
+  <img src="readme_images/raw_imgs/1.png" width="25%">
+  <img src="readme_images/raw_imgs/2.png" width="25%">
+  <img src="readme_images/raw_imgs/3.png" width="25%">
+  <img src="readme_images/raw_imgs/4.png" width="25%">
+  <img src="readme_images/raw_imgs/5.png" width="25%">
+  <img src="readme_images/raw_imgs/6.png" width="25%">
+  <img src="readme_images/raw_imgs/7.png" width="25%">
+</div> -->
 
-<img src="readme_images/raw_imgs/1.png" width="25%">
-<img src="readme_images/raw_imgs/2.png" width="25%">
-<img src="readme_images/raw_imgs/3.png" width="25%">
-<img src="readme_images/raw_imgs/4.png" width="25%">
-<img src="readme_images/raw_imgs/5.png" width="25%">
-<img src="readme_images/raw_imgs/6.png" width="25%">
-<img src="readme_images/raw_imgs/7.png" width="25%">
+| | | |
+|:-:|:-:|:-:|
+|![](readme_images/raw_imgs/1.png)|![](readme_images/raw_imgs/2.png)|![](readme_images/raw_imgs/3.png)|
+|![](readme_images/raw_imgs/4.png)|![](readme_images/raw_imgs/5.png)|![](readme_images/raw_imgs/6.png)|
+|![](readme_images/raw_imgs/7.png)|||
+
+
+
 
 С помощью OpenCV выполнена сегментация данных, на основе которых впоследствии были созданы тренировочный и валидационный наборы.
 
