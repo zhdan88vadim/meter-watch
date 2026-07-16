@@ -7,104 +7,120 @@ import face_recognition
 import numpy as np
 import os
 import pickle
-import sys
+import warnings
 
-# ==================== SUPPRESS FFMPEG WARNINGS ====================
+# ==================== SUPPRESS WARNINGS ====================
+warnings.filterwarnings("ignore")
 os.environ['OPENCV_LOG_LEVEL'] = 'ERROR'
-os.environ['OPENCV_FFMPEG_LOGLEVEL'] = '-8'  # Suppress FFMPEG logs
+os.environ['OPENCV_FFMPEG_LOGLEVEL'] = '-8'
 
-# ==================== RTSP STREAM WITH RECONNECTION ====================
-class RTSPStream:
-    def __init__(self, rtsp_url, target_width=640, target_height=480, max_retries=50):
-        self.rtsp_url = rtsp_url
-        self.target_width = target_width
-        self.target_height = target_height
-        self.max_retries = max_retries
-        self.cap = None
-        self.retry_count = 0
+# ==================== VIDEO RECORDER ====================
+class VideoRecorder:
+    def __init__(self, output_dir="recordings", record_on_any_person=True):
+        self.output_dir = output_dir
+        self.recording = False
+        self.raw_writer = None
+        self.annotated_writer = None
+        self.record_start_time = None
+        self.last_person_time = time.time()
+        self.no_person_timeout = 4.0
+        self.session_id = None
+        self.current_track_ids = set()
+        self.record_on_any_person = record_on_any_person  # Режим записи
+        self.frame_count = 0
         
-    def connect(self):
-        """Connect to RTSP stream with retries"""
-        print(f"📡 Connecting to RTSP: {self.rtsp_url}")
-        
-        # Try different backends
-        backends = [
-            cv2.CAP_FFMPEG,
-            cv2.CAP_ANY
-        ]
-        
-        for backend in backends:
-            try:
-                self.cap = cv2.VideoCapture(self.rtsp_url, backend)
-                
-                if self.cap.isOpened():
-                    # Optimize for RTSP
-                    self.cap.set(cv2.CAP_PROP_BUFFERSIZE, 1)
-                    self.cap.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter_fourcc('M', 'J', 'P', 'G'))
-                    
-                    # Reduce resolution if possible
-                    self.cap.set(cv2.CAP_PROP_FRAME_WIDTH, self.target_width)
-                    self.cap.set(cv2.CAP_PROP_FRAME_HEIGHT, self.target_height)
-                    
-                    # Lower timeout for faster reconnection
-                    # self.cap.set(cv2.CAP_PROP_TIMEOUT_MS, 1000)
-                    
-                    # Test read
-                    ret, frame = self.cap.read()
-                    if ret and frame is not None:
-                        print(f"✅ Connected to RTSP stream (backend: {backend})")
-                        return True
-                    else:
-                        self.cap.release()
-                        self.cap = None
-                        
-            except Exception as e:
-                print(f"⚠️ Backend {backend} failed: {e}")
-                continue
-        
-        print("❌ Failed to connect to RTSP stream")
+        os.makedirs(output_dir, exist_ok=True)
+        print(f"📁 Recordings will be saved to: {output_dir}")
+    
+    def start_recording(self, frame, track_ids):
+        """Start recording if not already recording"""
+        if not self.recording:
+            self.session_id = datetime.now().strftime("%Y%m%d_%H%M%S")
+            self.record_start_time = time.time()
+            self.current_track_ids = set(track_ids)
+            self.frame_count = 0
+            
+            h, w = frame.shape[:2]
+            
+            raw_path = os.path.join(self.output_dir, f"raw_{self.session_id}.mp4")
+            self.raw_writer = cv2.VideoWriter(
+                raw_path,
+                cv2.VideoWriter_fourcc(*'mp4v'),
+                25.0,
+                (w, h)
+            )
+            
+            annotated_path = os.path.join(self.output_dir, f"annotated_{self.session_id}.mp4")
+            self.annotated_writer = cv2.VideoWriter(
+                annotated_path,
+                cv2.VideoWriter_fourcc(*'mp4v'),
+                25.0,
+                (w, h)
+            )
+            
+            self.recording = True
+            self.last_person_time = time.time()
+            print(f"🎥 Recording started: {self.session_id}")
+            print(f"   Raw: {raw_path}")
+            print(f"   Annotated: {annotated_path}")
+            return True
         return False
     
-    def read(self):
-        """Read frame with reconnection on error"""
-        if self.cap is None:
-            if not self.connect():
-                return False, None
+    def update(self, frame, annotated_frame, track_ids):
+        """Update recording state"""
+        current_time = time.time()
         
-        ret, frame = self.cap.read()
+        # ✅ START RECORDING if there are people and not recording
+        if not self.recording and track_ids:
+            self.start_recording(frame, track_ids)
+            # Write first frame immediately
+            if self.recording:
+                self.raw_writer.write(frame)
+                self.annotated_writer.write(annotated_frame)
+                return
         
-        if not ret or frame is None:
-            print("⚠️ Lost frame, attempting reconnect...")
-            self.retry_count += 1
+        # Update last person time if there are people
+        if track_ids:
+            self.last_person_time = current_time
+            self.current_track_ids = set(track_ids)
+        
+        # Check if we should stop recording
+        if self.recording and (current_time - self.last_person_time > self.no_person_timeout):
+            self.stop_recording()
+            return
+        
+        # Write frames if recording
+        if self.recording:
+            self.raw_writer.write(frame)
+            self.annotated_writer.write(annotated_frame)
+            self.frame_count += 1
             
-            if self.retry_count > self.max_retries:
-                print("❌ Max retries exceeded")
-                return False, None
+            # Update info on annotated frame
+            duration = current_time - self.record_start_time
+            cv2.putText(annotated_frame, f"REC {duration:.1f}s", (10, 30),
+                        cv2.FONT_HERSHEY_SIMPLEX, 1.0, (0, 0, 255), 2)
+            cv2.putText(annotated_frame, f"Frames: {self.frame_count}", (10, 60),
+                        cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 0, 255), 2)
+    
+    def stop_recording(self):
+        """Stop recording and release resources"""
+        if self.recording:
+            if self.raw_writer:
+                self.raw_writer.release()
+                self.raw_writer = None
+            if self.annotated_writer:
+                self.annotated_writer.release()
+                self.annotated_writer = None
             
-            # Reconnect
-            if self.cap:
-                self.cap.release()
-            time.sleep(1)
-            
-            if self.connect():
-                self.retry_count = 0
-                return self.read()
-            return False, None
-        
-        # Reset retry count on successful read
-        self.retry_count = 0
-        
-        # Resize frame if needed
-        if frame.shape[1] != self.target_width or frame.shape[0] != self.target_height:
-            frame = cv2.resize(frame, (self.target_width, self.target_height))
-        
-        return True, frame
+            duration = time.time() - self.record_start_time
+            print(f"⏹️ Recording stopped: {self.session_id} (duration: {duration:.1f}s, frames: {self.frame_count})")
+            self.recording = False
+            self.session_id = None
+            self.frame_count = 0
     
     def release(self):
-        """Release resources"""
-        if self.cap:
-            self.cap.release()
-            self.cap = None
+        """Release all resources"""
+        self.stop_recording()
 
 # ==================== FACE RECOGNITION SETUP ====================
 class FaceRecognizer:
@@ -192,10 +208,13 @@ class FaceRecognizer:
             except:
                 face_rgb = face_image
             
-            if face_rgb.shape[0] > 100 or face_rgb.shape[1] > 100:
-                face_rgb = cv2.resize(face_rgb, (100, 100))
+            # if face_rgb.shape[0] > 100 or face_rgb.shape[1] > 100:
+            #     face_rgb = cv2.resize(face_rgb, (100, 100))
             
-            face_locations = face_recognition.face_locations(face_rgb, model="hog")
+            # face_locations = face_recognition.face_locations(face_rgb, model="hog")
+            face_locations = face_recognition.face_locations(face_rgb)
+
+            print("face_recognition")
             
             if not face_locations:
                 return "Unknown", 0.0
@@ -226,15 +245,104 @@ class FaceRecognizer:
             print(f"   ⚠️ Face recognition error: {e}")
             return "Unknown", 0.0
 
+# ==================== RTSP STREAM ====================
+class RTSPStream:
+    def __init__(self, rtsp_url, target_width=640, target_height=480, max_retries=5):
+        self.rtsp_url = rtsp_url
+        self.target_width = target_width
+        self.target_height = target_height
+        self.max_retries = max_retries
+        self.cap = None
+        self.retry_count = 0
+        
+    def connect(self):
+        """Connect to RTSP stream"""
+        print(f"📡 Connecting to RTSP: {self.rtsp_url}")
+        
+        try:
+            self.cap = cv2.VideoCapture(self.rtsp_url)
+            
+            if self.cap.isOpened():
+                try:
+                    self.cap.set(cv2.CAP_PROP_BUFFERSIZE, 1)
+                except:
+                    pass
+                
+                try:
+                    self.cap.set(cv2.CAP_PROP_FRAME_WIDTH, self.target_width)
+                    self.cap.set(cv2.CAP_PROP_FRAME_HEIGHT, self.target_height)
+                except:
+                    pass
+                
+                ret, frame = self.cap.read()
+                if ret and frame is not None:
+                    print(f"✅ Connected to RTSP stream")
+                    return True
+                else:
+                    self.cap.release()
+                    self.cap = None
+            else:
+                print("❌ Could not open RTSP stream")
+                
+        except Exception as e:
+            print(f"❌ Connection error: {e}")
+            self.cap = None
+        
+        return False
+    
+    def read(self):
+        """Read frame with reconnection"""
+        if self.cap is None:
+            if not self.connect():
+                return False, None
+        
+        try:
+            ret, frame = self.cap.read()
+        except:
+            ret = False
+            frame = None
+        
+        if not ret or frame is None:
+            self.retry_count += 1
+            if self.retry_count > self.max_retries:
+                return False, None
+            
+            if self.cap:
+                try:
+                    self.cap.release()
+                except:
+                    pass
+                self.cap = None
+            
+            time.sleep(1)
+            if self.connect():
+                self.retry_count = 0
+                return self.read()
+            return False, None
+        
+        self.retry_count = 0
+        
+        if frame.shape[1] != self.target_width or frame.shape[0] != self.target_height:
+            frame = cv2.resize(frame, (self.target_width, self.target_height))
+        
+        return True, frame
+    
+    def release(self):
+        if self.cap:
+            try:
+                self.cap.release()
+            except:
+                pass
+            self.cap = None
+
 # ==================== MAIN TRACKING CLASS ====================
 class PersonTrackerWithFaces:
     def __init__(self, source=0):
         self.source = source
-        self.model = YOLO('yolov8n.pt')
         
-        # Use RTSPStream wrapper
+        # Use RTSPStream wrapper for RTSP
         if isinstance(source, str) and source.startswith('rtsp://'):
-            self.stream = RTSPStream(source, target_width=640, target_height=480)
+            self.stream = RTSPStream(source, target_width=800, target_height=600)
             if not self.stream.connect():
                 print("❌ Failed to connect to RTSP stream")
                 sys.exit(1)
@@ -244,21 +352,25 @@ class PersonTrackerWithFaces:
             self.cap = cv2.VideoCapture(source)
             self.use_stream = False
         
-        # Frame skipping settings
-        self.skip_frames = 1
-        self.recognition_interval = 10
-        self.target_width = 640
-        self.target_height = 480
+        self.model = YOLO('yolov8n.pt')
+        
+        # Video recorder
+        self.recorder = VideoRecorder(output_dir="recordings")
+        
+        # Settings
+        self.skip_frames = 3
+        self.recognition_interval = 5
+        self.target_width = 800
+        self.target_height = 600
         
         self.entry_times = {}
         self.person_names = {}
         self.face_recognizer = FaceRecognizer()
         self.fps_calculator = FPS(avg_window=30)
         
-        # Settings
         self.confidence_threshold = 0.3
         self.face_padding = 20
-        self.face_upper_ratio = 0.4
+        self.face_upper_ratio = 0.9 # 0.4
         self.recognition_attempts = {}
         
         # Create log file
@@ -277,7 +389,6 @@ class PersonTrackerWithFaces:
         
         print(f"🚶 {name} (ID:{track_id}) left. Duration: {duration:.2f}s")
         
-        # Cleanup
         if track_id in self.person_names:
             del self.person_names[track_id]
         if track_id in self.recognition_attempts:
@@ -292,10 +403,32 @@ class PersonTrackerWithFaces:
         face_x2 = min(frame.shape[1], x2 + self.face_padding)
         
         return frame[face_y1:face_y2, face_x1:face_x2]
-    
+
+    def save_face_debug(self, face_region, track_id):
+            """Save face region to logs folder for debugging"""
+            # Create logs directory if it doesn't exist
+            log_dir = "logs/faces"
+            os.makedirs(log_dir, exist_ok=True)
+            
+            # Generate filename with timestamp and track_id
+            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S_%f")[:-3]  # Include milliseconds
+            filename = f"track_{track_id}_{timestamp}.jpg"
+            filepath = os.path.join(log_dir, filename)
+            
+            # Save the image
+            cv2.imwrite(filepath, face_region)
+            
+            # Optional: Also save with bounding box info in a text file
+            info_file = os.path.join(log_dir, "face_info.txt")
+            with open(info_file, "a") as f:
+                f.write(f"{filename}: track_id={track_id}, shape={face_region.shape}\n")
+
+
     def identify_person(self, frame, bbox, track_id):
         face_region = self.extract_face_region(frame, bbox)
         
+        self.save_face_debug(face_region, track_id)
+
         if face_region.size == 0:
             return "Unknown", 0.0
         
@@ -316,7 +449,6 @@ class PersonTrackerWithFaces:
         cv2.putText(frame, f"det: {confidence:.2f}", (x1, y1 + 20),
                     cv2.FONT_HERSHEY_SIMPLEX, 0.4, (255, 255, 255), 1)
         
-        # Show attempts for unknown
         if name == "Unknown" and track_id in self.recognition_attempts:
             attempts = self.recognition_attempts[track_id]
             cv2.putText(frame, f"attempts: {attempts}", (x1, y1 + 40),
@@ -341,7 +473,6 @@ class PersonTrackerWithFaces:
                 self.recognition_attempts[track_id] = 0
                 print(f"🆕 New person. ID: {track_id}")
                 
-                # Try to recognize immediately
                 name, face_conf = self.identify_person(frame, bbox, track_id)
                 self.recognition_attempts[track_id] += 1
                 
@@ -351,7 +482,7 @@ class PersonTrackerWithFaces:
                 else:
                     print(f"   ❌ Face not recognized (will retry)")
             
-            # Periodic recognition for Unknown
+            # Periodic recognition
             elif self.person_names.get(track_id) == "Unknown":
                 if processed_count % self.recognition_interval == 0:
                     name, face_conf = self.identify_person(frame, bbox, track_id)
@@ -359,9 +490,7 @@ class PersonTrackerWithFaces:
                     
                     if name != "Unknown":
                         self.person_names[track_id] = name
-                        print(f"   ✅ RECOGNIZED! ID:{track_id} as: {name} (confidence: {face_conf:.2f}) after {self.recognition_attempts[track_id]} attempts")
-                    elif self.recognition_attempts[track_id] % 10 == 0:
-                        print(f"   ⏳ ID:{track_id} still unknown after {self.recognition_attempts[track_id]} attempts")
+                        print(f"   ✅ RECOGNIZED! ID:{track_id} as: {name}")
             
             # Draw
             name = self.person_names.get(track_id, "Unknown")
@@ -388,13 +517,11 @@ class PersonTrackerWithFaces:
             y_pos += line_height
     
     def read_frame(self):
-        """Read frame from either RTSP stream or webcam"""
         if self.use_stream:
             return self.stream.read()
         else:
             ret, frame = self.cap.read()
             if ret and frame is not None:
-                # Resize if needed
                 if frame.shape[1] != self.target_width or frame.shape[0] != self.target_height:
                     frame = cv2.resize(frame, (self.target_width, self.target_height))
             return ret, frame
@@ -403,7 +530,6 @@ class PersonTrackerWithFaces:
         print("🎯 Starting tracking with face recognition...")
         print(f"📊 Known faces: {len(self.face_recognizer.known_face_names)}")
         print(f"⚡ Frame skip: every {self.skip_frames + 1}-th frame")
-        print(f"⚡ Recognition: every {self.recognition_interval} frames")
         print("📸 Press 'q' to exit")
         
         frame_count = 0
@@ -414,10 +540,8 @@ class PersonTrackerWithFaces:
         real_time_frames = 0
         
         while True:
-            # Read frame
             success, frame = self.read_frame()
             if not success:
-                print("⚠️ No frame received")
                 time.sleep(0.5)
                 continue
             
@@ -455,22 +579,33 @@ class PersonTrackerWithFaces:
                 print(f"⚠️ YOLO error: {e}")
                 continue
             
+            # Create annotated frame
+            annotated_frame = frame.copy()
+            track_ids = set()
+            
             if results[0].boxes is not None and results[0].boxes.id is not None:
                 boxes = results[0].boxes.xyxy.cpu().numpy().astype(int)
-                track_ids = results[0].boxes.id.cpu().numpy().astype(int)
+                track_ids = set(results[0].boxes.id.cpu().numpy().astype(int))
                 confidences = results[0].boxes.conf.cpu().numpy()
                 
-                self.process_tracked_people(frame, boxes, track_ids, confidences, processed_count)
+                self.process_tracked_people(annotated_frame, boxes, list(track_ids), confidences, processed_count)
             
-            self.draw_info_panel(frame, current_fps, real_time_fps, 
+            # Update info panel on annotated frame
+            self.draw_info_panel(annotated_frame, current_fps, real_time_fps, 
                                frame_count, processed_count, skipped_count)
             
-            cv2.imshow("YOLOv8 + ByteTrack + Face Recognition", frame)
+            # ===== VIDEO RECORDING =====
+            self.recorder.update(frame, annotated_frame, track_ids)
+            
+            # Show video
+            cv2.imshow("YOLOv8 + ByteTrack + Face Recognition", annotated_frame)
             
             if cv2.waitKey(1) & 0xFF == ord("q"):
                 break
         
         # Cleanup
+        self.recorder.release()
+        
         if self.use_stream:
             self.stream.release()
         else:
@@ -482,26 +617,19 @@ class PersonTrackerWithFaces:
             self.log_person_exit(track_id, entry_time)
         
         print("\n👋 Program finished")
-        print(f"📊 Total frames: {frame_count}")
-        print(f"📊 Processed: {processed_count}")
-        print(f"📊 Skipped: {skipped_count}")
-        print("📊 Results saved to tracking_log.csv")
 
 # ==================== MAIN ====================
 if __name__ == "__main__":
-    # Suppress warnings
-    import warnings
-    warnings.filterwarnings("ignore")
-    
     if not os.path.exists("known_faces"):
         os.makedirs("known_faces")
         print("📁 Created 'known_faces' folder")
         print("📸 Add photos of known people")
         print("   Format: person_name.jpg")
     
-    # Use RTSP stream
-    rtsp_url = "rtsp://192.168.0.102:8554/hikvision_room?mp4"
-    # Or webcam: rtsp_url = 0
+    # RTSP or webcam
+    # rtsp_url = 0  # Webcam
+    # rtsp_url = "rtsp://192.168.0.102:8554/hikvision_room?mp4"
+    rtsp_url = "rtsp://192.168.0.102:8554/balcony_camera_hero_4mp_wifi_h264?mp4"
     
     tracker = PersonTrackerWithFaces(source=rtsp_url)
     tracker.run()

@@ -30,6 +30,22 @@ r = redis.Redis(
 
 # r = redis.Redis(host='localhost', port=6379, db=0, decode_responses=True)
 
+# ==================== HELPER FUNCTIONS ====================
+def convert_to_serializable(obj):
+    """Рекурсивно преобразует numpy типы в стандартные Python типы для сохранения в Redis"""
+    if isinstance(obj, np.integer):
+        return int(obj)
+    elif isinstance(obj, np.floating):
+        return float(obj)
+    elif isinstance(obj, np.ndarray):
+        return obj.tolist()
+    elif isinstance(obj, dict):
+        return {k: convert_to_serializable(v) for k, v in obj.items()}
+    elif isinstance(obj, (list, tuple)):
+        return [convert_to_serializable(item) for item in obj]
+    else:
+        return obj
+
 # ==================== VIDEO BUFFER CLASS ====================
 class VideoBuffer:
     """Stores video frames in a circular buffer for pre-roll recording"""
@@ -158,12 +174,16 @@ class PersonTracker:
         
     def publish_event(self, event_type, track_id, data=None):
         """Publish event to Redis for other services"""
+        # Преобразуем все numpy типы в стандартные Python типы
+        serializable_data = convert_to_serializable(data or {})
+        track_id_int = int(track_id) if isinstance(track_id, (np.integer, np.floating)) else track_id
+        
         event = {
             'type': event_type,
-            'track_id': track_id,
+            'track_id': track_id_int,
             'timestamp': time.time(),
             'datetime': datetime.now().isoformat(),
-            'data': data or {}
+            'data': serializable_data
         }
         r.publish('detection:events', json.dumps(event))
         
@@ -174,75 +194,84 @@ class PersonTracker:
     def log_person_entry(self, track_id, bbox, confidence):
         """Handle person entering the frame"""
         entry_time = time.time()
-        self.entry_times[track_id] = entry_time
+        
+        # Преобразуем numpy типы в стандартные Python типы
+        track_id_int = int(track_id) if isinstance(track_id, (np.integer, np.floating)) else track_id
+        bbox_list = [int(x) for x in bbox]  # Преобразуем все значения в int
+        confidence_val = float(confidence) if isinstance(confidence, (np.floating, np.integer)) else float(confidence)
+        
+        self.entry_times[track_id_int] = entry_time
         
         # Store in Redis
-        person_key = f"person:{track_id}"
+        person_key = f"person:{track_id_int}"
         r.hset(person_key, mapping={
             'first_seen': entry_time,
             'last_seen': entry_time,
-            'bbox': str(bbox),
-            'confidence': confidence,
+            'bbox': str(bbox_list),  # Сохраняем как строку
+            'confidence': confidence_val,
             'status': 'active'
         })
         r.expire(person_key, 3600)  # Expire after 1 hour
         
         # Add to active set
-        r.sadd('active:people', track_id)
+        r.sadd('active:people', track_id_int)
         
         # Start recording
-        self.buffer.start_recording(session_id=track_id)
-        self.recording_sessions[track_id] = {
+        self.buffer.start_recording(session_id=str(track_id_int))
+        self.recording_sessions[track_id_int] = {
             'start_time': entry_time,
             'active': True
         }
         
         # Publish event
-        self.publish_event('person_entered', track_id, {
-            'bbox': bbox,
-            'confidence': confidence
+        self.publish_event('person_entered', track_id_int, {
+            'bbox': bbox_list,
+            'confidence': confidence_val
         })
         
-        print(f"👤 Person {track_id} entered at {datetime.fromtimestamp(entry_time)}")
+        print(f"👤 Person {track_id_int} entered at {datetime.fromtimestamp(entry_time)}")
     
     def log_person_exit(self, track_id):
         """Handle person leaving the frame"""
-        if track_id not in self.entry_times:
+        # Преобразуем track_id в int если нужно
+        track_id_int = int(track_id) if isinstance(track_id, (np.integer, np.floating)) else track_id
+        
+        if track_id_int not in self.entry_times:
             return
             
-        entry_time = self.entry_times.pop(track_id)
+        entry_time = self.entry_times.pop(track_id_int)
         exit_time = time.time()
         duration = exit_time - entry_time
         
         # Log to CSV
         with open("tracking_log.csv", "a") as f:
-            f.write(f"{datetime.fromtimestamp(entry_time)}, {datetime.fromtimestamp(exit_time)}, {duration:.2f}s, ID:{track_id}\n")
+            f.write(f"{datetime.fromtimestamp(entry_time)}, {datetime.fromtimestamp(exit_time)}, {duration:.2f}s, ID:{track_id_int}\n")
         
         # Update Redis
-        person_key = f"person:{track_id}"
+        person_key = f"person:{track_id_int}"
         r.hset(person_key, 'status', 'exited')
         r.hset(person_key, 'exit_time', exit_time)
         r.hset(person_key, 'duration', duration)
-        r.srem('active:people', track_id)
+        r.srem('active:people', track_id_int)
         
         # Stop recording after post-roll period
-        if track_id in self.recording_sessions:
+        if track_id_int in self.recording_sessions:
             # Schedule stop after post_roll_seconds
             def delayed_stop():
                 time.sleep(self.post_roll_seconds)
                 if self.buffer.is_recording:
                     self.buffer.stop_recording()
-                    self.recording_sessions[track_id]['active'] = False
-                    print(f"🛑 Recording stopped for person {track_id}")
+                    self.recording_sessions[track_id_int]['active'] = False
+                    print(f"🛑 Recording stopped for person {track_id_int}")
             
             threading.Thread(target=delayed_stop, daemon=True).start()
         
         # Publish event
-        self.publish_event('person_exited', track_id, {
+        self.publish_event('person_exited', track_id_int, {
             'duration': duration
         })
         
-        print(f"🚶 Person {track_id} exited. Duration: {duration:.2f}s")
+        print(f"🚶 Person {track_id_int} exited. Duration: {duration:.2f}s")
     
     def run(self):
         """Main detection loop"""
@@ -273,21 +302,24 @@ class PersonTracker:
                 
                 # Update last seen time for each detected person
                 for i, track_id in enumerate(track_ids):
-                    self.entry_times[track_id] = time.time()  # Update last seen
+                    # Преобразуем в int для использования как ключ
+                    track_id_int = int(track_id)
+                    self.entry_times[track_id_int] = time.time()  # Update last seen
                     
                     # Update Redis with current position
-                    r.hset(f"person:{track_id}", 'last_seen', time.time())
-                    r.hset(f"person:{track_id}", 'bbox', str(boxes[i].tolist()))
+                    bbox_list = [int(x) for x in boxes[i].tolist()]
+                    r.hset(f"person:{track_id_int}", 'last_seen', time.time())
+                    r.hset(f"person:{track_id_int}", 'bbox', str(bbox_list))
                     
                     # Draw bounding boxes
                     x1, y1, x2, y2 = boxes[i]
                     cv2.rectangle(frame, (x1, y1), (x2, y2), (0, 255, 0), 2)
-                    cv2.putText(frame, f"ID: {track_id}", (x1, y1 - 10),
+                    cv2.putText(frame, f"ID: {track_id_int}", (x1, y1 - 10),
                                 cv2.FONT_HERSHEY_SIMPLEX, 0.9, (0, 255, 0), 2)
                     
                     # New person detected
-                    if track_id not in self.recording_sessions:
-                        self.log_person_entry(track_id, boxes[i], confidences[i])
+                    if track_id_int not in self.recording_sessions:
+                        self.log_person_entry(track_id_int, boxes[i], confidences[i])
             
             # Check for people who have exited
             for track_id in list(self.recording_sessions.keys()):
