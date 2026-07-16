@@ -124,3 +124,13 @@ pip uninstall meter-watch-shared -y
 
 python -m pip install -e . --no-user
 
+
+
+# tools
+
+
+apt-get update && apt-get install -y procps
+
+ps aux | grep python
+
+pkill -f "python app.py"

@@ -76,6 +76,7 @@ class Config:
         'gas_number': 'meter:gas:number',
         'gas_last_activity': 'meter:gas:last_activity',
         'human_last_seen': 'human:last_seen',
+        'human_last_seen_str': 'human:last_seen_str',
         'alert_cooldown': 'alert:telegram:cooldown',
         'active_people': 'active:people',
         'recording_prefix': 'recording:',
