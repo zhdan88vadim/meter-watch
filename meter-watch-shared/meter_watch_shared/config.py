@@ -16,7 +16,8 @@ def load_environment():
         return
     
     # Локальная разработка - загружаем .env
-    base_dir = Path(__file__).resolve().parent.parent
+    # base_dir = Path(__file__).resolve().parent.parent
+    base_dir = Path(__file__).resolve().parent.parent.parent
     env_file = base_dir / '.env'
     
     if env_file.exists():
@@ -72,6 +73,8 @@ class Config:
     REDIS_KEYS = {
         'startup': 'system:startup:timestamp',
         'gas_flow': 'meter:gas:flow',
+        'gas_number': 'meter:gas:number',
+        'gas_last_activity': 'meter:gas:last_activity',
         'human_last_seen': 'human:last_seen',
         'alert_cooldown': 'alert:telegram:cooldown',
         'active_people': 'active:people',

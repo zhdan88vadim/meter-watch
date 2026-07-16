@@ -120,6 +120,12 @@ class PersonTracker:
             # Обновляем время появления каждого
             for person_id in current_people:
                 self.last_seen[person_id] = current_time
+                time_str = time.strftime("%H:%M %d:%m:%Y", time.localtime(time.time()))
+
+                RedisManager.set_key(
+                    config.REDIS_KEYS['human_last_seen_str'], 
+                    time_str
+                )
                 RedisManager.set_key(
                     config.REDIS_KEYS['human_last_seen'], 
                     str(current_time)

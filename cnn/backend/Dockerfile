@@ -23,7 +23,7 @@ RUN --mount=type=cache,target=/root/.cache/pip,id=permanent_pip_cache,sharing=lo
 # Copy application
 # COPY . .
 
-COPY cnn /app
+COPY cnn/backend /app
 
 COPY meter-watch-shared /app/meter_watch_shared
 

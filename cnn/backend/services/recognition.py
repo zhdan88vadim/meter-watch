@@ -33,10 +33,10 @@ def recognize_image(image):
             'confidence': float(conf),
             'heatmap_gradcam': image_to_base64(cv2.applyColorMap(cam_vis, cv2.COLORMAP_JET)),
             'heatmap_saliency': image_to_base64(cv2.applyColorMap(saliency_vis, cv2.COLORMAP_HOT)),
-            'digit_image': image_to_base64(centered),
-            'raw_image': resized_square,
-            'prepared_model_image': prepared,
-            'source_image': original_digits[i],
+            'digit_image': image_to_base64(resized_square),
+            # 'prepared_model_image': prepared,
+            # 'raw_image': resized_square,
+            # 'source_image': original_digits[i],
         })
         result['full_number'] += str(pred)
     

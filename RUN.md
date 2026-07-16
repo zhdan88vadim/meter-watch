@@ -69,7 +69,13 @@ docker compose build && (echo -e "\a"; sleep 0.1; echo -e "\a"; sleep 0.2; echo 
 
 docker compose up --build
 
+# run docker
+
 docker compose up person-detector-app
+docker compose up cnn-recognition-app
+
+docker compose up redis
+docker compose up redis-commander
 
 
 docker compose restart
@@ -111,4 +117,10 @@ ln -s /media/vadim/1TB_SSD/my_github/meter-watch/meter-watch-shared meter_watch_
 
 # Проверить
 python -c "import meter_watch_shared; print('✅ Found')"
+
+
+
+pip uninstall meter-watch-shared -y
+
+python -m pip install -e . --no-user
 

@@ -40,9 +40,11 @@ services:
       - "5000:5000"
       - "5001:5001"
     volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /etc/timezone:/etc/timezone:ro    
       - ./meter-watch-shared:/app/meter_watch_shared
       - ./person-detector:/app/local
-      - ./recordings:/app/recordings
+      - ./recordings:/app/recordings      
     devices:
       - /dev/video0:/dev/video0
     privileged: true
@@ -60,15 +62,13 @@ services:
       - "5002:5002"
     env_file:
       - .env
-    # environment:
-    #   - REDIS_HOST=redis
-    #   - REDIS_PORT=6379
-    #   - MODEL_PATH=/app/models/cnn_model.h5
-    #   - PYTHONPATH=/app
     volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /etc/timezone:/etc/timezone:ro    
       - ./meter-watch-shared:/app/meter_watch_shared
       - ./cnn/backend:/app/local
-      - ./models:/app/models
+      - ./output:/app/local/output
+      - ./output:/app/output
     depends_on:
       redis:
         condition: service_healthy
