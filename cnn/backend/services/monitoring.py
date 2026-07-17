@@ -106,6 +106,8 @@ def monitor_loop():
                         history.pop(0)
                     print("✅ Обнаружено изменение; новые цифры:", new_digits)
 
+                    save_test_image(img, result['full_number'], "next", Config.VALIDATION_DIR)
+
                     RedisManager.set_key(meter_watch_shared_config.REDIS_KEYS['gas_flow'], "1")
                     RedisManager.set_key(meter_watch_shared_config.REDIS_KEYS['gas_number'], str(result['full_number']))
                     RedisManager.set_key(meter_watch_shared_config.REDIS_KEYS['gas_last_activity'], time_str)
