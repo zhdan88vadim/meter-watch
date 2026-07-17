@@ -6,11 +6,13 @@ import { BadgeModule } from 'primeng/badge';
 import { Subject, takeUntil } from 'rxjs';
 import { DigitReading, calculateProgress } from '../../models/digit-reading.model';
 import { DigitStreamService } from '../../services/digit-stream.service';
+import { PersonStatusCardComponent } from '../../../person-detector/components/person-status-card/person-status-card.component';
+import { StatusService } from '../../../person-detector/services/status.service';
 
 @Component({
   selector: 'app-digit-display',
   standalone: true,
-  imports: [CommonModule, ProgressBarModule, CardModule, BadgeModule],
+  imports: [CommonModule, ProgressBarModule, CardModule, BadgeModule, PersonStatusCardComponent],
   templateUrl: './digit-display.component.html',
   styleUrls: ['./digit-display.component.scss'],
 })
@@ -24,10 +26,19 @@ export class DigitDisplayComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
   private updateTimer?: any;
 
-  constructor(private digitService: DigitStreamService) {}
+  constructor(
+    private digitService: DigitStreamService,
+    public statusService: StatusService
+  ) {
+
+    this.statusService.status$.subscribe(x => {
+      console.log(x);
+      
+    })
+
+  }
 
   ngOnInit(): void {
-    // 🔁 Polling каждые 5 секунд
     this.digitService
       .pollLastActivity(5)
       .pipe(takeUntil(this.destroy$))
@@ -40,8 +51,9 @@ export class DigitDisplayComponent implements OnInit, OnDestroy {
         error: (err) => console.error('Polling error:', err),
       });
 
-    // ⏰ Прогресс бар обновляется каждую секунду
-    this.updateTimer = setInterval(() => this.updateProgress(), 1000);
+    this.updateTimer = setInterval(() => {
+      this.updateProgress();
+    }, 1000);
   }
 
   ngOnDestroy(): void {

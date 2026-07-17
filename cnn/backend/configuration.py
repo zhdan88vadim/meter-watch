@@ -15,13 +15,12 @@ class Config:
     OUTPUT_DIR = os.path.join(BASE_DIR, 'output')
     MODELS_DIR = os.path.join(BASE_DIR, 'models')
     MODEL_PATH = os.path.join(MODELS_DIR, 'digit_recognizer.pth')
-    # TRAINING_DATA_DIR = os.path.join(BASE_DIR, 'dataset')
-    
-    TRAINING_DATA_DIR = os.path.abspath(os.path.join(BASE_DIR, 'dataset'))
-    print(f"TRAINING_DATA_DIR: {TRAINING_DATA_DIR}")
+        
+    MANUAL_RECONGIZED_DATA_DIR = os.path.abspath(os.path.join(OUTPUT_DIR, 'manual_recongized_data'))
+    print(f"MANUAL_RECONGIZED_DATA_DIR: {MANUAL_RECONGIZED_DATA_DIR}")
 
-    WRONG_PREDICTIONS_DIR = os.path.join(BASE_DIR, 'output', 'wrong_predictions')
-    VALIDATION_DIR = os.path.join(BASE_DIR, 'output', 'validation')
+    WRONG_PREDICTIONS_DIR = os.path.join(OUTPUT_DIR, 'wrong_predictions')
+    VALIDATION_DIR = os.path.join(OUTPUT_DIR, 'validation')
     
     # Monitoring settings
     POLL_INTERVAL_SECONDS = 20 # 30
@@ -31,6 +30,6 @@ class Config:
     @classmethod
     def create_directories(cls):
         os.makedirs(cls.OUTPUT_DIR, exist_ok=True)
-        os.makedirs(cls.TRAINING_DATA_DIR, exist_ok=True)
+        os.makedirs(cls.MANUAL_RECONGIZED_DATA_DIR, exist_ok=True)
         os.makedirs(cls.WRONG_PREDICTIONS_DIR, exist_ok=True)    
         os.makedirs(cls.VALIDATION_DIR, exist_ok=True)    

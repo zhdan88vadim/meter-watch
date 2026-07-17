@@ -46,7 +46,8 @@ def get_status():
         'person': {
             'last_seen': float(last_seen) if last_seen else None,
             'last_seen_str': datetime.fromtimestamp(float(last_seen)).strftime('%H:%M:%S') if last_seen else None,
-            'is_present': last_seen and (time.time() - float(last_seen) < config.PERSON_ABSENCE_THRESHOLD)
+            # 'is_present': last_seen and (time.time() - float(last_seen) < config.PERSON_ABSENCE_THRESHOLD),
+            'is_active': last_seen and (time.time() - float(last_seen) < config.PERSON_IS_ACTIVE_THRESHOLD)
         },
         'alert': {
             'active': alert_active,
