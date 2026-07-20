@@ -3,8 +3,6 @@ from typing import Union
 import cv2
 from ultralytics import YOLO
 import time
-import threading
-import numpy as np
 from meter_watch_shared.config import config
 from meter_watch_shared.redis_manager import RedisManager
 from app.video_buffer import VideoBuffer
@@ -150,9 +148,10 @@ class PersonTracker:
         
         # Есть люди в кадре
         if current_people:
+            pass
             # Если запись не идет - начинаем
-            if not self.is_recording:
-                self._start_recording()
+            # if not self.is_recording:
+                # self._start_recording()
             # Если запись идет - продолжаем
             # (ничего не делаем)
         

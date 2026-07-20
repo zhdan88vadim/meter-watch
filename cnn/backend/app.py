@@ -16,9 +16,5 @@ app.register_blueprint(main_bp)
 app.register_blueprint(config_bp)
 app.register_blueprint(manual_recognize_bp)
 
-@app.route('/', methods=['GET'])
-def home():
-    return render_template('index.html')
-
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5002, debug=True)

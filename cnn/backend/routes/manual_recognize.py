@@ -178,7 +178,7 @@ def save_digit():
         if not image_base64:
             return jsonify({"error": "Image data is required"}), 400
         
-        digit_folder = Path(Config.TRAINING_DATA_DIR) / str(digit)
+        digit_folder = Path(Config.MANUAL_RECONGIZED_DATA_DIR) / str(digit)
         digit_folder.mkdir(parents=True, exist_ok=True)
         
         if filename:

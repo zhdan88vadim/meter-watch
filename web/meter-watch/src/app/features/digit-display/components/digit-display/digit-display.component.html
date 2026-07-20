@@ -19,34 +19,6 @@
   </div>
 
   <div class="card-content">
-    <div class="stats-grid">
-      <div class="stat-item">
-        <div class="stat-icon blue">
-          <i class="fas fa-wifi"></i>
-        </div>
-        <div class="stat-value">72%</div>
-        <div class="stat-label">Сигнал</div>
-      </div>
-      <div class="stat-item">
-        <div class="stat-icon green">
-          <i class="fas fa-battery-three-quarters"></i>
-        </div>
-        <div class="stat-value">84%</div>
-        <div class="stat-label">Батарея</div>
-      </div>
-    </div>
-
-    <!-- <div class="progress-section">
-      <div class="progress-header">
-        <span class="progress-label">Активность сегодня</span>
-        <span class="progress-value">72%</span>
-      </div>
-      <div class="progress-bar">
-        <div class="progress-fill" style="width: 72%">72%</div>
-      </div>
-    </div> -->
-
-
     <div class="countdown-section">
       <div class="countdown-header">
         <span>Если данных новых давно не поступало, считаем, что газ выключен</span>
@@ -56,9 +28,6 @@
       <p-progressBar [value]="progressPercent" [style]="{ height: '24px', borderRadius: '12px' }">
       </p-progressBar>
     </div>
-
-
-
 
     <h3 style="font-size: 14px; color: var(--text-secondary); margin-bottom: 12px;">
       История показаний
@@ -75,4 +44,14 @@
     </div>
 
   </div>
+
+  <hr>
+
+  <app-person-status-card
+    [lastSeenTimestamp]="(statusService.status$ | async)?.person?.last_seen ?? null"
+    [isPresentNow]="(statusService.status$ | async)?.person?.is_active ?? false"
+    [isAlertActive]="(statusService.status$ | async)?.alert?.active ?? false"
+    alertMessage="⚠️ Газ идет! Отправлено в Telegram"
+  />
+
 </div>

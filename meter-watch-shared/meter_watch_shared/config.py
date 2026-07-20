@@ -41,6 +41,7 @@ class Config:
     # System
     STARTUP_DURATION: int = 60 * 1  # 5 minutes
     PERSON_ABSENCE_THRESHOLD: int = 60 * 1  # 10 minutes
+    PERSON_IS_ACTIVE_THRESHOLD: int = 5  # 10 minutes
     ALERT_COOLDOWN: int = 30  # 2 minutes
     CHECK_INTERVAL: int = 30
     # PERSON_EXPIRE_TIME: int = 3600
@@ -76,6 +77,7 @@ class Config:
         'gas_number': 'meter:gas:number',
         'gas_last_activity': 'meter:gas:last_activity',
         'human_last_seen': 'human:last_seen',
+        'human_last_seen_str': 'human:last_seen_str',
         'alert_cooldown': 'alert:telegram:cooldown',
         'active_people': 'active:people',
         'recording_prefix': 'recording:',

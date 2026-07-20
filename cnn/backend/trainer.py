@@ -32,7 +32,7 @@ class ModelTrainer:
         self.train_losses = []
         self.val_accuracies = []
 
-    def prepare_data_from_folders(self, dataset_path, val_dataset_path, batch_size=32, validation_split=0.2, num_workers=4):
+    def prepare_data_from_folders(self, dataset_path, val_dataset_path, batch_size=32, num_workers=4):
         try:
             config = load_config()
             aug_builder = AdaptiveAugmentationBuilder(base_size=config['data']['image_size'])

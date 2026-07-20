@@ -606,11 +606,11 @@ def main():
 
     print("\n📸 Visualizing sample images...")
     visualize_sample_images(train_images, train_labels, class_names, 
-                           num_samples=30, title="Training Set Samples", selected_classes=['1', '7'])
+                           num_samples=30, title="Training Set Samples")
     visualize_sample_images(val_images, val_labels, class_names, 
-                           num_samples=20, title="Validation Set Samples", selected_classes=['1', '7'])
+                           num_samples=20, title="Validation Set Samples")
     visualize_sample_images(test_images, test_labels, class_names, 
-                           num_samples=20, title="Test Set Samples", selected_classes=['1', '7'])
+                           num_samples=20, title="Test Set Samples")
     
     # ============================================
     # Extract HOG features

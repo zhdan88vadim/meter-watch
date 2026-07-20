@@ -196,3 +196,75 @@
   font-size: 13px;
   color: var(--text-secondary);
 }
+
+
+.person-card {
+  transition: all 0.5s ease;
+  border: 2px solid transparent; /* Чтобы при смене цвета не дергался размер */
+  
+  /* Состояние: Человек на месте */
+  &.present {
+    background: #ecfdf5; /* Светло-зеленый фон */
+    border-color: #6ee7b7;
+    .stat-icon {
+      background: #d1fae5;
+      color: #059669;
+    }
+    .stat-value {
+      color: #059669;
+    }
+  }
+
+  /* Состояние: Вышел из кухни (предупреждение) */
+  &.absent {
+    background: #fffbeb; /* Светло-желтый фон */
+    border-color: #fcd34d;
+    .stat-icon {
+      background: #fef3c7;
+      color: #d97706;
+    }
+    .stat-value {
+      color: #d97706;
+    }
+  }
+
+  /* Состояние: КРИТИЧНО (Газ идет, никого нет) */
+  &.critical {
+    background: #fef2f2; /* Светло-красный фон */
+    border-color: #fca5a5;
+    animation: alert-pulse 2s infinite; /* Анимация пульсации */
+    
+    .stat-icon {
+      background: #fee2e2;
+      color: #dc2626;
+    }
+    .stat-value {
+      color: #dc2626;
+    }
+  }
+}
+
+/* Текст с алертом, который появляется при критическом статусе */
+.person-alert {
+  margin-top: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #dc2626;
+  background: #fee2e2;
+  padding: 4px 8px;
+  border-radius: 6px;
+  display: inline-block;
+  animation: fadeInOut 1.5s infinite;
+}
+
+/* Анимации */
+@keyframes alert-pulse {
+  0% { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.4); }
+  70% { box-shadow: 0 0 0 10px rgba(220, 38, 38, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0); }
+}
+
+@keyframes fadeInOut {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}

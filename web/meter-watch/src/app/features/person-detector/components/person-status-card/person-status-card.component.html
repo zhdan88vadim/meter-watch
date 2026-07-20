@@ -1,0 +1,21 @@
+<div class="person-card" [ngClass]="status()">
+  
+  <h2>Присутствие человека</h2>
+
+  <div class="stat-value">
+    {{ displayTime() }}
+  </div>
+
+  <div class="stat-label">
+    @switch (status()) {
+      @case ('present') { <span>На кухне</span> }
+      @case ('absent') { <span>Покинул кухню</span> }
+      @case ('critical') { <span>Давно нет на кухне</span> }
+    }
+  </div>
+  @if (status() === 'critical') {
+    <div class="person-alert">
+      {{ alertMessage() }}
+    </div>
+  }
+</div>

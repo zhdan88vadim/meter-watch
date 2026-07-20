@@ -7,7 +7,7 @@ logger = logging.getLogger(__name__)
 
 class StateManager:
     @staticmethod
-    def reset_alert_state():
+    def reset_alert():
         time_str = time.strftime("%H:%M %d:%m:%Y", time.localtime(time.time()))
 
         RedisManager.delete_key(config.REDIS_KEYS['alert_triggered'])

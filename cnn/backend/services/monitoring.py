@@ -27,17 +27,17 @@ def check_history_and_save_if_needed(new_digits, img):
         difference = abs(new_number - last_number)
         
         if difference > 10:
-            save_test_image(img, new_digits, f"big_diff_{difference}")
+            save_test_image(img, new_number, f"big_diff_{difference}")
             if last_image is not None:
-                save_test_image(last_image, new_digits, f"big_diff_{difference}")
+                save_test_image(last_image, new_number, f"big_diff_{difference}")
 
         if new_number >= last_number:
             print(f"{new_number} is greater than {last_number}")
         else:
             print(f"{new_number} is not greater than {last_number}")
-            save_test_image(img, new_digits, "less")            
+            save_test_image(img, new_number, "less")            
             if last_image is not None:          
-                save_test_image(last_image, new_digits, "less")
+                save_test_image(last_image, new_number, "less")
         
         last_image = img            
 
@@ -106,15 +106,17 @@ def monitor_loop():
                         history.pop(0)
                     print("✅ Обнаружено изменение; новые цифры:", new_digits)
 
-                    RedisManager.set_key(meter_watch_shared_config.REDIS_KEYS['gas_flow'], "1")
-                    RedisManager.set_key(meter_watch_shared_config.REDIS_KEYS['gas_number'], str(result['full_number']))
-                    RedisManager.set_key(meter_watch_shared_config.REDIS_KEYS['gas_last_activity'], time_str)
+                    save_test_image(img, result['full_number'], "next", Config.VALIDATION_DIR)
+
+                    # RedisManager.set_key(meter_watch_shared_config.REDIS_KEYS['gas_flow'], "1")
+                    # RedisManager.set_key(meter_watch_shared_config.REDIS_KEYS['gas_number'], str(result['full_number']))
+                    # RedisManager.set_key(meter_watch_shared_config.REDIS_KEYS['gas_last_activity'], time_str)
                     
                     last_nearly_activity_data = {"time": time_str, "digits": new_digits}
                     last_nearly_activity_counter = 0
                 else:
                     print("⏺️ Изменений не обнаружено. Текущие цифры:", new_digits)
-                    RedisManager.set_key(meter_watch_shared_config.REDIS_KEYS['gas_flow'], "0")
+                    # RedisManager.set_key(meter_watch_shared_config.REDIS_KEYS['gas_flow'], "0")
                     
                     # if -1 not in new_digits:                            
                     #     last_nearly_activity_counter += 1
