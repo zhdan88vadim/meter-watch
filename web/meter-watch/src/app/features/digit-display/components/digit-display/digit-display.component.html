@@ -50,30 +50,8 @@
   <app-person-status-card
     [lastSeenTimestamp]="(statusService.status$ | async)?.person?.last_seen ?? null"
     [isPresentNow]="(statusService.status$ | async)?.person?.is_active ?? false"
-    [warningThreshold]="180"
-    [criticalThreshold]="300"
+    [isAlertActive]="(statusService.status$ | async)?.alert?.active ?? false"
     alertMessage="⚠️ Газ идет! Отправлено в Telegram"
   />
-
-  <!-- <h2 class="card-title">
-    <i class="fas fa-gauge-high"></i>
-    Присутствие человека
-  </h2>
-
-  <div class="stat-item person-card" [ngClass]="personStatus">
-    <div class="stat-icon">
-      
-      <i *ngIf="personStatus === 'present'" class="fas fa-user-check"></i>
-      <i *ngIf="personStatus === 'absent'" class="fas fa-user-clock"></i>
-      <i *ngIf="personStatus === 'critical'" class="fas fa-user-slash"></i>
-    </div>
-    
-    <div class="stat-value">{{ humanReadableTimeAgo }}</div>
-    <div class="stat-label">На кухне</div>
-
-    <div class="person-alert" *ngIf="personStatus === 'critical'">
-      ⚠️ Отправлено в Telegram
-    </div>
-  </div> -->
 
 </div>

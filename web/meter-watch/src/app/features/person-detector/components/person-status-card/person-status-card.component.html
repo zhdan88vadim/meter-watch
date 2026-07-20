@@ -1,26 +1,21 @@
 <div class="person-card" [ngClass]="status()">
   
-  <div class="stat-icon">
-    <i [class]="iconClass()"></i>
-  </div>
+  <h2>Присутствие человека</h2>
 
   <div class="stat-value">
     {{ displayTime() }}
   </div>
 
   <div class="stat-label">
-    <!-- Меняем подпись в зависимости от статуса -->
     @switch (status()) {
       @case ('present') { <span>На кухне</span> }
       @case ('absent') { <span>Покинул кухню</span> }
-      @case ('critical') { <span>Нет на кухне</span> }
+      @case ('critical') { <span>Давно нет на кухне</span> }
     }
   </div>
-
-  <!-- Текст предупреждения (только для критического статуса) -->
   @if (status() === 'critical') {
     <div class="person-alert">
-      {{ alertMessage }}
+      {{ alertMessage() }}
     </div>
   }
 </div>

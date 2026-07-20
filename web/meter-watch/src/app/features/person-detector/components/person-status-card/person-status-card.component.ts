@@ -1,4 +1,3 @@
-// src/app/features/presence/components/person-status-card/person-status-card.component.ts
 import { Component, input, computed, signal, effect, inject, DestroyRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TooltipModule } from 'primeng/tooltip';
@@ -15,13 +14,9 @@ export type PersonState = 'present' | 'absent' | 'critical';
 export class PersonStatusCardComponent {
   private destroyRef = inject(DestroyRef);
 
-  // --- ВХОДНЫЕ ДАННЫЕ (ТЕПЕРЬ ЭТО СИГНАЛЫ) ---
-  // Используем input() вместо @Input().
-  // .required() означает, что значение обязательно (опционально можно убрать).
   lastSeenTimestamp = input<number | null>(null);
   isPresentNow = input<boolean>(false);
-  warningThreshold = input<number>(180);
-  criticalThreshold = input<number>(300); // get params from backend server
+  isAlertActive = input<boolean>(false);
   alertMessage = input<string>('⚠️ Отправлено в Telegram');
 
   // --- Внутреннее состояние ---
@@ -33,8 +28,6 @@ export class PersonStatusCardComponent {
     effect(() => {
       // Читаем значения сигналов внутри effect. Это и есть подписка на изменения.
       const timestamp = this.lastSeenTimestamp(); 
-      const warning = this.warningThreshold();
-      const critical = this.criticalThreshold();
       
       console.log('Эффект сработал. Время:', timestamp);
 
@@ -64,11 +57,8 @@ export class PersonStatusCardComponent {
   // Вычисляемый статус (используем .() для чтения сигналов)
   status = computed(() => {
     if (this.isPresentNow()) return 'present';
-    const secs = this.secondsAgo();
-    
-    if (secs < this.warningThreshold()) return 'present';
-    if (secs < this.criticalThreshold()) return 'absent';
-    return 'critical';
+    if (this.isAlertActive()) return 'critical';
+    return 'absent';
   });
 
   // Форматированное время
@@ -77,7 +67,7 @@ export class PersonStatusCardComponent {
     if (this.isPresentNow() || secs < 5) return 'Сейчас';
     
     if (secs < 60) return `${secs} сек. назад`;
-    const mins = Math.floor(secs / 60);
+    const mins = Math.round(secs / 60);
     return `${mins} мин. назад`;
   });
 

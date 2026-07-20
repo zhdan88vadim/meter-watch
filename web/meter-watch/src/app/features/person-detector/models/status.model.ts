@@ -1,5 +1,3 @@
-// src/app/models/status.model.ts
-
 export interface AlertStatus {
   active: boolean;
   cooldown: boolean;
@@ -7,7 +5,6 @@ export interface AlertStatus {
 
 export interface GasStatus {
   flowing: boolean;
-  status: '0' | '1' | string; // Если бэкенд может отдавать строкой
 }
 
 export interface PersonStatus {
