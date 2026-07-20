@@ -19,15 +19,6 @@
   </div>
 
   <div class="card-content">
-    <div class="countdown-section">
-      <div class="countdown-header">
-        <span>Если данных новых давно не поступало, считаем, что газ выключен</span>
-        <span [class.warning]="timeRemaining < 60">{{ timeUntilExpiry }}</span>
-      </div>
-
-      <p-progressBar [value]="progressPercent" [style]="{ height: '24px', borderRadius: '12px' }">
-      </p-progressBar>
-    </div>
 
     <h3 style="font-size: 14px; color: var(--text-secondary); margin-bottom: 12px;">
       История показаний
@@ -51,6 +42,7 @@
     [lastSeenTimestamp]="(statusService.status$ | async)?.person?.last_seen ?? null"
     [isPresentNow]="(statusService.status$ | async)?.person?.is_active ?? false"
     [isAlertActive]="(statusService.status$ | async)?.alert?.active ?? false"
+    [isStartupMode]="(statusService.status$ | async)?.system?.startup_mode ?? false"
     alertMessage="⚠️ Газ идет! Отправлено в Telegram"
   />
 

@@ -18,7 +18,8 @@
   }
 
   .stat-label {
-    font-size: 13px;
+    margin-top: 18px;
+    font-size: 16px;
     color: var(--text-secondary);
     transition: color 0.5s ease;
   }
@@ -35,15 +36,22 @@
 
   /* --- Состояния --- */
 
-  // Человек на месте (Зеленый)
+  &.startup-mode {
+    background: #e6e6e6;
+    border-color: #cccccc;
+
+    h2 {
+      color: rgb(135, 135, 135);
+    }
+    
+    .stat-value {
+      color: #059669;
+    }
+  }
   &.present {
     background: #ecfdf5;
     border-color: #6ee7b7;
     
-    .stat-icon {
-      background: #d1fae5;
-      color: #059669;
-    }
     .stat-value {
       color: #059669;
     }
@@ -53,11 +61,7 @@
   &.absent {
     background: #fffbeb;
     border-color: #fcd34d;
-    
-    .stat-icon {
-      background: #fef3c7;
-      color: #d97706;
-    }
+
     .stat-value {
       color: #d97706;
     }
@@ -69,10 +73,6 @@
     border-color: #fca5a5;
     animation: borderPulse 2s infinite;
 
-    .stat-icon {
-      background: #fee2e2;
-      color: #dc2626;
-    }
     .stat-value {
       color: #dc2626;
     }
