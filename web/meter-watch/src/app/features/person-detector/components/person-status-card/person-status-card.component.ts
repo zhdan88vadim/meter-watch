@@ -16,6 +16,7 @@ export class PersonStatusCardComponent {
 
   lastSeenTimestamp = input<number | null>(null);
   isPresentNow = input<boolean>(false);
+  isStartupMode = input<boolean>(false);
   isAlertActive = input<boolean>(false);
   alertMessage = input<string>('⚠️ Отправлено в Telegram');
 
@@ -54,8 +55,8 @@ export class PersonStatusCardComponent {
     });
   }
 
-  // Вычисляемый статус (используем .() для чтения сигналов)
   status = computed(() => {
+    if (this.isStartupMode()) return 'startup-mode';
     if (this.isPresentNow()) return 'present';
     if (this.isAlertActive()) return 'critical';
     return 'absent';
@@ -66,19 +67,9 @@ export class PersonStatusCardComponent {
     const secs = this.secondsAgo();
     if (this.isPresentNow() || secs < 5) return 'Сейчас';
     
-    if (secs < 60) return `${secs} сек. назад`;
+    if (secs < 60) return `${Math.round(secs)} сек. назад`;
     const mins = Math.round(secs / 60);
     return `${mins} мин. назад`;
-  });
-
-  // Иконка
-  iconClass = computed(() => {
-    switch(this.status()) {
-      case 'present': return 'fas fa-user-check';
-      case 'absent': return 'fas fa-user-clock';
-      case 'critical': return 'fas fa-user-slash';
-      default: return 'fas fa-user';
-    }
   });
 
   private updateTimeAgo(timestamp: number): void {

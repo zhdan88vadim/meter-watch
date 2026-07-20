@@ -39,11 +39,11 @@ class Config:
     REDIS_TIMEOUT: int = 5
     
     # System
-    STARTUP_DURATION: int = 60 * 1  # 5 minutes
-    PERSON_ABSENCE_THRESHOLD: int = 60 * 1  # 10 minutes
-    PERSON_IS_ACTIVE_THRESHOLD: int = 5  # 10 minutes
+    STARTUP_DURATION: int = 5  # 5 sec
+    PERSON_ABSENCE_THRESHOLD: int = 60 * 5  # 10 minutes
+    PERSON_IS_ACTIVE_THRESHOLD: int = 5  # 5 sec
     ALERT_COOLDOWN: int = 30  # 2 minutes
-    CHECK_INTERVAL: int = 30
+    CHECK_INTERVAL: int = 3
     # PERSON_EXPIRE_TIME: int = 3600
     RECORDING_EXPIRE_TIME: int = 86400
     STARTUP_PERSON_TIMEOUT: int = 60

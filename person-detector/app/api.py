@@ -26,7 +26,7 @@ def get_status():
     """Получение статуса системы"""   
     gas_status = RedisManager.get_key(config.REDIS_KEYS['gas_flow'])
     last_seen = RedisManager.get_key(config.REDIS_KEYS['human_last_seen'])
-    alert_active = RedisManager.key_exists(config.REDIS_KEYS['alert_triggered'])
+    alert_active = RedisManager.get_key(config.REDIS_KEYS['alert_triggered'])
     startup_mode = RedisManager.key_exists(config.REDIS_KEYS['startup'])
     
     status = {
@@ -35,7 +35,7 @@ def get_status():
             'startup_mode': startup_mode
         },
         'gas': {
-            'flowing': gas_status == '1',
+            'flowing': bool(int(gas_status)),
         },
         'person': {
             'last_seen': float(last_seen) if last_seen else None,
@@ -44,7 +44,7 @@ def get_status():
             'is_active': last_seen and (time.time() - float(last_seen) < config.PERSON_IS_ACTIVE_THRESHOLD)
         },
         'alert': {
-            'active': alert_active,
+            'active': bool(int(alert_active)) if alert_active is not None else False,
             'cooldown': RedisManager.key_exists(config.REDIS_KEYS['alert_cooldown'])
         }
     }

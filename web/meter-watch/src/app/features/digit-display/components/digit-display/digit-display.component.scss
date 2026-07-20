@@ -14,28 +14,6 @@
   font-size: 2rem;
 }
 
-.countdown-section {
-  margin-top: 24px;
-}
-
-.countdown-header {
-  display: flex;
-  justify-content: space-between;
-  margin-bottom: 8px;
-  font-weight: 500;
-
-  .warning {
-    color: #f59e0b;
-    animation: pulse 1s infinite;
-  }
-}
-
-// Глобальный стиль для PrimeNG (если нужно)
-::ng-deep .p-progressbar-value {
-  background: linear-gradient(90deg, #22c55e, #16a34a) !important;
-  transition: width 0.5s ease;
-}
-
 .card-title {
   font-size: 18px;
   font-weight: 600;

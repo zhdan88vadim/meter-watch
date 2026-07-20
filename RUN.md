@@ -1,5 +1,42 @@
-conda activate /mnt/ntfs/learn_ML/test_classes/Тестовое\ Python\ ML,CV/Тестовое_ML/тестовое_ml/.conda
+## dev run
 
+docker compose up redis-commander
+http://localhost:8081/
+
+---
+
+cd /media/vadim/1TB_SSD/my_github/meter-watch/cnn/backend
+conda activate /mnt/ntfs/learn_ML/test_classes/Тестовое\ Python\ ML,CV/Тестовое_ML/тестовое_ml/.conda
+python app.py
+
+
+http://192.168.0.254:5002/
+---
+cd /media/vadim/1TB_SSD/my_github/meter-watch/person-detector
+conda activate YOLO_t0
+python run.py
+
+http://192.168.0.254:5000/api/status
+---
+
+cd /media/vadim/1TB_SSD/my_github/meter-watch/web/meter-watch
+ng serve
+
+http://localhost:4200/recognition
+ 
+ 
+
+### bash
+
+sudo rm -rf /media/vadim/1TB_SSD/my_github/meter-watch/output/wrong_predictions/*
+
+==============================================
+
+
+
+
+
+conda activate /mnt/ntfs/learn_ML/test_classes/Тестовое\ Python\ ML,CV/Тестовое_ML/тестовое_ml/.conda
 conda activate YOLO_t0
 
 

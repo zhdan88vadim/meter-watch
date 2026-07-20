@@ -36,7 +36,7 @@ class SafetyMonitor:
     def stop(self):
         self.running = False
         if self.thread:
-            self.thread.join(timeout=self.check_interval + 5)
+            self.thread.join(timeout=self.check_interval)
     
     def _monitor_loop(self):
         while self.running:
@@ -83,8 +83,8 @@ class SafetyMonitor:
         """Проверка присутствия человека"""
         time_since_seen = RedisManager.get_time_since(config.REDIS_KEYS['human_last_seen'])
         
-        # Человек есть (видели меньше минуты)
-        if time_since_seen is not None and time_since_seen < 60:
+        # Человек есть (видели меньше PERSON_IS_ACTIVE_THRESHOLD)
+        if time_since_seen is not None and time_since_seen < config.PERSON_IS_ACTIVE_THRESHOLD:
             self._notify(self.on_person_detected_callbacks)
             # Сбрасываем тревогу если была
             if RedisManager.key_exists(config.REDIS_KEYS['alert_triggered']):
