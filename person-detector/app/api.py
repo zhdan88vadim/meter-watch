@@ -1,9 +1,7 @@
-from flask import Flask, request, jsonify, Response
+from flask import Flask, request, jsonify
 from flask_cors import CORS
-import json
 import time
 from datetime import datetime
-from typing import Dict, Any
 from meter_watch_shared.config import config
 from meter_watch_shared.redis_manager import RedisManager
 from app.state_manager import StateManager
@@ -25,10 +23,7 @@ def require_auth():
 
 @app.route('/api/status', methods=['GET'])
 def get_status():
-    """Получение статуса системы"""
-    # if not require_auth():
-    #     return jsonify({'error': 'Unauthorized'}), 401
-    
+    """Получение статуса системы"""   
     gas_status = RedisManager.get_key(config.REDIS_KEYS['gas_flow'])
     last_seen = RedisManager.get_key(config.REDIS_KEYS['human_last_seen'])
     alert_active = RedisManager.key_exists(config.REDIS_KEYS['alert_triggered'])
@@ -41,7 +36,6 @@ def get_status():
         },
         'gas': {
             'flowing': gas_status == '1',
-            'status': gas_status
         },
         'person': {
             'last_seen': float(last_seen) if last_seen else None,
@@ -60,9 +54,6 @@ def get_status():
 @app.route('/api/alert/reset', methods=['POST'])
 def reset_alert():
     """Сбросить тревогу"""
-    # if not require_auth():
-    #     return jsonify({'error': 'Unauthorized'}), 401
-    
     state_manager.reset_alert()
     
     return jsonify({
@@ -74,9 +65,6 @@ def reset_alert():
 @app.route('/api/system/control', methods=['POST'])
 def system_control():
     """Управление системой"""
-    # if not require_auth():
-    #     return jsonify({'error': 'Unauthorized'}), 401
-    
     data = request.json
     action = data.get('action')
     
@@ -101,20 +89,6 @@ def system_control():
         })
     
     return jsonify({'error': 'Invalid action'}), 400
-
-@app.route('/api/set/gas_flow', methods=['GET'])
-def set_gas_flow():
-    """Сбросить тревогу"""
-    # if not require_auth():
-    #     return jsonify({'error': 'Unauthorized'}), 401
-    
-    RedisManager.set_key(config.REDIS_KEYS['gas_flow'], 1, 60 * 5)
-    
-    return jsonify({
-        'success': True,
-        'message': 'set gas_flow',
-        'timestamp': datetime.now().isoformat()
-    })
 
 def start_api():
     """Запускает API сервер"""
