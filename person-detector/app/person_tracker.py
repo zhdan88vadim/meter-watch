@@ -1,13 +1,15 @@
 from typing import Union
 
 import cv2
-from ultralytics import YOLO
 import time
+from app.database import log_person_left_to_database, log_person_detected_to_database
+from ultralytics import YOLO
 from meter_watch_shared.config import config
 from meter_watch_shared.redis_manager import RedisManager
 from app.video_buffer import VideoBuffer
 from app.safety_monitor import SafetyMonitor
 from app.telegram_bot import telegram_bot
+from app.rate_limiter import SimpleRateLimiter
 import logging
 
 logger = logging.getLogger(__name__)
@@ -40,6 +42,8 @@ class PersonTracker:
         # Буфер
         self.buffer = VideoBuffer(buffer_seconds, self.fps)
         self.safety_monitor = SafetyMonitor()
+
+        self.rate_limiter = SimpleRateLimiter(30)
         
         # Очистка при старте
         self._cleanup_redis()
@@ -128,7 +132,8 @@ class PersonTracker:
                     config.REDIS_KEYS['human_last_seen'], 
                     str(current_time)
                 )
-            
+
+
             # Рисуем рамки
             boxes = results[0].boxes.xyxy.cpu().numpy().astype(int)
             for idx, person_id in enumerate(track_ids):
@@ -148,12 +153,16 @@ class PersonTracker:
         
         # Есть люди в кадре
         if current_people:
-            pass
-            # Если запись не идет - начинаем
-            # if not self.is_recording:
+
+            if self.rate_limiter.can_save():
+                log_person_detected_to_database({'ids': list(current_people)})
+
+
+            if not self.is_recording:
+                self.is_recording = True
+                logger.info("Person detected")
+                
                 # self._start_recording()
-            # Если запись идет - продолжаем
-            # (ничего не делаем)
         
         # Нет людей в кадре
         else:
@@ -170,10 +179,11 @@ class PersonTracker:
                 for person_id in people_to_remove:
                     del self.last_seen[person_id]
                     logger.info(f"🚶 Person {person_id} left")
+                    log_person_left_to_database({'id': person_id})
                 
                 # Если больше нет активных людей - останавливаем запись
-                if not self.last_seen:
-                    self._stop_recording()
+                # if not self.last_seen:
+                #     self._stop_recording()
         
         # Отображаем статус
         status = "🔴 REC" if self.is_recording else "⏸ IDLE"

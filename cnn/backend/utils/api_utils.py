@@ -17,7 +17,7 @@ def get_api(url, timeout=5):
         print("Ошибка в get_api:", e)
         return None
 
-def fetch_image(url, timeout=5, save_copy=True):
+def fetch_image(url, timeout=5, save_copy=False):
     """Скачивает изображение по URL и возвращает его как изображение OpenCV"""
     try:
         response = requests.get(url, stream=True, timeout=timeout)
