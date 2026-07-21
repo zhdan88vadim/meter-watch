@@ -1,183 +1,253 @@
 import time
 import threading
-import json
-from datetime import datetime
-from utils.number_utils import list_to_number
+from typing import List, Optional, Tuple, Any
+
+from services.database import save_meter_data_to_database
+from models.error_models import ImageFetchError, RecognitionError
 from configuration import Config
 from utils.api_utils import fetch_image, timestamp_ms
-from services.recognition import recognize_image
 from utils.log_data import save_test_image
 from services.config import ConfigKeys, config
-from meter_watch_shared.config import config as meter_watch_shared_config
-from meter_watch_shared.redis_manager import RedisManager
-from meter_watch_shared.models import ActivityLog, MeterReading
-from meter_watch_shared.db import SessionLocal
-
-history = []
-last_recognized_digits = []
-last_image = None
-last_update_value = None
-history_lock = threading.Lock()
-last_nearly_activity_data = None
-last_nearly_activity_counter = 0
+from models.monitoring_models import MeterState, RecognitionResult
 
 
-def log_meter_reading(value, min_conf):
-    db = SessionLocal()
-    try:
-        log = ActivityLog(
-            source='meter_reader',
-            event_type='meter_reading',
-            data=json.dumps({'value': value}),
-            meter_reading=value,
-            timestamp=datetime.utcnow()
-        )
-        db.add(log)
-
-        reading = MeterReading(
-            value=value,
-            timestamp=datetime.utcnow(),
-            min_conf=min_conf
-        )
-        db.add(reading)
-        db.commit()
-        print(f"✅ Logged meter reading: {value}")
-    except Exception as e:
-        db.rollback()
-        print(f"❌ Error logging meter reading: {e}")
-    finally:
-        db.close()
-
-def check_history_and_save_if_needed(new_digits, img):
-    """Check if digits should be saved"""
-    global last_recognized_digits, history, last_nearly_activity_counter, last_image
-
-    if len(last_recognized_digits) > 0:
-        last_number = list_to_number(last_recognized_digits)
-        new_number = list_to_number(new_digits)
-        difference = abs(new_number - last_number)
-        
-        if difference > 10:
-            save_test_image(img, new_number, f"big_diff_{difference}")
-            if last_image is not None:
-                save_test_image(last_image, new_number, f"big_diff_{difference}")
-
-        if new_number >= last_number:
-            print(f"{new_number} is greater than {last_number}")
-        else:
-            print(f"{new_number} is not greater than {last_number}")
-            save_test_image(img, new_number, "less")            
-            if last_image is not None:          
-                save_test_image(last_image, new_number, "less")
-        
-        last_image = img            
-
-def monitor_loop():
-    """
-    Every minute, it requests an image from the camera, processes it, and saves it to history if any changes occur.
-    """
-    global last_recognized_digits, history, last_nearly_activity_data, last_nearly_activity_counter, last_update_value
+class MeterMonitor:
+    """Монитор состояния счетчика"""
     
-    consecutive_failures = 0
-    
-    while True:
-        # try:
-        print("Запрос изображения с камеры...")
+    def __init__(self):
+        self.history: List[MeterState] = []
+        self.last_state: Optional[MeterState] = None
+        self.last_update_value: Optional[MeterState] = None
+        self.last_image: Optional[Any] = None
+        self.last_nearly_activity_data: Optional[MeterState] = None
+        self.last_nearly_activity_counter: int = 0
         
-        img = fetch_image(config.get(ConfigKeys.CAMERA_URL) + str(timestamp_ms()))
+        self._lock = threading.RLock()
+        self._running = False
+        self._thread: Optional[threading.Thread] = None
         
-        if img is None:
-            print("Не удалось получить изображение, пропуск цикла.")
-            consecutive_failures += 1
-        else:
-            consecutive_failures = 0
-
-            result, min_conf = recognize_image(img)
-
-            new_digits = list(result['full_number'])
-            current_number = list_to_number(new_digits)
-
-            if min_conf < config.get(ConfigKeys.SAVE_THRESHOLD):
-                save_test_image(img, result['full_number'], "low_conf")
-
-            current_time = time.time()
-            time_str = time.strftime("%H:%M %d:%m:%Y", time.localtime(current_time))
-            is_need_add_to_history = True
-
-            if last_update_value is None:
-                last_update_value = {
-                    "time": time_str,
-                    "digits": new_digits,
-                    "timestamp": current_time
-                }
-
-            # Фильтрация дубликатов
-            if len(history) >= 2:
-                last_item = list_to_number(history[-1]["digits"])
-
-                if current_number == last_item:
-                    is_need_add_to_history = False
-                else:
-                    check_history_and_save_if_needed(new_digits, img)
-                    last_update_value = {
-                        "time": time_str,
-                        "digits": new_digits,
-                        "timestamp": current_time
-                    }
-
-            with history_lock:
-                if is_need_add_to_history and new_digits:
-                    last_recognized_digits = new_digits
-                    history.append({
-                        "time": time_str,
-                        "digits": new_digits,
-                        "timestamp": current_time
-                    })
-                    while len(history) > Config.MAX_HISTORY_SIZE:
-                        history.pop(0)
-                    print("✅ Обнаружено изменение; новые цифры:", new_digits)
-                    log_meter_reading(current_number, min_conf)
-
-                    save_test_image(img, result['full_number'], "next", Config.VALIDATION_DIR)
-
-                    # RedisManager.set_key(meter_watch_shared_config.REDIS_KEYS['gas_flow'], "1")
-                    # RedisManager.set_key(meter_watch_shared_config.REDIS_KEYS['gas_number'], str(result['full_number']))
-                    # RedisManager.set_key(meter_watch_shared_config.REDIS_KEYS['gas_last_activity'], time_str)
-                    
-                    last_nearly_activity_data = {"time": time_str, "digits": new_digits}
-                    last_nearly_activity_counter = 0
-                else:
-                    print("⏺️ Изменений не обнаружено. Текущие цифры:", new_digits)
-                    # RedisManager.set_key(meter_watch_shared_config.REDIS_KEYS['gas_flow'], "0")
-                    
-                    # if -1 not in new_digits:                            
-                    #     last_nearly_activity_counter += 1
-                    #     if last_nearly_activity_counter > 5:
-                    #         last_nearly_activity_data = None
-
-        # except Exception as ex:
-        #     print("❌ Ошибка в monitor_loop:", ex)
-        #     consecutive_failures += 1
+    def _should_process(self, result: RecognitionResult) -> bool:
+        """Проверить, нужно ли обрабатывать результат"""
+        if not result.digits:
+            return False
             
-        time.sleep(Config.POLL_INTERVAL_SECONDS)
+        # Проверка на дубликат
+        if self.history and self.history[-1].number == result.number:
+            return False
+            
+        return True
+    
+    def _handle_low_confidence(self, result: RecognitionResult) -> None:
+        """Обработка низкой уверенности"""
+        if result.min_conf < config.get(ConfigKeys.SAVE_THRESHOLD):
+            save_test_image(
+                result.image, 
+                result.digits, 
+                "low_conf"
+            )
+    
+    def _handle_big_difference(self, result: RecognitionResult) -> None:
+        """Обработка большого скачка показаний"""
+        with self._lock:
+            if not self.last_state:
+                return
+                
+            difference = abs(result.number - self.last_state.number)
+            if difference > 10:
+                save_test_image(result.image, result.number, f"big_diff_{difference}")
+                if self.last_image is not None:
+                    save_test_image(self.last_image, result.number, f"big_diff_{difference}")
+    
+    def _handle_decrease(self, result: RecognitionResult) -> None:
+        """Обработка уменьшения показаний"""
+        with self._lock:
+            if self.last_state and result.number < self.last_state.number:
+                save_test_image(result.image, result.number, "less")
+                if self.last_image is not None:
+                    save_test_image(self.last_image, result.number, "less")
+        
+    def _add_to_history(self, result: RecognitionResult) -> None:
+        """Добавить результат в историю"""
+        state = MeterState(
+            digits=result.digits,
+            timestamp=result.timestamp,
+            time_str=result.time_str
+        )
+        
+        with self._lock:
+            self.history.append(state)
+            self.last_state = state
+            self.last_update_value = state
+            self.last_image = result.image
+            
+            # Ограничение размера истории
+            if len(self.history) > Config.MAX_HISTORY_SIZE:
+                self.history = self.history[-Config.MAX_HISTORY_SIZE:]
+            
+            # Обновление активности
+            self.last_nearly_activity_data = state
+            self.last_nearly_activity_counter = 0
+    
+    
+    def _update_redis(self, result: RecognitionResult) -> None:
+        """Обновить Redis (закомментировано, но оставлено для ясности)"""
+        # RedisManager.set_key(
+        #     meter_watch_shared_config.REDIS_KEYS['gas_flow'], 
+        #     "1"
+        # )
+        # RedisManager.set_key(
+        #     meter_watch_shared_config.REDIS_KEYS['gas_number'], 
+        #     str(result.digits)
+        # )
+        # RedisManager.set_key(
+        #     meter_watch_shared_config.REDIS_KEYS['gas_last_activity'], 
+        #     result.time_str
+        # )
+        pass
+    
+    def _handle_no_change(self, result: RecognitionResult) -> None:
+        """Обработка отсутствия изменений"""
+        print("⏺️ Изменений не обнаружено. Текущие цифры:", result.digits)
+        # RedisManager.set_key(
+        #     meter_watch_shared_config.REDIS_KEYS['gas_flow'], 
+        #     "0"
+        # )
+        
+        # Обновление счетчика бездействия
+        # if result.is_valid:
+        #     self.last_nearly_activity_counter += 1
+        #     if self.last_nearly_activity_counter > 5:
+        #         self.last_nearly_activity_data = None
+    
+    def process_result(self, result: RecognitionResult) -> None:
+        """Обработка результата распознавания"""
+        with self._lock:
+
+            # Проверка низкой уверенности
+            self._handle_low_confidence(result)
+            
+            # Проверка на изменения
+            if not self._should_process(result):
+                self._handle_no_change(result)
+                return
+            
+            # Логирование изменений
+            print(f"✅ Обнаружено изменение; новые цифры: {result.digits}")
+            
+            # Проверка на аномалии
+            self._handle_big_difference(result)
+            self._handle_decrease(result)
+            
+            # Сохранение
+            self._add_to_history(result)
+            save_meter_data_to_database(result)
+            self._update_redis(result)
+            
+            # Сохранение изображения
+            save_test_image(
+                result.image, 
+                result.digits, 
+                "next", 
+                Config.VALIDATION_DIR
+            )
+    
+    def run_cycle(self) -> None:
+        """Один цикл мониторинга"""
+        try:
+            print("📷 Запрос изображения с камеры...")
+            
+            # Получение изображения
+            image = fetch_image(
+                config.get(ConfigKeys.CAMERA_URL) + str(timestamp_ms())
+            )
+            
+            if image is None:
+                print("❌ Не удалось получить изображение")
+                raise ImageFetchError("Не удалось получить изображение")
+            
+            # Распознавание
+            result = RecognitionResult.from_image(image)
+            if result is None:
+                raise RecognitionError("Не удалось распознать изображение")
+            
+            # Обработка результата
+            self.process_result(result)
+            
+        except (ImageFetchError, RecognitionError) as e:
+            raise
+        except Exception as e:
+            raise
+    
+    def run_forever(self) -> None:
+        """Бесконечный цикл мониторинга"""
+        
+        consecutive_failures = 0
+        max_failures = 10
+        
+        while self._running:
+            try:
+                self.run_cycle()
+                consecutive_failures = 0  # Сброс при успехе
+            except (ImageFetchError, RecognitionError) as e:
+                consecutive_failures += 1
+                print(f"❌ Временная ошибка ({consecutive_failures}/{max_failures}): {e}")
+                
+                if consecutive_failures >= max_failures:
+                    print("⚠️ Критическое количество ошибок, перезапуск...")
+                    consecutive_failures = 0
+            except Exception as e:
+                print(f"❌ Критическая ошибка: {e}")
+                consecutive_failures += 1
+        
+            time.sleep(Config.POLL_INTERVAL_SECONDS)
+    
+    def start(self) -> threading.Thread:
+        """Запуск мониторинга в отдельном потоке"""
+        self._running = True
+        self._thread = threading.Thread(target=self.run_forever, daemon=True)
+        self._thread.start()
+        return self._thread
+    
+    def stop(self) -> None:
+        """Остановка мониторинга"""
+        self._running = False
+        if self._thread:
+            self._thread.join(timeout=2)
+    
+    def get_history(self, limit: Optional[int] = None) -> List[MeterState]:
+        """Получить историю"""
+        with self._lock:
+            if limit:
+                return self.history[-limit:]
+            return self.history.copy()
+    
+    def get_last_activity(self) -> Tuple[List[MeterState], Optional[MeterState]]:
+        """Получить последнюю активность"""
+        with self._lock:
+            if self.last_nearly_activity_data and self.history:
+                # Возвращаем последние 4 записи или всю историю
+                recent = self.history[-4:] if len(self.history) >= 4 else self.history.copy()
+                return recent, self.last_update_value
+            
+            return [], self.last_update_value
+    
+    @property
+    def current_state(self) -> Optional[MeterState]:
+        """Текущее состояние"""
+        with self._lock:
+            return self.history[-1] if self.history else None
+
+
+monitor = MeterMonitor()
 
 def start_monitoring():
     """Start the monitoring thread"""
-    monitor_thread = threading.Thread(target=monitor_loop, daemon=True)
-    monitor_thread.start()
-    return monitor_thread
+    return monitor.start()
 
 def get_history():
     """Get recognition history"""
-    with history_lock:
-        return history.copy()
+    return monitor.get_history()
 
 def get_last_activity():
     """Get last activity data"""
-    if last_nearly_activity_data and history:        
-        if len(history) >= 4:
-            return history[-4:], last_update_value
-        else:
-            return history.copy(), last_update_value
-    
-    return [], last_update_value
+    return monitor.get_last_activity()
