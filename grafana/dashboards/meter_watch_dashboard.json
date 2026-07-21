@@ -1,0 +1,455 @@
+{
+  "title": "Meter Watch Dashboard",
+  "uid": "meter-watch-dashboard",
+  "timezone": "browser",
+  "schemaVersion": 16,
+  "version": 0,
+  "refresh": "30s",
+  "panels": [
+    {
+      "id": 1,
+      "title": "Current Meter Reading",
+      "type": "stat",
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 0,
+        "y": 0
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "format": "table",
+          "rawSql": "SELECT value FROM meter_readings ORDER BY timestamp DESC LIMIT 1;",
+          "database": "postgres"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "none",
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "blue",
+                "value": null
+              }
+            ]
+          },
+          "decimals": 0
+        }
+      }
+    },
+    {
+      "id": 2,
+      "title": "Total Events Today",
+      "type": "stat",
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 4,
+        "y": 0
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "format": "table",
+          "rawSql": "SELECT COUNT(*) FROM activity_logs WHERE DATE(timestamp) = CURRENT_DATE;",
+          "database": "postgres"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "none",
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "id": 3,
+      "title": "Person Detections Today",
+      "type": "stat",
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 8,
+        "y": 0
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "format": "table",
+          "rawSql": "SELECT COUNT(*) FROM activity_logs WHERE source = 'person_detector' AND event_type = 'person_detected' AND DATE(timestamp) = CURRENT_DATE;",
+          "database": "postgres"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "none",
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "id": 4,
+      "title": "Latest Person Detection",
+      "type": "stat",
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 12,
+        "y": 0
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "format": "table",
+          "rawSql": "SELECT timestamp FROM activity_logs WHERE source = 'person_detector' AND event_type = 'person_detected' ORDER BY timestamp DESC LIMIT 1;",
+          "database": "postgres"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "none",
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "purple",
+                "value": null
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "id": 5,
+      "title": "Meter Readings Over Time",
+      "type": "timeseries",
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 4
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "format": "time_series",
+          "rawSql": "SELECT timestamp as time, value FROM meter_readings WHERE $__timeFilter(timestamp) ORDER BY timestamp",
+          "database": "postgres"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "none",
+          "custom": {
+            "lineInterpolation": "smooth",
+            "showPoints": "never"
+          }
+        }
+      },
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom"
+        }
+      }
+    },
+    {
+      "id": 6,
+      "title": "Person Detection Events",
+      "type": "timeseries",
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 4
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "format": "time_series",
+          "rawSql": "SELECT timestamp as time, 1 as person_detected FROM activity_logs WHERE source = 'person_detector' AND event_type = 'person_detected' AND $__timeFilter(timestamp) ORDER BY timestamp",
+          "database": "postgres"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "none",
+          "custom": {
+            "lineInterpolation": "stepAfter",
+            "showPoints": "always"
+          },
+          "color": {
+            "mode": "fixed",
+            "fixedColor": "red"
+          }
+        }
+      },
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom"
+        }
+      }
+    },
+    {
+      "id": 7,
+      "title": "Event Distribution by Source",
+      "type": "piechart",
+      "gridPos": {
+        "h": 8,
+        "w": 6,
+        "x": 0,
+        "y": 12
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "format": "table",
+          "rawSql": "SELECT source, COUNT(*) as count FROM activity_logs WHERE $__timeFilter(timestamp) GROUP BY source;",
+          "database": "postgres"
+        }
+      ],
+      "options": {
+        "displayLabels": ["name", "percent"],
+        "legend": {
+          "displayMode": "list",
+          "placement": "right"
+        }
+      }
+    },
+    {
+      "id": 8,
+      "title": "Event Distribution by Type",
+      "type": "piechart",
+      "gridPos": {
+        "h": 8,
+        "w": 6,
+        "x": 6,
+        "y": 12
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "format": "table",
+          "rawSql": "SELECT event_type, COUNT(*) as count FROM activity_logs WHERE $__timeFilter(timestamp) GROUP BY event_type;",
+          "database": "postgres"
+        }
+      ],
+      "options": {
+        "displayLabels": ["name", "percent"],
+        "legend": {
+          "displayMode": "list",
+          "placement": "right"
+        }
+      }
+    },
+    {
+      "id": 9,
+      "title": "Meter Reading - Confidence",
+      "type": "timeseries",
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 12
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "format": "time_series",
+          "rawSql": "SELECT timestamp as time, min_conf FROM meter_readings WHERE $__timeFilter(timestamp) AND min_conf IS NOT NULL ORDER BY timestamp",
+          "database": "postgres"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percent",
+          "custom": {
+            "lineInterpolation": "smooth"
+          },
+          "max": 100,
+          "min": 0
+        }
+      },
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom"
+        }
+      }
+    },
+    {
+      "id": 10,
+      "title": "Recent Activity Log",
+      "type": "table",
+      "gridPos": {
+        "h": 10,
+        "w": 24,
+        "x": 0,
+        "y": 20
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "format": "table",
+          "rawSql": "SELECT timestamp, source, event_type, data, meter_reading FROM activity_logs WHERE $__timeFilter(timestamp) ORDER BY timestamp DESC LIMIT 50",
+          "database": "postgres"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "align": "auto",
+            "displayMode": "auto"
+          }
+        }
+      },
+      "options": {
+        "sortBy": [
+          {
+            "desc": true,
+            "displayName": "timestamp"
+          }
+        ]
+      }
+    },
+    {
+      "id": 11,
+      "title": "Meter Reading Changes",
+      "type": "timeseries",
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 30
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "format": "time_series",
+          "rawSql": "SELECT timestamp as time, value - LAG(value) OVER (ORDER BY timestamp) as change FROM meter_readings WHERE $__timeFilter(timestamp) ORDER BY timestamp",
+          "database": "postgres"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "none",
+          "custom": {
+            "lineInterpolation": "smooth"
+          },
+          "color": {
+            "mode": "palette-classic"
+          }
+        }
+      },
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom"
+        }
+      }
+    },
+    {
+      "id": 12,
+      "title": "Events Per Hour",
+      "type": "barchart",
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 30
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "format": "table",
+          "rawSql": "SELECT DATE_TRUNC('hour', timestamp) as hour, COUNT(*) as events FROM activity_logs WHERE $__timeFilter(timestamp) GROUP BY DATE_TRUNC('hour', timestamp) ORDER BY hour",
+          "database": "postgres"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "none"
+        }
+      },
+      "options": {
+        "barWidth": 0.8,
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom"
+        }
+      }
+    }
+  ],
+  "time": {
+    "from": "now-24h",
+    "to": "now"
+  },
+  "timepicker": {
+    "refresh_intervals": ["5s", "10s", "30s", "1m", "5m", "15m", "30m", "1h", "2h", "1d"]
+  },
+  "templating": {
+    "list": [
+      {
+        "name": "source_filter",
+        "label": "Source",
+        "type": "query",
+        "query": "SELECT DISTINCT source FROM activity_logs ORDER BY source",
+        "datasource": {
+          "type": "postgres",
+          "uid": "postgres"
+        },
+        "refresh": 1,
+        "includeAll": true,
+        "multi": true,
+        "allValue": ".*"
+      },
+      {
+        "name": "event_type_filter",
+        "label": "Event Type",
+        "type": "query",
+        "query": "SELECT DISTINCT event_type FROM activity_logs ORDER BY event_type",
+        "datasource": {
+          "type": "postgres",
+          "uid": "postgres"
+        },
+        "refresh": 1,
+        "includeAll": true,
+        "multi": true,
+        "allValue": ".*"
+      }
+    ]
+  }
+}

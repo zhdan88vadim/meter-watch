@@ -149,11 +149,33 @@ services:
       postgres:
         condition: service_healthy      
 
+  grafana:
+    image: grafana/grafana:latest
+    container_name: person_tracker_grafana
+    restart: unless-stopped
+    environment:
+      - GF_SECURITY_ADMIN_USER=${GRAFANA_ADMIN_USER:-admin}
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_ADMIN_PASSWORD:-admin}
+      # - GF_INSTALL_PLUGINS=grafana-clock-panel,grafana-simple-json-datasource
+      - GF_SERVER_ROOT_URL=http://localhost:3000
+    ports:
+      - "3000:3000"
+    volumes:
+      - grafana_data:/var/lib/grafana
+      # - ./grafana/provisioning:/etc/grafana/provisioning:ro
+      # - ./grafana/dashboards:/etc/grafana/dashboards:ro
+    networks:
+      - tracker_network
+    depends_on:
+      postgres:
+        condition: service_healthy
+
 volumes:
   redis_data:
   yolov8_models:
   postgres_data:  
   pgadmin_data:
+  grafana_data:  
 
 networks:
   tracker_network:
