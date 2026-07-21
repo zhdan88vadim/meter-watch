@@ -1,3 +1,60 @@
+pip install sqlalchemy
+
+pip install psycopg2-binary
+OR
+pip install asyncpg
+
+
+pip install alembic
+alembic init -t async alembic
+
+conda activate /mnt/ntfs/learn_ML/test_classes/Тестовое\ Python\ ML,CV/Тестовое_ML/тестовое_ml/.conda
+alembic revision --autogenerate -m "Initial tables"
+
+alembic upgrade head
+
+#### update db
+alembic revision --autogenerate -m "Add confidence to meter_readings"
+alembic upgrade head
+
+
+<!-- 
+
+Всегда делайте бекап перед миграцией в продакшене:
+
+bash
+docker exec person_tracker_postgres pg_dump -U tracker_user person_tracker > backup_$(date +%Y%m%d).sql
+
+
+# Проверить текущую версию базы
+alembic current
+
+# Посмотреть историю миграций
+alembic history
+
+# Откатить на одну миграцию назад
+alembic downgrade -1
+
+# Откатить к конкретной ревизии
+alembic downgrade <revision_id>
+
+# Откатить все миграции
+alembic downgrade base
+
+# Пересоздать базу с нуля (ОСТОРОЖНО!)
+alembic downgrade base && alembic upgrade head
+
+# Создать пустую миграцию вручную
+alembic revision -m "Manual migration" -->
+
+
+
+
+
+
+
+
+
 ## dev run
 
 docker compose up redis-commander
@@ -9,12 +66,19 @@ cd /media/vadim/1TB_SSD/my_github/meter-watch/cnn/backend
 conda activate /mnt/ntfs/learn_ML/test_classes/Тестовое\ Python\ ML,CV/Тестовое_ML/тестовое_ml/.conda
 python app.py
 
+## ONE CMD
+cd /media/vadim/1TB_SSD/my_github/meter-watch/cnn/backend && conda activate /mnt/ntfs/learn_ML/test_classes/Тестовое\ Python\ ML,CV/Тестовое_ML/тестовое_ml/.conda && python app.py
+
+
 
 http://192.168.0.254:5002/
 ---
 cd /media/vadim/1TB_SSD/my_github/meter-watch/person-detector
 conda activate YOLO_t0
 python run.py
+
+## ONE CMD
+cd /media/vadim/1TB_SSD/my_github/meter-watch/person-detector && conda activate YOLO_t0 && python run.py
 
 http://192.168.0.254:5000/api/status
 ---
@@ -23,8 +87,19 @@ cd /media/vadim/1TB_SSD/my_github/meter-watch/web/meter-watch
 ng serve
 
 http://localhost:4200/recognition
- 
- 
+
+
+----
+
+pgAdmin: http://localhost:5050
+Логин: admin@example.com
+Пароль: admin_password
+При первом входе добавьте сервер: хост postgres, порт 5432
+
+
+test
+nc -zv localhost 5432
+
 
 ### bash
 
@@ -171,3 +246,23 @@ apt-get update && apt-get install -y procps
 ps aux | grep python
 
 pkill -f "python app.py"
+
+
+
+
+
+Откройте браузер: http://localhost:5050
+Логин:
+Email: admin@example.com
+Password: admin_password
+При добавлении сервера:
+Нажмите "Add New Server"
+Вкладка "General":
+Name: Person Tracker DB (или любое имя)
+Вкладка "Connection" (самое важное!):
+Host name/address: postgres ⬅️ НЕ localhost!
+Port: 5432
+Maintenance database: person_tracker
+Username: tracker_user
+Password: secure_password
+✅ "Save password?"

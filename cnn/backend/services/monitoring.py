@@ -1,5 +1,7 @@
 import time
 import threading
+import json
+from datetime import datetime
 from utils.number_utils import list_to_number
 from configuration import Config
 from utils.api_utils import fetch_image, timestamp_ms
@@ -8,6 +10,8 @@ from utils.log_data import save_test_image
 from services.config import ConfigKeys, config
 from meter_watch_shared.config import config as meter_watch_shared_config
 from meter_watch_shared.redis_manager import RedisManager
+from meter_watch_shared.models import ActivityLog, MeterReading
+from meter_watch_shared.db import SessionLocal
 
 history = []
 last_recognized_digits = []
@@ -16,6 +20,33 @@ last_update_value = None
 history_lock = threading.Lock()
 last_nearly_activity_data = None
 last_nearly_activity_counter = 0
+
+
+def log_meter_reading(value, min_conf):
+    db = SessionLocal()
+    try:
+        log = ActivityLog(
+            source='meter_reader',
+            event_type='meter_reading',
+            data=json.dumps({'value': value}),
+            meter_reading=value,
+            timestamp=datetime.utcnow()
+        )
+        db.add(log)
+
+        reading = MeterReading(
+            value=value,
+            timestamp=datetime.utcnow(),
+            min_conf=min_conf
+        )
+        db.add(reading)
+        db.commit()
+        print(f"✅ Logged meter reading: {value}")
+    except Exception as e:
+        db.rollback()
+        print(f"❌ Error logging meter reading: {e}")
+    finally:
+        db.close()
 
 def check_history_and_save_if_needed(new_digits, img):
     """Check if digits should be saved"""
@@ -64,6 +95,7 @@ def monitor_loop():
             result, min_conf = recognize_image(img)
 
             new_digits = list(result['full_number'])
+            current_number = list_to_number(new_digits)
 
             if min_conf < config.get(ConfigKeys.SAVE_THRESHOLD):
                 save_test_image(img, result['full_number'], "low_conf")
@@ -82,7 +114,6 @@ def monitor_loop():
             # Фильтрация дубликатов
             if len(history) >= 2:
                 last_item = list_to_number(history[-1]["digits"])
-                current_number = list_to_number(new_digits)
 
                 if current_number == last_item:
                     is_need_add_to_history = False
@@ -105,6 +136,7 @@ def monitor_loop():
                     while len(history) > Config.MAX_HISTORY_SIZE:
                         history.pop(0)
                     print("✅ Обнаружено изменение; новые цифры:", new_digits)
+                    log_meter_reading(current_number, min_conf)
 
                     save_test_image(img, result['full_number'], "next", Config.VALIDATION_DIR)
 
