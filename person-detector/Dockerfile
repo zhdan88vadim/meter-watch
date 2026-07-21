@@ -30,7 +30,7 @@ COPY meter-watch-shared /app/meter_watch_shared
 RUN pip install -e /app/meter_watch_shared
 
 # Run
-# CMD ["python", "run.py"]
+CMD ["python", "run.py"]
 
 # Keep container alive for testing
-CMD ["tail", "-f", "/dev/null"]
+# CMD ["tail", "-f", "/dev/null"]

@@ -182,8 +182,9 @@ class PersonTracker:
                     log_person_left_to_database({'id': person_id})
                 
                 # Если больше нет активных людей - останавливаем запись
-                # if not self.last_seen:
-                #     self._stop_recording()
+                if not self.last_seen:
+                    self.is_recording = False
+                    # self._stop_recording()
         
         # Отображаем статус
         status = "🔴 REC" if self.is_recording else "⏸ IDLE"
