@@ -1,6 +1,9 @@
-torch>=2.0.0
-torchvision>=0.15.0
-opencv-python>=4.8.0
+--extra-index-url https://download.pytorch.org/whl/cpu
+torch==2.8.0
+torchvision==0.23.0
+
+# Остальные пакеты
+opencv-python-headless>=4.8.0  # вместо opencv-python
 numpy>=1.24.0
 flask>=2.3.0
 Pillow>=10.0.0
