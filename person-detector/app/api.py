@@ -21,7 +21,7 @@ def require_auth():
         return False
     return True
 
-@app.route('/api/status', methods=['GET'])
+@app.route('/status', methods=['GET'])
 def get_status():
     """Получение статуса системы"""   
     gas_status = RedisManager.get_key(config.REDIS_KEYS['gas_flow'])
@@ -51,7 +51,7 @@ def get_status():
     
     return jsonify(status)
 
-@app.route('/api/alert/reset', methods=['POST'])
+@app.route('/alert/reset', methods=['POST'])
 def reset_alert():
     """Сбросить тревогу"""
     state_manager.reset_alert()
@@ -62,7 +62,7 @@ def reset_alert():
         'timestamp': datetime.now().isoformat()
     })
 
-@app.route('/api/system/control', methods=['POST'])
+@app.route('/system/control', methods=['POST'])
 def system_control():
     """Управление системой"""
     data = request.json
