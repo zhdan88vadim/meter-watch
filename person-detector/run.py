@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 import threading
 import logging
 import signal
@@ -37,11 +36,9 @@ def main():
     # Запуск Telegram бота
     telegram_bot.start()
 
-    rtsp_url = "rtsp://192.168.0.102:8554/balcony_camera_hero_4mp_wifi_h264"
-
     # Запуск трекера в отдельном потоке
     tracker = PersonTracker(
-        source=rtsp_url,
+        source=config.RTSP_URL,
         buffer_seconds=config.BUFFER_SECONDS,
         post_roll_seconds=config.POST_ROLL_SECONDS,
         frame_skip=config.FRAME_SKIP,

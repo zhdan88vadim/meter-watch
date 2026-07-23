@@ -1,3 +1,40 @@
+def initialize_redis_defaults():
+    """Initialize default values in Redis"""
+    defaults = {
+        config.REDIS_KEYS['gas_flow']: '0',
+        config.REDIS_KEYS['human_last_seen']: str(time.time() - 3600),  # 1 hour ago
+        config.REDIS_KEYS['alert_triggered']: '0',
+    }
+    
+    for key, value in defaults.items():
+        if not RedisManager.key_exists(key):
+            RedisManager.set_key(key, value)
+            print(f"✅ Initialized Redis key: {key} = {value}")
+
+# Call this when your app starts
+initialize_redis_defaults()
+
+
+
+
+
+{
+  "error": "[Errno 2] No such file or directory: '/app/output/wrong_predictions'"
+}
+
+
+
+
+{
+  "error": "[Errno 2] No such file or directory: '/app/output/validation'"
+}
+
+
+
+
+
+
+
 Дополнительные методы - hget, hdel, rpush, lpop, lrange, smembers, sismember, pipeline
 
 

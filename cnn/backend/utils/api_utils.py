@@ -26,7 +26,6 @@ def fetch_image(url, timeout=5, save_copy=False):
             image = cv2.imdecode(data, cv2.IMREAD_COLOR)
             
             if save_copy:
-                Config.create_directories()
                 cv2.imwrite(f'{Config.OUTPUT_DIR}/camera.png', image)
             
             return image

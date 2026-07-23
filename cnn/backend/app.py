@@ -5,9 +5,12 @@ from services.monitoring import start_monitoring
 from routes.main_routes import main_bp
 from routes.config_routes import config_bp
 from routes.manual_recognize import manual_recognize_bp
+from configuration import Config
 
 app = Flask(__name__)
 CORS(app)
+
+Config.create_directories()
 
 load_pytorch_model()
 start_monitoring()
