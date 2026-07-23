@@ -113,17 +113,20 @@ class MeterMonitor:
 
     def _check_anomaly_sequence_validity(self) -> bool:
         """
-        Проверить, идут ли числа в anomaly_history по порядку (+1)
-        Returns: True если все числа последовательные (1,2,3...)
+        Проверить валидность последовательности в anomaly_history
+        Returns: True если:
+        - все числа последовательные (1,2,3...)
+        - все числа одинаковые (1,1,1...)
         """
         with self._lock:
             if len(self.anomaly_history) < 2:
                 return False
-            
-            # Проверяем, что каждое следующее число = предыдущее + 1
+
             for i in range(1, len(self.anomaly_history)):
-                # Сравниваем числа (number) а не объекты MeterState
-                if self.anomaly_history[i].number - self.anomaly_history[i-1].number != 1:
+                diff = self.anomaly_history[i].number - self.anomaly_history[i-1].number
+                
+                # Разница должна быть 0 (одинаковые) или 1 (последовательные)
+                if diff != 0 and diff != 1:
                     return False
             
             return True

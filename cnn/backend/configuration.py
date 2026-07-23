@@ -25,7 +25,7 @@ class Config:
     # Monitoring settings
     POLL_INTERVAL_SECONDS = 20 # 30
     MAX_HISTORY_SIZE = 1000
-    MAX_ANOMALY_HISTORY_SIZE = 3
+    MAX_ANOMALY_HISTORY_SIZE = 5
 
     # Create directories on startup
     @classmethod

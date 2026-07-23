@@ -12,7 +12,7 @@ ssh $SERVER "mkdir -p $DEPLOY_PATH"
 
 # 1. Build images locally
 echo "📦 Building images..."
-docker-compose build
+docker compose build
 
 # 2. Create configuration package
 echo "📦 Creating configuration package..."
@@ -46,10 +46,10 @@ stream_image() {
 }
 
 # Stream all needed images
-stream_image "person-tracker-base:latest"
+# stream_image "person-tracker-base:latest"
 stream_image "meter-watch-cnn-recognizer:latest"
 stream_image "meter-watch-person-detector:latest"
-stream_image "meter-watch-frontend:latest"
+# stream_image "meter-watch-frontend:latest"
 # stream_image "redis:7.2-alpine"
 # stream_image "postgres:16-alpine"
 # stream_image "dpage/pgadmin4:latest"
@@ -79,11 +79,11 @@ fi
 
 # Stop old containers
 echo "🛑 Stopping old containers..."
-docker-compose down 2>/dev/null || true
+docker compose down 2>/dev/null || true
 
 # Start services
 echo "🚀 Starting services..."
-docker-compose up -d
+docker compose up -d
 
 # Wait for services
 echo "⏳ Waiting for services to be ready..."
@@ -92,7 +92,7 @@ sleep 5
 # Show status
 echo ""
 echo "📊 Service status:"
-docker-compose ps
+docker compose ps
 
 echo ""
 echo "=================================="
@@ -108,9 +108,9 @@ echo "  - pgAdmin:           http://192.168.0.53:5050"
 echo "  - Grafana:           http://192.168.0.53:3000"
 echo ""
 echo "📝 Useful commands:"
-echo "  View logs:      docker-compose logs -f"
-echo "  Stop services:  docker-compose down"
-echo "  Check status:   docker-compose ps"
+echo "  View logs:      docker compose logs -f"
+echo "  Stop services:  docker compose down"
+echo "  Check status:   docker compose ps"
 ENDSSH
 
 # Clean up local files

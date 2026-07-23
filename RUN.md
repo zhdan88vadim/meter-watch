@@ -14,6 +14,10 @@ alembic revision --autogenerate -m "Initial tables"
 alembic upgrade head
 
 #### update db
+
+docker compose up postgres
+
+conda activate /mnt/ntfs/learn_ML/test_classes/Тестовое\ Python\ ML,CV/Тестовое_ML/тестовое_ml/.conda
 alembic revision --autogenerate -m "Add confidence to meter_readings"
 alembic upgrade head
 
@@ -75,7 +79,7 @@ http://192.168.0.254:5000/status
 
 ## dev run
 
-docker compose up redis-commander
+docker compose up redis-commander pgadmin grafana
 http://localhost:8081/
 
 ---
