@@ -1,16 +1,17 @@
-FROM python:3.10-slim
+# FROM python:3.10-slim
+FROM person-tracker-base:latest
 
 WORKDIR /app
 
 # Install system dependencies
-RUN apt-get update && apt-get install -y \
-    libgl1 \
-    libglib2.0-0 \
-    libsm6 \
-    libxext6 \
-    libxrender-dev \
-    libgomp1 \
-    && rm -rf /var/lib/apt/lists/*
+# RUN apt-get update && apt-get install -y \
+#     libgl1 \
+#     libglib2.0-0 \
+#     libsm6 \
+#     libxext6 \
+#     libxrender-dev \
+#     libgomp1 \
+#     && rm -rf /var/lib/apt/lists/*
 
 # Copy requirements and install
 COPY person-detector/requirements.txt .
@@ -25,7 +26,7 @@ RUN apt-get update && apt-get install -y git && apt-get clean
 
 COPY person-detector /app
 
-COPY meter-watch-shared /app/meter_watch_shared
+COPY ./meter-watch-shared /app/meter_watch_shared
 
 RUN pip install -e /app/meter_watch_shared
 
