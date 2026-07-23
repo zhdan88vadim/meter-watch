@@ -42,7 +42,8 @@ services:
     volumes:
       - /etc/localtime:/etc/localtime:ro
       - /etc/timezone:/etc/timezone:ro    
-      - ./meter-watch-shared:/app/meter_watch_shared
+      #  only for local developing; on server there is not folder
+      # - ./meter-watch-shared:/app/meter_watch_shared
       - ./person-detector:/app/local
       - ./recordings:/app/recordings      
     devices:
@@ -64,8 +65,9 @@ services:
       - .env
     volumes:
       - /etc/localtime:/etc/localtime:ro
-      - /etc/timezone:/etc/timezone:ro    
-      - ./meter-watch-shared:/app/meter_watch_shared
+      - /etc/timezone:/etc/timezone:ro  
+      #  only for local developing; on server there is not folder
+      # - ./meter-watch-shared:/app/meter_watch_shared
       - ./cnn/backend:/app/local
       - ./output:/app/local/output
       - ./output:/app/output

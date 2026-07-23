@@ -2,10 +2,10 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
 import os
-from .config import config
+from meter_watch_shared.config import config
 
-DATABASE_URL = os.getenv("DATABASE_URL", "")
-DATABASE_URL_ASYNC = os.getenv("DATABASE_URL_ASYNC", "")
+DATABASE_URL = config.DATABASE_URL
+DATABASE_URL_ASYNC = config.DATABASE_URL_ASYNC
 
 print("DATABASE_URL", DATABASE_URL)
 print("DATABASE_URL_ASYNC", DATABASE_URL_ASYNC)

@@ -33,6 +33,10 @@ load_environment()
 @dataclass
 class Config:
     # Redis
+    DATABASE_URL: str = os.getenv('DATABASE_URL')
+    DATABASE_URL_ASYNC: str = os.getenv('DATABASE_URL_ASYNC', 0)
+
+
     REDIS_HOST: str = os.getenv('REDIS_HOST')
     REDIS_PORT: int = int(os.getenv('REDIS_PORT', 0))
     REDIS_PASSWORD: str = os.getenv('REDIS_PASSWORD')
