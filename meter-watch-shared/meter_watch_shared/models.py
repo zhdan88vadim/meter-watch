@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, DateTime, Float, Text
+from sqlalchemy import Column, Integer, DateTime, Float, Text, Boolean
 from datetime import datetime
 from sqlalchemy import Enum
 import enum
@@ -32,5 +32,6 @@ class MeterReading(Base):
 
     id = Column(Integer, primary_key=True)
     timestamp = Column(DateTime, default=datetime.utcnow)
-    value = Column(Float)
+    value = Column(Float, nullable=False)
+    is_anomaly = Column(Boolean, nullable=True)
     min_conf = Column(Float, nullable=True)

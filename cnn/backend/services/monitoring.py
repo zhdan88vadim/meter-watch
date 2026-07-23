@@ -16,6 +16,7 @@ class MeterMonitor:
     
     def __init__(self):
         self.history: List[MeterState] = []
+        self.anomaly_history: List[MeterState] = []
         self.last_state: Optional[MeterState] = None
         self.last_update_value: Optional[MeterState] = None
         self.last_image: Optional[Any] = None
@@ -37,7 +38,7 @@ class MeterMonitor:
             
         return True
     
-    def _handle_low_confidence(self, result: RecognitionResult) -> None:
+    def _handle_low_confidence(self, result: RecognitionResult) -> bool:
         """Обработка низкой уверенности"""
         if result.min_conf < config.get(ConfigKeys.SAVE_THRESHOLD):
             save_test_image(
@@ -45,26 +46,32 @@ class MeterMonitor:
                 result.digits, 
                 "low_conf"
             )
+            return True
+        return False
     
-    def _handle_big_difference(self, result: RecognitionResult) -> None:
+    def _handle_big_difference(self, result: RecognitionResult) -> bool:
         """Обработка большого скачка показаний"""
         with self._lock:
             if not self.last_state:
-                return
+                return False
                 
             difference = abs(result.number - self.last_state.number)
             if difference > 10:
                 save_test_image(result.image, result.number, f"big_diff_{difference}")
                 if self.last_image is not None:
                     save_test_image(self.last_image, result.number, f"big_diff_{difference}")
+                return True
+            return False
     
-    def _handle_decrease(self, result: RecognitionResult) -> None:
+    def _handle_decrease(self, result: RecognitionResult) -> bool:
         """Обработка уменьшения показаний"""
         with self._lock:
             if self.last_state and result.number < self.last_state.number:
                 save_test_image(result.image, result.number, "less")
                 if self.last_image is not None:
                     save_test_image(self.last_image, result.number, "less")
+            return True
+        return False                    
         
     def _add_to_history(self, result: RecognitionResult) -> None:
         """Добавить результат в историю"""
@@ -88,7 +95,39 @@ class MeterMonitor:
             self.last_nearly_activity_data = state
             self.last_nearly_activity_counter = 0
     
-    
+        
+    def _add_to_anomaly_history(self, result: RecognitionResult) -> None:
+        """Добавить результат в историю"""
+        state = MeterState(
+            digits=result.digits,
+            timestamp=result.timestamp,
+            time_str=result.time_str
+        )
+        
+        with self._lock:
+            self.anomaly_history.append(state)
+
+            # Ограничение размера истории
+            if len(self.anomaly_history) > Config.MAX_ANOMALY_HISTORY_SIZE:
+                self.anomaly_history = self.anomaly_history[-Config.MAX_ANOMALY_HISTORY_SIZE:]
+
+    def _check_anomaly_sequence_validity(self) -> bool:
+        """
+        Проверить, идут ли числа в anomaly_history по порядку (+1)
+        Returns: True если все числа последовательные (1,2,3...)
+        """
+        with self._lock:
+            if len(self.anomaly_history) < 2:
+                return False
+            
+            # Проверяем, что каждое следующее число = предыдущее + 1
+            for i in range(1, len(self.anomaly_history)):
+                # Сравниваем числа (number) а не объекты MeterState
+                if self.anomaly_history[i].number - self.anomaly_history[i-1].number != 1:
+                    return False
+            
+            return True
+
     def _update_redis(self, result: RecognitionResult) -> None:
         """Обновить Redis (закомментировано, но оставлено для ясности)"""
         # RedisManager.set_key(
@@ -122,34 +161,34 @@ class MeterMonitor:
     def process_result(self, result: RecognitionResult) -> None:
         """Обработка результата распознавания"""
         with self._lock:
+            is_low_confidence = self._handle_low_confidence(result)
 
-            # Проверка низкой уверенности
-            self._handle_low_confidence(result)
-            
-            # Проверка на изменения
             if not self._should_process(result):
                 self._handle_no_change(result)
                 return
+
+            is_big_difference = self._handle_big_difference(result)
+            is_decrease = self._handle_decrease(result)
+            is_anomaly = is_low_confidence or is_big_difference or is_decrease
+
+            is_anomaly_correct = self._check_anomaly_sequence_validity()
+
+            if is_anomaly and not is_anomaly_correct:
+                self._add_to_anomaly_history(result)
+            else:
+                self._add_to_history(result)
+                self._update_redis(result)
+
+                save_test_image(
+                    result.image, 
+                    result.digits, 
+                    "next", 
+                    Config.VALIDATION_DIR
+                )            
             
-            # Логирование изменений
-            print(f"✅ Обнаружено изменение; новые цифры: {result.digits}")
-            
-            # Проверка на аномалии
-            self._handle_big_difference(result)
-            self._handle_decrease(result)
-            
-            # Сохранение
-            self._add_to_history(result)
-            save_meter_data_to_database(result)
-            self._update_redis(result)
-            
-            # Сохранение изображения
-            save_test_image(
-                result.image, 
-                result.digits, 
-                "next", 
-                Config.VALIDATION_DIR
-            )
+            save_meter_data_to_database(result, is_anomaly)
+
+            print(f"✅ Обнаружено изменение; новые цифры: {result.digits}, is_anomaly: {is_anomaly}")
     
     def run_cycle(self) -> None:
         """Один цикл мониторинга"""
