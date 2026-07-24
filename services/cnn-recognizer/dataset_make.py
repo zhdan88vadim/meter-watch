@@ -35,7 +35,7 @@ def process_dataset(dataset_path, transform, output_suffix="_aug"):
                     
                     # Сохраняем рядом с оригиналом
                     new_filename = f"{Path(file).stem}_{unique_id}_{output_suffix}{Path(file).suffix}"
-                    output_path = Path("/media/vadim/1TB_SSD/my_github/meter-watch/dataset_val_low_transform_bi/") / img_path.parent.name / new_filename
+                    output_path = Path("/media/vadim/1TB_SSD/my_github/meter-watch/dataset_binary_val/") / img_path.parent.name / new_filename
 
                     output_path.parent.mkdir(parents=True, exist_ok=True)
 
@@ -70,7 +70,7 @@ def process_dataset(dataset_path, transform, output_suffix="_aug"):
 if __name__ == "__main__":
     # Путь к вашему датасету
     # dataset_path = "/media/vadim/1TB_SSD/my_github/meter-watch/dataset_val_test/"
-    dataset_path = "/media/vadim/1TB_SSD/my_github/meter-watch/dataset_val_clean/"
+    dataset_path = "/media/vadim/1TB_SSD/my_github/meter-watch/dataset_train/"
     
     # Ваши трансформации
     image_size = (28, 28)  # Или другой размер

@@ -226,6 +226,6 @@ def save_error_report(misclassifications, classes, total_errors, total_samples, 
 if __name__ == "__main__":
     analyze_model_errors(
         model_path="models/digit_recognizer.pth",
-        dataset_path="/media/vadim/1TB_SSD/my_github/meter-watch/dataset_val_low_transform_bi",
+        dataset_path="/media/vadim/1TB_SSD/my_github/meter-watch/dataset_binary_val",
         num_examples=10
     )

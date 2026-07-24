@@ -79,8 +79,8 @@ def balance_dataset(dataset_path, target_count=None, keep_random=True):
 if __name__ == "__main__":
     # dataset_path = "/media/vadim/1TB_SSD/my_github/meter-watch/dataset_val/"
     dataset_path = "/media/vadim/1TB_SSD/my_github/meter-watch/dataset_val_low_transform/"
-    dataset_path = "/media/vadim/1TB_SSD/my_github/meter-watch/dataset_val_low_transform_bi/"
-    dataset_path = "/media/vadim/1TB_SSD/my_github/meter-watch/dataset_val_clean/"
+    dataset_path = "/media/vadim/1TB_SSD/my_github/meter-watch/dataset_binary_val/"
+    dataset_path = "/media/vadim/1TB_SSD/my_github/meter-watch/dataset_train/"
     
     # Вариант 1: Балансировать по минимальному количеству
     balance_dataset(dataset_path, target_count=None, keep_random=True)

@@ -287,7 +287,7 @@ meter-watch/
 
 <img src="readme_images/train_val_graphs.png" width="50%">
 
-## Classification Report
+## Train Classification Report
 
 | Класс | Точность (Precision) | Полнота (Recall) | F1-мера | Поддержка (Support) |
 |-------|-------------------|------------------|---------|---------------------|
@@ -311,9 +311,7 @@ meter-watch/
 
 ---
 
-### 🏆 Лучшая достигнутая точность: **99.66 %**
-
-## Confusion Matrix
+## Train Confusion Matrix
 
 <img src="readme_images/confusion_matrix.png">
 
@@ -328,7 +326,7 @@ meter-watch/
 
 <br>
 
-### 📈 Статистика по классам
+### 📈 Validation Статистика по классам
 
 | Класс | Всего изображений | Ошибок | Точность |
 | :---: | :---: | :---: | :---: |
