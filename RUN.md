@@ -84,23 +84,23 @@ http://localhost:8081/
 
 ---
 
-cd /media/vadim/1TB_SSD/my_github/meter-watch/cnn/backend
+cd /media/vadim/1TB_SSD/my_github/meter-watch/services/cnn-recognizer
 conda activate /mnt/ntfs/learn_ML/test_classes/Тестовое\ Python\ ML,CV/Тестовое_ML/тестовое_ml/.conda
 python app.py
 
 ## ONE CMD
-cd /media/vadim/1TB_SSD/my_github/meter-watch/cnn/backend && conda activate /mnt/ntfs/learn_ML/test_classes/Тестовое\ Python\ ML,CV/Тестовое_ML/тестовое_ml/.conda && python app.py
+cd /media/vadim/1TB_SSD/my_github/meter-watch/services/cnn-recognizer && conda activate /mnt/ntfs/learn_ML/test_classes/Тестовое\ Python\ ML,CV/Тестовое_ML/тестовое_ml/.conda && python app.py
 
 
 
 http://192.168.0.254:5002/
 ---
-cd /media/vadim/1TB_SSD/my_github/meter-watch/person-detector
+cd /media/vadim/1TB_SSD/my_github/meter-watch/services/person-detector
 conda activate YOLO_t0
 python run.py
 
 ## ONE CMD
-cd /media/vadim/1TB_SSD/my_github/meter-watch/person-detector && conda activate YOLO_t0 && python run.py
+cd /media/vadim/1TB_SSD/my_github/meter-watch/services/person-detector && conda activate YOLO_t0 && python run.py
 
 http://192.168.0.254:5000/api/status
 ---
@@ -323,9 +323,9 @@ IMAGE          CREATED             CREATED BY                                   
 6bc47538c3e3   About an hour ago   CMD ["python" "app.py"]                         0B        buildkit.dockerfile.v0
 <missing>      About an hour ago   RUN /bin/sh -c pip install -e /app/meter_wat…   4.62MB    buildkit.dockerfile.v0
 <missing>      About an hour ago   COPY meter-watch-shared /app/meter_watch_sha…   120kB     buildkit.dockerfile.v0
-<missing>      2 hours ago         COPY cnn/backend /app # buildkit                45.8MB    buildkit.dockerfile.v0
+<missing>      2 hours ago         COPY services/cnn-recognizer /app # buildkit                45.8MB    buildkit.dockerfile.v0
 <missing>      2 hours ago         RUN /bin/sh -c pip install -r requirements.t…   7.17GB    buildkit.dockerfile.v0
-<missing>      2 hours ago         COPY cnn/backend/requirements.txt . # buildk…   247B      buildkit.dockerfile.v0
+<missing>      2 hours ago         COPY services/cnn-recognizer/requirements.txt . # buildk…   247B      buildkit.dockerfile.v0
 <missing>      3 months ago        RUN /bin/sh -c apt-get update && apt-get ins…   304MB     buildkit.dockerfile.v0
 <missing>      3 months ago        WORKDIR /app                                    0B        buildkit.dockerfile.v0
 <missing>      8 months ago        CMD ["python3"]                                 0B        buildkit.dockerfile.v0

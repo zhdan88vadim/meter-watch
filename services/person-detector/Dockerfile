@@ -14,7 +14,7 @@ WORKDIR /app
 #     && rm -rf /var/lib/apt/lists/*
 
 # Copy requirements and install
-COPY person-detector/requirements.txt .
+COPY ./services/person-detector/requirements.txt .
 # RUN pip install --no-cache-dir -r requirements.txt
 RUN --mount=type=cache,target=/root/.cache/pip,id=permanent_pip_cache,sharing=locked \
     pip install -r requirements.txt
@@ -24,7 +24,7 @@ RUN apt-get update && apt-get install -y git && apt-get clean
 # Copy application
 # COPY . .
 
-COPY person-detector /app
+COPY ./services/person-detector /app
 
 COPY ./meter-watch-shared /app/meter_watch_shared
 

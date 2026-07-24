@@ -11,7 +11,7 @@ WORKDIR /app
 #     && rm -rf /var/lib/apt/lists/*
 
 # Copy requirements and install
-# COPY cnn/backend/requirements.txt .
+# COPY ./services/cnn-recognizer/requirements.txt .
 # RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy requirements and install with PERMANENT cache
@@ -24,7 +24,7 @@ WORKDIR /app
 # Copy application
 # COPY . .
 
-COPY cnn/backend /app
+COPY ./services/cnn-recognizer /app
 
 COPY ./meter-watch-shared /app/meter_watch_shared
 
