@@ -29,23 +29,16 @@ services:
         condition: service_healthy
     env_file:
       - .env
-    # environment:
-    #   - REDIS_HOST=redis
-    #   - REDIS_PORT=6379
-    #   - TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN}
-    #   - TELEGRAM_CHAT_ID=${TELEGRAM_CHAT_ID}
-    #   - API_SECRET_KEY=${API_SECRET_KEY}
-    #   - PYTHONPATH=/app
     ports:
       - "5000:5000"
       - "5001:5001"
     volumes:
       - /etc/localtime:/etc/localtime:ro
       - /etc/timezone:/etc/timezone:ro    
-      #  only for local developing; on server there is not folder
+      # For local development only - uncomment if needed
       # - ./meter-watch-shared:/app/meter_watch_shared
       - ./services/person-detector:/app/local
-      - ./recordings:/app/recordings      
+      - ./output/recordings:/app/recordings      
     devices:
       - /dev/video0:/dev/video0
     privileged: true
@@ -66,7 +59,7 @@ services:
     volumes:
       - /etc/localtime:/etc/localtime:ro
       - /etc/timezone:/etc/timezone:ro  
-      #  only for local developing; on server there is not folder
+      # For local development only - uncomment if needed
       # - ./meter-watch-shared:/app/meter_watch_shared
       - ./services/cnn-recognizer:/app/local
       - ./output:/app/local/output
@@ -121,7 +114,7 @@ services:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
-      - ./postgres/init:/docker-entrypoint-initdb.d:ro  # опционально: скрипты инициализации
+      - ./config/postgres/init:/docker-entrypoint-initdb.d:ro
     networks:
       - tracker_network
     healthcheck:
@@ -144,7 +137,7 @@ services:
       - "5050:80"
     volumes:
       - pgadmin_data:/var/lib/pgadmin
-      - ./pgadmin/servers.json:/pgadmin4/servers.json:ro  # опционально: предварительная настройка
+      - ./config/pgadmin/servers.json:/pgadmin4/servers.json:ro
     networks:
       - tracker_network
     depends_on:
@@ -158,14 +151,14 @@ services:
     environment:
       - GF_SECURITY_ADMIN_USER=${GRAFANA_ADMIN_USER:-admin}
       - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_ADMIN_PASSWORD:-admin}
-      # - GF_INSTALL_PLUGINS=grafana-clock-panel,grafana-simple-json-datasource
       - GF_SERVER_ROOT_URL=http://localhost:3000
     ports:
       - "3000:3000"
     volumes:
       - grafana_data:/var/lib/grafana
-      # - ./grafana/provisioning:/etc/grafana/provisioning:ro
-      # - ./grafana/dashboards:/etc/grafana/dashboards:ro
+      # Uncomment for provisioning
+      # - ./config/grafana/provisioning:/etc/grafana/provisioning:ro
+      # - ./config/grafana/dashboards:/etc/grafana/dashboards:ro
     networks:
       - tracker_network
     depends_on:

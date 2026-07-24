@@ -8,7 +8,7 @@
 - **Автоматическое снятие показаний** газового счетчика с точностью 99.81 %
 - **Мониторинг работы газа** в реальном времени
 - **Отслеживание присутствия человека** на кухне
-- **Интеллектуальные оповещения** через Telegram-бота
+- **Оповещения** через Telegram-бота
 
 ## Как это работает
 
@@ -39,53 +39,139 @@
 ## 📁 Структура проекта
 
 ```
-project/
-├── data/
-│   ├── raw/                  # Исходные снимки с камеры (без обработки)
-│   │   └── 2026-07-14/
-│   │       ├── morning_01.jpg
-│   │       ├── afternoon_02.jpg
-│   │       └── evening_03.jpg
-│   ├── processed/            # После предварительной обработки (OpenCV)
-│   │   ├── crops/            # Нарезанные символы (цифры)
-│   │   └── metadata.json     # Координаты ограничивающих рамок, время съемки
-│   ├── train/                # Тренировочный датасет (70 %)
-│   ├── val/                  # Валидационный датасет (15 %)
-│   └── test/                 # Тестовый датасет (15 %, зафиксирован!)
-│       ├── images/           # 500 изображений
-│       └── labels.txt        # Правильные ответы
-├── src/
-│   ├── preprocessing/
-│   │   ├── image_processor.py   # Бинаризация, подавление шума, нарезка
-│   │   ├── crop_optimizer.py    # Padding, интерполяция
-│   │   └── dataset_splitter.py  # Разбивка на train/val/test
-│   ├── models/
-│   │   ├── cnn_model.py         # Архитектура нейросети
-│   │   ├── trainer.py           # Цикл обучения
-│   │   └── predict.py           # Инференс (получение предсказаний)
-│   ├── utils/
-│   │   ├── metrics.py           # Метрики (Accuracy, Confusion Matrix)
-│   │   └── visualizer.py        # Графики, визуализация ошибок
-│   └── config.py                # Все гиперпараметры и настройки
-├── notebooks/
-│   └── eda.ipynb                # Исследовательский анализ данных
-├── results/
-│   ├── models/                  # Сохраненные веса моделей (.pth, .h5)
-│   ├── logs/                    # Логи для TensorBoard
-│   └── plots/                   # Графики обучения
-│       ├── loss_curve.png
-│       ├── accuracy_curve.png
-│       └── confusion_matrix.png
-├── requirements.txt
-├── Dockerfile
-└── README.md
+meter-watch/
+├── config/                              # Configuration files
+│   └── grafana/                         # Grafana dashboards & provisioning
+│
+│
+├── docker_base/                         # Base Docker images
+│   ├── Dockerfile
+│   └── base-requirements.txt
+│
+├── services/                            # Microservices
+│   ├── person-detector/                 # Person detection service
+│   │   ├── app/
+│   │   │   ├── api.py                   # REST API endpoints
+│   │   │   ├── person_tracker.py        # Core tracking logic
+│   │   │   ├── video_buffer.py          # Video stream management
+│   │   │   ├── telegram_bot.py          # Telegram notifications
+│   │   │   ├── database.py              # DB operations
+│   │   │   ├── rate_limiter.py          # Rate limiting
+│   │   │   ├── safety_monitor.py        # Safety checks
+│   │   │   └── state_manager.py         # State management
+│   │   │ 
+│   │   ├── run.py                       # Entry point
+│   │   ├── requirements.txt
+│   │   ├── Dockerfile
+│   │   └── yolov8n.pt                   # YOLO model weights
+│   │
+│   └── cnn-recognizer/                  # Digit recognition service
+│       ├── models/                      # ML models
+│       │   ├── digit_recognizer.pth     # Trained model weights
+│       │   ├── digit_recognizer.py      # Model architecture
+│       │   ├── pytorch_model.py         # PyTorch wrapper
+│       │   ├── error_models.py          # Error analysis
+│       │   └── monitoring_models.py     # Monitoring models
+│       ├── routes/                      # API routes
+│       │   ├── main_routes.py
+│       │   ├── manual_recognize.py
+│       │   └── config_routes.py
+│       ├── services/                    # Business logic
+│       │   ├── recognition.py           # Main recognition logic
+│       │   ├── database.py              # DB operations
+│       │   ├── monitoring.py            # Metrics collection
+│       │   └── config.py                # Service config
+│       ├── utils/                       # Utilities
+│       │   ├── api_utils.py
+│       │   ├── image_utils.py
+│       │   ├── preprocessing.py         # Image preprocessing
+│       │   ├── augmentation.py          # Data augmentation
+│       │   ├── heatmap.py               # Visualization
+│       │   ├── log_data.py              # Logging
+│       │   ├── number_utils.py          # Number processing
+│       │   └── splitter.py              # Dataset splitting
+│       │
+│       ├── dataset/                     # Training datasets
+│       ├── app.py                       # Flask application
+│       ├── trainer.py                   # Training pipeline
+│       ├── test_on_raw.py               # Testing script
+│       ├── analyze_errors_top.py        # Top errors analysis
+│       ├── dataset_make.py              # Dataset creation
+│       ├── classification_report.txt    # Model performance report
+│       ├── requirements.txt
+│       ├── Dockerfile
+│       │
+├── experiments/                         # Research & experiments
+│   ├── hog_svm/                         # HOG + SVM experiments
+│   └── tracker/                         # Tracker experiments
+│
+├── meter-watch-shared/                  # Shared Python package
+│
+├── scripts/                             # Utility scripts
+│   ├── balance_dataset.py               # Dataset balancing
+│   └── emulate_gas_counter.py           # Gas counter emulator
+│
+├── notebooks/                           # Jupyter notebooks
+│   └── 01_eda.ipynb                     # Exploratory data analysis
+│
+├── doc/                                 # Documentation
+│
+├── readme_images/                       # README images
+│
+├── alembic/                             # Database migrations
+│
+├── docker-compose.yml                   # Main Docker Compose
+├── deploy.sh                            # Deployment script
+├── alembic.ini                          # Alembic configuration
+├── .env.example                                 # Environment variables
+├── README.md                            # Project overview
+├── RUN.md                               # Running instructions
+├── TODO.md                              # Todo list
+├── LICENSE                              # License
 ```
 
 ---
 
 ### Архитектура нейросети
 ```
-Input (128x64) → Conv(32) → Conv(64) → Conv(128) → Dense(256) → Dense(128) → Softmax(10)
+┌─────────────────────────────────────┐
+│  Input (28×28 grayscale)            │
+└─────────────────────────────────────┘
+     │
+     ▼
+┌─────────────────────────────────────┐
+│  Conv2d(1→32, 3×3, padding=1)       │
+│  BatchNorm2d(32)                    │
+│  ReLU                               │
+│  MaxPool2d(2×2)                     │  ← Output: 14×14
+└─────────────────────────────────────┘
+     │
+     ▼
+┌─────────────────────────────────────┐
+│  Conv2d(32→64, 3×3, padding=1)      │
+│  BatchNorm2d(64)                    │
+│  ReLU                               │
+│  MaxPool2d(2×2)                     │  ← Output: 7×7
+└─────────────────────────────────────┘
+     │
+     ▼
+┌─────────────────────────────────────┐
+│  Flatten: 7×7×64 = 3136             │
+└─────────────────────────────────────┘
+     │
+     ▼
+┌─────────────────────────────────────┐
+│  Linear(3136→128)                   │
+│  BatchNorm1d(128)                   │
+│  ReLU                               │
+│  Dropout(0.3)                       │
+└─────────────────────────────────────┘
+     │
+     ▼
+┌─────────────────────────────────────┐
+│  Linear(128→10)                     │
+│  Output (10 digit classes)          │
+└─────────────────────────────────────┘
 ```
 
 ## Полный цикл работы системы
@@ -229,7 +315,7 @@ Input (128x64) → Conv(32) → Conv(64) → Conv(128) → Dense(256) → Dense(
 
 ## Confusion Matrix
 
-<img src="readme_images/confusion_matrix.png.png">
+<img src="readme_images/confusion_matrix.png">
 
 ## Анализ ошибок модели на валидационном датасете
 
