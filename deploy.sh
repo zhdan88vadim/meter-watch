@@ -48,7 +48,7 @@ stream_image() {
 # Stream all needed images
 # stream_image "person-tracker-base:latest"
 stream_image "meter-watch-cnn-recognizer:latest"
-stream_image "meter-watch-person-detector:latest"
+# stream_image "meter-watch-person-detector:latest"
 # stream_image "meter-watch-frontend:latest"
 # stream_image "redis:7.2-alpine"
 # stream_image "postgres:16-alpine"
