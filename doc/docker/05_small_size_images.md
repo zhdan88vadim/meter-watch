@@ -289,7 +289,7 @@ services:
     volumes:
       - models_data:/app/models  # Модели в volume, а не в образе
     environment:
-      - MODEL_PATH=/app/models/model.pth
+      - TRAINED_MODEL_PATH=/app/models/model.pth
 
 volumes:
   models_data:
@@ -303,7 +303,7 @@ import os
 import torch
 
 def load_model():
-    model_path = os.getenv("MODEL_PATH", "/app/models/model.pth")
+    model_path = os.getenv("TRAINED_MODEL_PATH", "/app/models/model.pth")
     if not os.path.exists(model_path):
         print("Загрузка модели...")
         # Скачать модель из интернета или скопировать

@@ -64,6 +64,7 @@ services:
       - ./services/cnn-recognizer:/app/local
       - ./output:/app/local/output
       - ./output:/app/output
+      - ./trained_models:/app/trained_models
     depends_on:
       redis:
         condition: service_healthy

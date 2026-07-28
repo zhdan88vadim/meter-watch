@@ -20,6 +20,12 @@ class MeterState:
     @property
     def is_valid(self) -> bool:
         return -1 not in self.digits
+    
+    def __repr__(self):
+        return f"MeterState(number={self.number}, digits={self.digits}, time={self.time_str})"
+    
+    def __str__(self):
+        return f"Показания: {self.number} ({self.digits}) в {self.time_str}"    
 
 
 @dataclass

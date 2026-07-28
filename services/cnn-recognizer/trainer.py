@@ -303,9 +303,9 @@ class ModelTrainer:
         if self.model is None:
             return None
 
-        torch.save(self.model.state_dict(), Config.MODEL_PATH)
+        torch.save(self.model.state_dict(), Config.TRAINED_MODEL_PATH)
         
-        return Config.MODEL_PATH
+        return Config.TRAINED_MODEL_PATH
 
     def _plot_confusion_matrix(self, y_true, y_pred, classes, writer, epoch):
             """
@@ -401,7 +401,7 @@ if __name__ == '__main__':
         dataset_path = "/media/vadim/1TB_SSD/my_github/meter-watch/dataset_train/",
         # val_dataset_path="/media/vadim/1TB_SSD/my_github/meter-watch/dataset_val/",
         # val_dataset_path="/media/vadim/1TB_SSD/my_github/meter-watch/dataset_val_low_transform/",
-        val_dataset_path="/media/vadim/1TB_SSD/my_github/meter-watch/dataset_binary_val/",
+        val_dataset_path="/media/vadim/1TB_SSD/my_github/meter-watch/data/dataset_binary_val/",
         # dataset_path=Config.TRAINING_DATA_DIR,
         epochs=40,
         batch_size=64,

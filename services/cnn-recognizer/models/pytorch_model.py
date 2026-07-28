@@ -15,16 +15,16 @@ def load_pytorch_model():
     global pytorch_model
     global heatmap_gen
 
-    if os.path.exists(Config.MODEL_PATH):
+    if os.path.exists(Config.TRAINED_MODEL_PATH):
         try:
             pytorch_model = DigitRecognizer().to(Config.DEVICE)
-            pytorch_model.load_state_dict(torch.load(Config.MODEL_PATH, map_location=Config.DEVICE))
+            pytorch_model.load_state_dict(torch.load(Config.TRAINED_MODEL_PATH, map_location=Config.DEVICE))
             pytorch_model.eval()
             heatmap_gen = SimpleHeatmap(pytorch_model)
-            print(f"Model loaded: {Config.MODEL_PATH}")
+            print(f"Model loaded: {Config.TRAINED_MODEL_PATH}")
             return True
         except Exception as e:
-            print(f"⚠️ Could not load {Config.MODEL_PATH}: {e}")
+            print(f"⚠️ Could not load {Config.TRAINED_MODEL_PATH}: {e}")
     
     print("❌ No PyTorch model found. Using fallback methods.")
     return False

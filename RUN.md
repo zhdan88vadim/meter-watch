@@ -1,3 +1,8 @@
+tree -I "data|web|node_modules|__pycache__|logs|output|validation|*.pyc"
+
+
+
+
 pip install sqlalchemy
 
 pip install psycopg2-binary

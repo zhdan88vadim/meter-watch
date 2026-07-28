@@ -8,7 +8,7 @@ import random
 app = Flask(__name__)
 
 # Configuration
-IMAGE_FOLDER = "../raw_images"
+IMAGE_FOLDER = "../data/emulate_data"
 CURRENT_INDEX = 0
 INDEX_LOCK = threading.Lock()
 
@@ -27,9 +27,10 @@ MAX_INDEX = len(IMAGE_LIST) - 1
 @app.route('/next_image')
 def get_next_image():
     """Return the next image and increment counter"""
-    # global CURRENT_INDEX
+    global CURRENT_INDEX
 
-    CURRENT_INDEX = random.randint(0, len(IMAGE_LIST))
+    if (random.randint(0, 5) > 4):
+        CURRENT_INDEX = random.randint(0, len(IMAGE_LIST) - 1)
     
     if not IMAGE_LIST:
         return jsonify({"error": "No images found"}), 404
@@ -84,6 +85,6 @@ def index():
 
 if __name__ == '__main__':
     print(f"Total images loaded: {len(IMAGE_LIST)}")
-    print(f"Starting server at http://localhost:5050")
-    print(f"Access next image at http://localhost:5050/next_image")
-    app.run(debug=True, host='0.0.0.0', port=5050)
+    print(f"Starting server at http://localhost:5858")
+    print(f"Access next image at http://localhost:5858/next_image")
+    app.run(debug=True, host='0.0.0.0', port=5858)

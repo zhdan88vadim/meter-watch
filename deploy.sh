@@ -20,6 +20,7 @@ tar -czf config.tar.gz \
     docker-compose.yml \
     .env \
     postgres/ \
+    trained_models/ \
     pgadmin/ \
     grafana/ \
     web/ 2>/dev/null || true

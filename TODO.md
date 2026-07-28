@@ -1,3 +1,10 @@
+# Если газ идет, но человек вернулся:
+# - Alert остается активным (не сбрасывается)
+# - Нет логики "человек вернулся → сбросить тревогу"
+
+
+
+
 def initialize_redis_defaults():
     """Initialize default values in Redis"""
     defaults = {

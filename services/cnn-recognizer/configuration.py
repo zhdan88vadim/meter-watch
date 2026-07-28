@@ -13,8 +13,8 @@ class Config:
     print(f"BASE_DIR: {BASE_DIR}")
 
     OUTPUT_DIR = os.path.join(BASE_DIR, 'output')
-    MODELS_DIR = os.path.join(BASE_DIR, 'models')
-    MODEL_PATH = os.path.join(MODELS_DIR, 'digit_recognizer.pth')
+    TRAINED_MODELS_DIR = os.path.join(BASE_DIR, 'trained_models')
+    TRAINED_MODEL_PATH = os.path.join(TRAINED_MODELS_DIR, 'digit_recognizer.pth')
         
     MANUAL_RECONGIZED_DATA_DIR = os.path.abspath(os.path.join(OUTPUT_DIR, 'manual_recongized_data'))
     print(f"MANUAL_RECONGIZED_DATA_DIR: {MANUAL_RECONGIZED_DATA_DIR}")
@@ -25,7 +25,7 @@ class Config:
     # Monitoring settings
     POLL_INTERVAL_SECONDS = 20 # 30
     MAX_HISTORY_SIZE = 1000
-    MAX_ANOMALY_HISTORY_SIZE = 5
+    MAX_ANOMALY_HISTORY_SIZE = 3
 
     # Create directories on startup
     @classmethod
