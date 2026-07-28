@@ -35,10 +35,6 @@
                 "spec": {
                   "hidden": false,
                   "query": {
-                    "datasource": {
-                      "uid": "postgres",
-                      "type": "postgres"
-                    },
                     "group": "grafana-postgresql-datasource",
                     "kind": "DataQuery",
                     "spec": {
@@ -46,7 +42,7 @@
                       "editorMode": "code",
                       "format": "table",
                       "rawQuery": true,
-                      "rawSql": "SELECT value FROM meter_readings ORDER BY timestamp DESC LIMIT 1;",
+                      "rawSql": "SELECT value FROM meter_readings where is_anomaly = false ORDER BY timestamp DESC LIMIT 1;",
                       "sql": {
                         "columns": [
                           {
@@ -109,7 +105,9 @@
               "orientation": "auto",
               "percentChangeColorMode": "standard",
               "reduceOptions": {
-                "calcs": ["lastNotNull"],
+                "calcs": [
+                  "lastNotNull"
+                ],
                 "fields": "",
                 "values": false
               },
@@ -134,10 +132,6 @@
                 "spec": {
                   "hidden": false,
                   "query": {
-                    "datasource": {
-                      "uid": "postgres",
-                      "type": "postgres"
-                    },
                     "group": "grafana-postgresql-datasource",
                     "kind": "DataQuery",
                     "spec": {
@@ -218,10 +212,6 @@
                 "spec": {
                   "hidden": false,
                   "query": {
-                    "datasource": {
-                      "uid": "postgres",
-                      "type": "postgres"
-                    },
                     "group": "grafana-postgresql-datasource",
                     "kind": "DataQuery",
                     "spec": {
@@ -339,10 +329,6 @@
                 "spec": {
                   "hidden": false,
                   "query": {
-                    "datasource": {
-                      "uid": "postgres",
-                      "type": "postgres"
-                    },
                     "group": "grafana-postgresql-datasource",
                     "kind": "DataQuery",
                     "spec": {
@@ -451,10 +437,6 @@
                 "spec": {
                   "hidden": false,
                   "query": {
-                    "datasource": {
-                      "uid": "postgres",
-                      "type": "postgres"
-                    },
                     "group": "grafana-postgresql-datasource",
                     "kind": "DataQuery",
                     "spec": {
@@ -636,10 +618,6 @@
                 "spec": {
                   "hidden": false,
                   "query": {
-                    "datasource": {
-                      "uid": "postgres",
-                      "type": "postgres"
-                    },
                     "group": "grafana-postgresql-datasource",
                     "kind": "DataQuery",
                     "spec": {
@@ -709,7 +687,9 @@
               "orientation": "auto",
               "percentChangeColorMode": "standard",
               "reduceOptions": {
-                "calcs": ["lastNotNull"],
+                "calcs": [
+                  "lastNotNull"
+                ],
                 "fields": "/^time_since_last_detection$/",
                 "values": true
               },
@@ -734,10 +714,6 @@
                 "spec": {
                   "hidden": false,
                   "query": {
-                    "datasource": {
-                      "uid": "postgres",
-                      "type": "postgres"
-                    },
                     "group": "grafana-postgresql-datasource",
                     "kind": "DataQuery",
                     "spec": {
@@ -745,7 +721,7 @@
                       "editorMode": "code",
                       "format": "table",
                       "rawQuery": true,
-                      "rawSql": "WITH last_gas AS (\n  SELECT EXTRACT(EPOCH FROM (NOW() - timestamp)) / 60 AS gas_min\n  FROM meter_readings ORDER BY timestamp DESC LIMIT 1\n),\nlast_person AS (\n  SELECT EXTRACT(EPOCH FROM (NOW() - timestamp)) / 60 AS person_min\n  FROM activity_logs \n  WHERE source = 'PERSON_DETECTOR' AND event_type = 'PERSON_DETECTED'\n  ORDER BY timestamp DESC LIMIT 1\n)\nSELECT \n  CASE \n    WHEN COALESCE(gas_min, 999) <= 3 THEN\n      COALESCE(\n        CASE \n          WHEN person_min < 1 THEN 'Just now'\n          ELSE CONCAT(FLOOR(person_min), 'm')\n        END,\n        'No detection'\n      )\n    ELSE \n      'GAS OFF'\n  END AS display_text,\n  gas_min,\n  last_person\nFROM last_gas CROSS JOIN last_person;",
+                      "rawSql": "WITH last_gas AS (\n  SELECT EXTRACT(EPOCH FROM (NOW() - timestamp)) / 60 AS gas_min\n  FROM meter_readings where is_anomaly = false ORDER BY timestamp DESC LIMIT 1\n),\nlast_person AS (\n  SELECT EXTRACT(EPOCH FROM (NOW() - timestamp)) / 60 AS person_min\n  FROM activity_logs \n  WHERE source = 'PERSON_DETECTOR' AND event_type = 'PERSON_DETECTED'\n  ORDER BY timestamp DESC LIMIT 1\n)\nSELECT \n  CASE \n    WHEN COALESCE(gas_min, 999) <= 3 THEN\n      COALESCE(\n        CASE \n          WHEN person_min < 1 THEN 'Just now'\n          ELSE CONCAT(FLOOR(person_min), 'm')\n        END,\n        'No detection'\n      )\n    ELSE \n      'GAS OFF'\n  END AS display_text,\n  gas_min,\n  last_person\nFROM last_gas CROSS JOIN last_person;",
                       "sql": {
                         "columns": [
                           {
@@ -807,7 +783,9 @@
               "orientation": "auto",
               "percentChangeColorMode": "standard",
               "reduceOptions": {
-                "calcs": ["lastNotNull"],
+                "calcs": [
+                  "lastNotNull"
+                ],
                 "fields": "/^display_text$/",
                 "values": true
               },
@@ -832,10 +810,6 @@
                 "spec": {
                   "hidden": false,
                   "query": {
-                    "datasource": {
-                      "uid": "postgres",
-                      "type": "postgres"
-                    },
                     "group": "grafana-postgresql-datasource",
                     "kind": "DataQuery",
                     "spec": {
@@ -843,7 +817,7 @@
                       "editorMode": "code",
                       "format": "table",
                       "rawQuery": true,
-                      "rawSql": "SELECT \n  CONCAT(\n    FLOOR(EXTRACT(EPOCH FROM (NOW() - timestamp)) / 3600),\n    'h ',\n    FLOOR((EXTRACT(EPOCH FROM (NOW() - timestamp)) % 3600) / 60),\n    'm ago'\n  ) AS time_since_last_detection\nFROM meter_readings\nORDER BY timestamp DESC \nLIMIT 1;\n",
+                      "rawSql": "SELECT \n  CONCAT(\n    FLOOR(EXTRACT(EPOCH FROM (NOW() - timestamp)) / 3600),\n    'h ',\n    FLOOR((EXTRACT(EPOCH FROM (NOW() - timestamp)) % 3600) / 60),\n    'm ago'\n  ) AS time_since_last_detection\nFROM meter_readings where is_anomaly = false\nORDER BY timestamp DESC \nLIMIT 1;\n",
                       "sql": {
                         "columns": [
                           {
@@ -905,7 +879,9 @@
               "orientation": "auto",
               "percentChangeColorMode": "standard",
               "reduceOptions": {
-                "calcs": ["lastNotNull"],
+                "calcs": [
+                  "lastNotNull"
+                ],
                 "fields": "/^time_since_last_detection$/",
                 "values": true
               },
@@ -930,10 +906,6 @@
                 "spec": {
                   "hidden": false,
                   "query": {
-                    "datasource": {
-                      "uid": "postgres",
-                      "type": "postgres"
-                    },
                     "group": "grafana-postgresql-datasource",
                     "kind": "DataQuery",
                     "spec": {
@@ -941,7 +913,7 @@
                       "editorMode": "code",
                       "format": "table",
                       "rawQuery": true,
-                      "rawSql": "SELECT COUNT(*) FROM activity_logs WHERE source = 'PERSON_DETECTOR' AND event_type = 'PERSON_DETECTED' AND DATE(timestamp) = CURRENT_DATE;\n",
+                      "rawSql": "SELECT COUNT(*) FROM meter_readings WHERE is_anomaly = true AND DATE(timestamp) = CURRENT_DATE;",
                       "sql": {
                         "columns": [
                           {
@@ -973,7 +945,7 @@
         "description": "",
         "id": 3,
         "links": [],
-        "title": "Person Detections Today",
+        "title": "Wrong Values Today",
         "vizConfig": {
           "group": "stat",
           "kind": "VizConfig",
@@ -1003,7 +975,9 @@
               "orientation": "auto",
               "percentChangeColorMode": "standard",
               "reduceOptions": {
-                "calcs": ["lastNotNull"],
+                "calcs": [
+                  "lastNotNull"
+                ],
                 "fields": "",
                 "values": false
               },
@@ -1028,10 +1002,6 @@
                 "spec": {
                   "hidden": false,
                   "query": {
-                    "datasource": {
-                      "uid": "postgres",
-                      "type": "postgres"
-                    },
                     "group": "grafana-postgresql-datasource",
                     "kind": "DataQuery",
                     "spec": {
@@ -1101,7 +1071,9 @@
               "orientation": "auto",
               "percentChangeColorMode": "standard",
               "reduceOptions": {
-                "calcs": ["lastNotNull"],
+                "calcs": [
+                  "lastNotNull"
+                ],
                 "fields": "/^person_detected_time$/",
                 "values": true
               },
@@ -1126,16 +1098,31 @@
                 "spec": {
                   "hidden": false,
                   "query": {
-                    "datasource": {
-                      "uid": "postgres",
-                      "type": "postgres"
-                    },
                     "group": "grafana-postgresql-datasource",
                     "kind": "DataQuery",
                     "spec": {
                       "database": "postgres",
+                      "editorMode": "code",
                       "format": "time_series",
-                      "rawSql": "SELECT timestamp as time, value FROM meter_readings WHERE $__timeFilter(timestamp) ORDER BY timestamp"
+                      "rawQuery": true,
+                      "rawSql": "SELECT timestamp as time, value FROM meter_readings WHERE is_anomaly = false AND $__timeFilter(timestamp) ORDER BY timestamp",
+                      "sql": {
+                        "columns": [
+                          {
+                            "parameters": [],
+                            "type": "function"
+                          }
+                        ],
+                        "groupBy": [
+                          {
+                            "property": {
+                              "type": "string"
+                            },
+                            "type": "groupBy"
+                          }
+                        ],
+                        "limit": 50
+                      }
                     },
                     "version": "v0"
                   },
@@ -1418,7 +1405,7 @@
       "1d"
     ],
     "fiscalYearStartMonth": 0,
-    "from": "now-3h",
+    "from": "now-30m",
     "hideTimepicker": false,
     "timezone": "browser",
     "to": "now"
@@ -1431,8 +1418,10 @@
         "allValue": ".*",
         "allowCustomValue": true,
         "current": {
-          "text": "",
-          "value": ""
+          "text": "All",
+          "value": [
+            "$__all"
+          ]
         },
         "hide": "dontHide",
         "includeAll": true,
@@ -1441,10 +1430,6 @@
         "name": "source_filter",
         "options": [],
         "query": {
-          "datasource": {
-            "uid": "postgres",
-            "type": "postgres"
-          },
           "group": "postgres",
           "kind": "DataQuery",
           "spec": {
@@ -1465,8 +1450,10 @@
         "allValue": ".*",
         "allowCustomValue": true,
         "current": {
-          "text": "",
-          "value": ""
+          "text": "All",
+          "value": [
+            "$__all"
+          ]
         },
         "hide": "dontHide",
         "includeAll": true,
@@ -1475,10 +1462,6 @@
         "name": "event_type_filter",
         "options": [],
         "query": {
-          "datasource": {
-            "uid": "postgres",
-            "type": "postgres"
-          },
           "group": "postgres",
           "kind": "DataQuery",
           "spec": {
