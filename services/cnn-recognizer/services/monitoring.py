@@ -13,24 +13,8 @@ from models.monitoring_models import MeterState, RecognitionResult
 
 class MeterMonitor:
     """Монитор состояния счетчика"""
-    # _instance = None
-    # _initialized = False
-    # _lock = threading.Lock()    
 
-    # def __new__(cls):
-    #     if cls._instance is None:
-    #         with cls._lock:
-    #             if cls._instance is None:
-    #                 cls._instance = super().__new__(cls)
-    #     return cls._instance
-    
-    def __init__(self):
-        # if MeterMonitor._initialized:
-        #     return
-        # MeterMonitor._initialized = True
-        # self.id = id(self)
-        # print(f"🔧 СОЗДАН MeterMonitor (ID: {id(self)})")        
-
+    def __init__(self):    
         self.history: List[MeterState] = []
         self.anomaly_history: List[MeterState] = []
         self.last_state: Optional[MeterState] = None
@@ -152,7 +136,7 @@ class MeterMonitor:
         return True
 
     def _update_redis(self, result: RecognitionResult) -> None:
-        """Обновить Redis (закомментировано, но оставлено для ясности)"""
+        """Обновить Redis"""
         # RedisManager.set_key(
         #     meter_watch_shared_config.REDIS_KEYS['gas_flow'], 
         #     "1"

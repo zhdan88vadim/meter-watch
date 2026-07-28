@@ -84,6 +84,12 @@ http://192.168.0.254:5000/status
 
 ## dev run
 
+http://192.168.0.254:5858/next_image
+
+"camera_url": "http://192.168.0.254:5858/next_image",
+
+
+
 docker compose up redis-commander pgadmin grafana
 http://localhost:8081/
 
