@@ -6,6 +6,7 @@ from app.person_tracker import PersonTracker
 from app.telegram_bot import telegram_bot
 from app.api import start_api
 from meter_watch_shared.config import config
+from meter_watch_shared.db import init_database
 
 logging.basicConfig(
     level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
@@ -25,6 +26,9 @@ def signal_handler(sig, frame):
 
 
 def main():
+
+    init_database()
+
     global tracker
 
     # Setup signal handling

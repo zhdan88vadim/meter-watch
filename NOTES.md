@@ -181,6 +181,9 @@ docker compose restart
 
 #### **Чистка:**
 ```bash
+# Пересоздать с нуля
+docker compose down --volumes --remove-orphans && docker compose build --no-cache && docker compose up -d
+
 # Удаление образов
 docker rmi meter-watch-backend:latest meter-watch-cnn-recognizer:latest meter-watch-person-detector:latest
 

@@ -47,15 +47,15 @@ stream_image() {
 }
 
 # Stream all needed images
-# stream_image "person-tracker-base:latest"
+stream_image "person-tracker-base:latest"
 stream_image "meter-watch-cnn-recognizer:latest"
-# stream_image "meter-watch-person-detector:latest"
-# stream_image "meter-watch-frontend:latest"
-# stream_image "redis:7.2-alpine"
-# stream_image "postgres:16-alpine"
-# stream_image "dpage/pgadmin4:latest"
-# stream_image "grafana/grafana:latest"
-# stream_image "rediscommander/redis-commander:latest"
+stream_image "meter-watch-person-detector:latest"
+stream_image "meter-watch-frontend:latest"
+stream_image "redis:7.2-alpine"
+stream_image "postgres:16-alpine"
+stream_image "dpage/pgadmin4:latest"
+stream_image "grafana/grafana:latest"
+stream_image "rediscommander/redis-commander:latest"
 
 # 5. Deploy on server
 echo ""

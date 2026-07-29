@@ -5,7 +5,7 @@ from typing import List, Optional, Tuple, Any
 from services.database import save_meter_data_to_database
 from models.error_models import ImageFetchError, RecognitionError
 from configuration import Config
-from utils.api_utils import fetch_image, timestamp_ms
+from utils.api_utils import fetch_image
 from utils.log_data import save_test_image
 from services.config import ConfigKeys, config
 from models.monitoring_models import MeterState, RecognitionResult

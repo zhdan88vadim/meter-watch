@@ -13,3 +13,5 @@
 
 ultralytics==8.4.95
 lap==0.5.13
+alembic==1.18.4
+asyncpg==0.31.0

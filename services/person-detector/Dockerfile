@@ -14,6 +14,10 @@ COPY ./services/person-detector /app
 
 COPY ./meter-watch-shared /app/meter_watch_shared
 
+COPY ./alembic /app/alembic
+
+COPY ./alembic.ini /app/alembic.ini
+
 RUN pip install -e /app/meter_watch_shared
 
 CMD ["python", "run.py"]

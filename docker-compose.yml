@@ -37,6 +37,8 @@ services:
       - /etc/timezone:/etc/timezone:ro    
       # For local development only - uncomment if needed
       # - ./meter-watch-shared:/app/meter_watch_shared
+      # - ./alembic:/app/alembic
+      # - ./alembic.ini:/app/alembic.ini
       - ./services/person-detector:/app/local
       - ./output/recordings:/app/recordings      
     devices:

@@ -506,7 +506,11 @@ docker compose ps
 
 # 5. Открыть веб-интерфейс
 # http://localhost:8080/recognition
+
 # http://localhost:3000 (Grafana)
+user:admin
+pass:admin
+
 # http://localhost:5050 (pgAdmin)
 ```
 
