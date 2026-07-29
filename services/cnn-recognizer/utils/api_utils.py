@@ -1,7 +1,6 @@
 import requests
 import cv2
 import numpy as np
-import time
 from configuration import Config
 
 def get_api(url, timeout=5):
@@ -35,7 +34,3 @@ def fetch_image(url, timeout=5, save_copy=False):
     except Exception as e:
         print("Ошибка в fetch_image:", e)
         return None
-
-def timestamp_ms():
-    """Get current timestamp in milliseconds"""
-    return int(time.time() * 1000)

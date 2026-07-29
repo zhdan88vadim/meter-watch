@@ -15,15 +15,15 @@ from datetime import datetime
 
 def analyze_model_errors(model_path, dataset_path, num_examples=10):
     """
-    Анализирует ошибки модели и сохраняет примеры с топ-3 предсказаниями.
+    Analyzes model errors and saves examples with top-3 predictions.
     """
-    # Загружаем модель
+    # Load the model
     device = Config.DEVICE
     model = DigitRecognizer().to(device)
     model.load_state_dict(torch.load(model_path))
     model.eval()
     
-    # Загружаем данные
+    # Load the data
     transform = transforms.Compose([
         transforms.Grayscale(num_output_channels=1),
         # AdaptivePreprocess(), 
@@ -39,11 +39,11 @@ def analyze_model_errors(model_path, dataset_path, num_examples=10):
     loader = DataLoader(dataset, batch_size=64, shuffle=False)
     classes = dataset.classes
     
-    # Собираем ошибки с топ-3 предсказаниями
+    # Collect errors with top-3 predictions
     misclassifications = {i: {'images': [], 'predicted': [], 'true': [], 'top3': []} 
                           for i in range(len(classes))}
     
-    # Счетчики для статистики
+    # Counters for statistics
     total_samples = 0
     total_errors = 0
     class_correct = {i: 0 for i in range(len(classes))}
@@ -54,14 +54,14 @@ def analyze_model_errors(model_path, dataset_path, num_examples=10):
             images, labels = images.to(device), labels.to(device)
             outputs = model(images)
             
-            # Получаем топ-3 предсказания
+            # Get top-3 predictions
             probabilities = torch.softmax(outputs, dim=1)
             top3_probs, top3_indices = torch.topk(probabilities, 3, dim=1)
             
-            # Основное предсказание
+            # Main prediction
             _, predicted = torch.max(outputs, 1)
             
-            # Обновляем статистику по классам
+            # Update class statistics
             for i in range(len(classes)):
                 class_mask = labels == i
                 class_total[i] += class_mask.sum().item()
@@ -78,7 +78,7 @@ def analyze_model_errors(model_path, dataset_path, num_examples=10):
                     true_label = labels[idx].item()
                     pred_label = predicted[idx].item()
                     
-                    # Получаем топ-3 для этого изображения
+                    # Get top-3 for this image
                     top3_labels = top3_indices[idx].cpu().numpy()
                     top3_probs_values = top3_probs[idx].cpu().numpy()
                     top3_info = [(classes[label], prob) for label, prob in zip(top3_labels, top3_probs_values)]
@@ -89,42 +89,42 @@ def analyze_model_errors(model_path, dataset_path, num_examples=10):
                         misclassifications[true_label]['true'].append(true_label)
                         misclassifications[true_label]['top3'].append(top3_info)
     
-    # Вычисляем точность
+    # Calculate accuracy
     accuracy = (1 - total_errors / total_samples) * 100
     
-    # Выводим статистику
+    # Print statistics
     print("\n" + "="*50)
-    print("📊 АНАЛИЗ ОШИБОК МОДЕЛИ")
+    print("📊 MODEL ERROR ANALYSIS")
     print("="*50)
-    print(f"📌 Всего обработано изображений: {total_samples}")
-    print(f"❌ Общее количество ошибок: {total_errors}")
-    print(f"✅ Общее количество правильных ответов: {total_samples - total_errors}")
-    print(f"🎯 Общая точность: {accuracy:.2f}%")
+    print(f"📌 Total images processed: {total_samples}")
+    print(f"❌ Total errors: {total_errors}")
+    print(f"✅ Total correct predictions: {total_samples - total_errors}")
+    print(f"🎯 Overall accuracy: {accuracy:.2f}%")
     print("\n" + "-"*50)
-    print("СТАТИСТИКА ПО КЛАССАМ:")
+    print("CLASS-WISE STATISTICS:")
     print("-"*50)
     
     for i in range(len(classes)):
         class_acc = (class_correct[i] / class_total[i] * 100) if class_total[i] > 0 else 0
         class_errors = class_total[i] - class_correct[i]
         print(f"{classes[i]}:")
-        print(f"  - Всего: {class_total[i]}")
-        print(f"  - Ошибок: {class_errors}")
-        print(f"  - Точность: {class_acc:.2f}%")
+        print(f"  - Total: {class_total[i]}")
+        print(f"  - Errors: {class_errors}")
+        print(f"  - Accuracy: {class_acc:.2f}%")
     
     print("="*50)
     
-    # Визуализируем ошибки с топ-3
+    # Visualize errors with top-3
     visualize_errors(misclassifications, classes, num_examples, total_errors, accuracy)
     
-    # Сохраняем отчет с топ-3
+    # Save report with top-3
     save_error_report(misclassifications, classes, total_errors, total_samples, accuracy, 
                       class_correct, class_total)
     
     return misclassifications, total_errors, accuracy
 
 def visualize_errors(misclassifications, classes, num_examples=10, total_errors=0, accuracy=0):
-    """Визуализация ошибок с топ-3 предсказаниями"""
+    """Visualization of errors with top-3 predictions"""
     n_classes = len(classes)
     fig, axes = plt.subplots(n_classes, num_examples, 
                              figsize=(num_examples * 3, n_classes * 2.5))
@@ -145,7 +145,7 @@ def visualize_errors(misclassifications, classes, num_examples=10, total_errors=
                 true_label = class_errors['true'][col]
                 top3 = class_errors['top3'][col]
                 
-                # Денормализация
+                # Denormalize
                 img_display = img.clone()
                 if img_display.min() < 0:
                     img_display = (img_display + 1) / 2
@@ -153,7 +153,7 @@ def visualize_errors(misclassifications, classes, num_examples=10, total_errors=
                 
                 ax.imshow(img_display.squeeze(), cmap='gray')
                 
-                # Формируем заголовок с топ-3
+                # Create title with top-3
                 title = f'True: {classes[true_label]}\nPred: {classes[pred_label]}'
                 for i, (cls, prob) in enumerate(top3, 1):
                     title += f'\n{i}: {cls} ({prob*100:.1f}%)'
@@ -167,7 +167,7 @@ def visualize_errors(misclassifications, classes, num_examples=10, total_errors=
                  fontsize=14, fontweight='bold')
     plt.tight_layout()
     
-    # Сохраняем
+    # Save
     os.makedirs('logs/misclassifications', exist_ok=True)
     timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
     plt.savefig(f'logs/misclassifications/misclassifications_top3_{timestamp}.png', 
@@ -178,43 +178,43 @@ def visualize_errors(misclassifications, classes, num_examples=10, total_errors=
 
 def save_error_report(misclassifications, classes, total_errors, total_samples, accuracy,
                       class_correct, class_total):
-    """Сохраняет подробный отчет об ошибках с топ-3 предсказаниями в текстовый файл"""
+    """Saves a detailed error report with top-3 predictions to a text file"""
     os.makedirs('logs/misclassifications', exist_ok=True)
     timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
     report_path = f'logs/misclassifications/error_report_top3_{timestamp}.txt'
     
     with open(report_path, 'w', encoding='utf-8') as f:
         f.write("="*60 + "\n")
-        f.write("ОТЧЕТ ОБ ОШИБКАХ МОДЕЛИ (С ТОП-3 ПРЕДСКАЗАНИЯМИ)\n")
+        f.write("MODEL ERROR REPORT (WITH TOP-3 PREDICTIONS)\n")
         f.write("="*60 + "\n\n")
         
-        f.write(f"📅 Дата и время: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n")
-        f.write(f"📌 Всего обработано изображений: {total_samples}\n")
-        f.write(f"❌ Общее количество ошибок: {total_errors}\n")
-        f.write(f"✅ Общее количество правильных ответов: {total_samples - total_errors}\n")
-        f.write(f"🎯 Общая точность: {accuracy:.2f}%\n\n")
+        f.write(f"📅 Date and time: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n")
+        f.write(f"📌 Total images processed: {total_samples}\n")
+        f.write(f"❌ Total errors: {total_errors}\n")
+        f.write(f"✅ Total correct predictions: {total_samples - total_errors}\n")
+        f.write(f"🎯 Overall accuracy: {accuracy:.2f}%\n\n")
         
         f.write("-"*60 + "\n")
-        f.write("ДЕТАЛЬНАЯ СТАТИСТИКА ПО КЛАССАМ:\n")
+        f.write("DETAILED CLASS-WISE STATISTICS:\n")
         f.write("-"*60 + "\n")
         
         for i in range(len(classes)):
             class_acc = (class_correct[i] / class_total[i] * 100) if class_total[i] > 0 else 0
             class_errors = class_total[i] - class_correct[i]
-            f.write(f"\nКласс {classes[i]}:\n")
-            f.write(f"  - Всего примеров: {class_total[i]}\n")
-            f.write(f"  - Правильно: {class_correct[i]}\n")
-            f.write(f"  - Ошибок: {class_errors}\n")
-            f.write(f"  - Точность: {class_acc:.2f}%\n")
+            f.write(f"\nClass {classes[i]}:\n")
+            f.write(f"  - Total examples: {class_total[i]}\n")
+            f.write(f"  - Correct: {class_correct[i]}\n")
+            f.write(f"  - Errors: {class_errors}\n")
+            f.write(f"  - Accuracy: {class_acc:.2f}%\n")
         
         f.write("\n" + "-"*60 + "\n")
-        f.write("ПРИМЕРЫ ОШИБОК С ТОП-3 ПРЕДСКАЗАНИЯМИ:\n")
+        f.write("ERROR EXAMPLES WITH TOP-3 PREDICTIONS:\n")
         f.write("-"*60 + "\n")
         
         for i in range(len(classes)):
             class_errors = misclassifications[i]
             n_errors = len(class_errors['images'])
-            f.write(f"\nКласс {classes[i]} - найдено ошибок: {n_errors}\n")
+            f.write(f"\nClass {classes[i]} - errors found: {n_errors}\n")
             for j in range(n_errors):
                 top3_str = ", ".join([f"{cls} ({prob*100:.1f}%)" for cls, prob in class_errors['top3'][j]])
                 f.write(f"  {j+1}. True: {classes[class_errors['true'][j]]}, "

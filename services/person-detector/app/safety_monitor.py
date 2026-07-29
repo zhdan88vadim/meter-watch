@@ -10,7 +10,7 @@ import logging
 logger = logging.getLogger(__name__)
 
 class SafetyMonitor:
-    """Мониторинг безопасности: газ + человек"""
+    """Safety monitoring: gas + person"""
     
     def __init__(self, check_interval: int = config.CHECK_INTERVAL):
         self.check_interval = check_interval
@@ -45,31 +45,31 @@ class SafetyMonitor:
             except Exception as e:
                 logger.error(f"Check error: {e}")
             
-            # Ждем interval секунд
+            # Wait interval seconds
             for _ in range(self.check_interval):
                 if not self.running:
                     break
                 time.sleep(1)
     
     def _check(self):
-        """Основная проверка"""
-        # 1. Газ не идет - безопасно
+        """Main check"""
+        # 1. Gas is not flowing - safe
         if RedisManager.get_key(config.REDIS_KEYS['gas_flow']) != '1':
             return
         
-        # 2. Режим запуска - ждем
+        # 2. Startup mode - waiting
         if RedisManager.key_exists(config.REDIS_KEYS['startup']):
             self._handle_startup()
             return
         
-        # 3. Проверяем человека
+        # 3. Check person
         self._check_person()
     
     def _handle_startup(self):
-        """Обработка режима запуска"""
+        """Handle startup mode"""
         time_since_seen = RedisManager.get_time_since(config.REDIS_KEYS['human_last_seen'])
         
-        # Если человек появился - выходим из режима запуска
+        # If person appeared - exit startup mode
         if time_since_seen is not None and time_since_seen < config.STARTUP_PERSON_TIMEOUT:
             time_str = time.strftime("%H:%M %d:%m:%Y", time.localtime(time.time()))
 
@@ -80,33 +80,33 @@ class SafetyMonitor:
             self._notify(self.on_person_detected_callbacks)
     
     def _check_person(self):
-        """Проверка присутствия человека"""
+        """Check person presence"""
         time_since_seen = RedisManager.get_time_since(config.REDIS_KEYS['human_last_seen'])
         
-        # Человек есть (видели меньше PERSON_IS_ACTIVE_THRESHOLD)
+        # Person is present (seen less than PERSON_IS_ACTIVE_THRESHOLD)
         if time_since_seen is not None and time_since_seen < config.PERSON_IS_ACTIVE_THRESHOLD:
             self._notify(self.on_person_detected_callbacks)
-            # Сбрасываем тревогу если была
+            # Clear alert if it was active
             if RedisManager.key_exists(config.REDIS_KEYS['alert_triggered']):
                 RedisManager.delete_key(config.REDIS_KEYS['alert_triggered'])
                 logger.info("✅ Alert cleared - person returned")
             return
         
-        # Человек отсутствует
+        # Person is missing
         if time_since_seen is None or time_since_seen >= config.PERSON_ABSENCE_THRESHOLD:
             minutes = int(time_since_seen / 60)
             logger.warning(f"⚠️ Person missing for {minutes} minutes!")
             self._send_alert()
             self._notify(self.on_person_missing_callbacks)
         else:
-            # Человек отсутствует, но еще не критично
+            # Person is missing but not critical yet
             minutes = int(time_since_seen / 60)
             logger.debug(f"👤 Person missing for {minutes} minutes")
 
     
     def _send_alert(self):
-        """Отправка тревоги"""
-        # Проверяем cooldown
+        """Send alert"""
+        # Check cooldown
         cooldown_key = config.REDIS_KEYS['alert_cooldown']
         if RedisManager.key_exists(cooldown_key):
             remaining = RedisManager.get_time_since(cooldown_key)
@@ -114,43 +114,43 @@ class SafetyMonitor:
                 logger.debug(f"⏳ Alert cooldown: {int(remaining)}s remaining")
             return
         
-        # Проверяем, не активна ли уже тревога
+        # Check if alert is already active
         if RedisManager.key_exists(config.REDIS_KEYS['alert_triggered']):
             logger.debug("⚠️ Alert already triggered")
             return
         
-        # Проверяем cooldown и активную тревогу
+        # Check cooldown and active alert
         if (RedisManager.key_exists(config.REDIS_KEYS['alert_cooldown']) or 
             RedisManager.key_exists(config.REDIS_KEYS['alert_triggered'])):
             return
         
-        # Отправляем
+        # Send
         logger.info("🚨 SENDING ALERT!")
         success = telegram_bot.send_alert('gas_alert')
         
         if success:
             self.alert_count += 1
             
-            # Устанавливаем флаг тревоги
+            # Set alert flags
             RedisManager.set_key(config.REDIS_KEYS['alert_triggered'], '1')
             RedisManager.set_key(config.REDIS_KEYS['alert_cooldown'], '1', config.ALERT_COOLDOWN)
             
             logger.info(f"✅ Alert sent successfully (total: {self.alert_count})")
             
-            # Вызываем колбэки
+            # Call callbacks
             self._notify(self.on_alert_callbacks)
         else:
             logger.error("❌ Failed to send alert")            
     
     def _notify(self, callbacks: List[Callable]):
-        """Вызов колбэков"""
+        """Call callbacks"""
         for cb in callbacks:
             try:
                 cb()
             except Exception as e:
                 logger.error(f"Callback error: {e}")
     
-    # === Публичные методы ===
+    # === Public methods ===
 
     def add_on_alert_callback(self, callback: Callable):
         self.on_alert_callbacks.append(callback)

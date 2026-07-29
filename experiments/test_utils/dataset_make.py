@@ -1,5 +1,5 @@
 import os
-from utils.augmentation import  AdaptivePreprocess, ExtractLetterWithMargin, OnlyBrighten, RemoveSmallObjects, SquarePadAdaptBackground
+from utils.augmentation import AdaptivePreprocess, ExtractLetterWithMargin, OnlyBrighten, RemoveSmallObjects, SquarePadAdaptBackground
 import torch
 from PIL import Image
 from torchvision import transforms
@@ -8,32 +8,31 @@ import uuid
 
 def process_dataset(dataset_path, transform, output_suffix="_aug"):
     """
-    Применяет трансформации к каждому изображению в датасете и сохраняет рядом с оригиналом
+    Applies transformations to each image in the dataset and saves them alongside the originals
     
     Args:
-        dataset_path: Путь к корневой папке датасета (с вложенными папками классов)
-        transform: Композиция трансформаций
-        output_suffix: Суффикс для сохраненных файлов
+        dataset_path: Path to the root folder of the dataset (with nested class folders)
+        transform: Composition of transformations
+        output_suffix: Suffix for saved files
     """
     dataset_path = Path(dataset_path)
     
-    # Проходим по всем файлам в датасете (включая вложенные папки)
+    # Iterate through all files in the dataset (including nested folders)
     for root, dirs, files in os.walk(dataset_path):
         for file in files:
-            # Проверяем, что это изображение
+            # Check if it's an image
             if file.lower().endswith(('.png', '.jpg', '.jpeg', '.bmp', '.gif')):
                 img_path = Path(root) / file
                 
                 try:
-                    # Загружаем изображение
                     img = Image.open(img_path)
                     
-                    # Применяем трансформации
+                    # Apply transformations
                     transformed = transform(img)
 
                     unique_id = str(uuid.uuid4())[:8]
                     
-                    # Сохраняем рядом с оригиналом
+                    # Save alongside the original
                     new_filename = f"{Path(file).stem}_{unique_id}_{output_suffix}{Path(file).suffix}"
                     output_path = Path("/media/vadim/1TB_SSD/my_github/meter-watch/data/dataset_binary_val/") / img_path.parent.name / new_filename
 
@@ -41,24 +40,24 @@ def process_dataset(dataset_path, transform, output_suffix="_aug"):
 
                     # output_path = img_path.parent / new_filename
                     
-                    # Если трансформация вернула тензор, конвертируем обратно в PIL Image
+                    # If transformation returned a tensor, convert back to PIL Image
                     if isinstance(transformed, torch.Tensor):
-                        # Денормализуем и конвертируем в изображение
+                        # Denormalize and convert to image
                         transformed = transformed.squeeze().cpu()
-                        # Если значения в диапазоне [-1, 1], возвращаем в [0, 1]
+                        # If values are in range [-1, 1], return to [0, 1]
                         if transformed.min() < 0:
                             transformed = (transformed + 1) / 2
                         transformed = transformed.clamp(0, 1) * 255
                         transformed = transformed.byte().numpy()
                         
-                        # Сохраняем как PIL Image
+                        # Save as PIL Image
                         if len(transformed.shape) == 2:  # Grayscale
                             img_to_save = Image.fromarray(transformed, mode='L')
                         else:  # RGB
                             img_to_save = Image.fromarray(transformed.transpose(1, 2, 0))
                         img_to_save.save(output_path)
                     else:
-                        # Если трансформация вернула PIL Image
+                        # If transformation returned a PIL Image
                         transformed.save(output_path)
                     
                     print(f"✓ Saved: {output_path}")
@@ -66,34 +65,28 @@ def process_dataset(dataset_path, transform, output_suffix="_aug"):
                 except Exception as e:
                     print(f"✗ Error processing {img_path}: {e}")
 
-# Использование
 if __name__ == "__main__":
-    # Путь к вашему датасету
-    # dataset_path = "/media/vadim/1TB_SSD/my_github/meter-watch/dataset_val_test/"
-    dataset_path = "/media/vadim/1TB_SSD/my_github/meter-watch/dataset_train/"
+    dataset_path = "../../../dataset_train/"
     
-    # Ваши трансформации
-    image_size = (28, 28)  # Или другой размер
+    image_size = (28, 28) 
     
     adaptive_preprocess_params = {
-        'blur_ksize': 7,           # Уменьшено с 7 до 3
-        'blur_sigma': 5,           # Уменьшено с 5 до 1
-        'adaptive_block_size': 57, # Уменьшено с 57 до 11 (должно быть > 1 и нечетное)
-        'adaptive_c': 5,           # Уменьшено с 5 до 3
-        'morph_kernel': 2,         # Уменьшено с 2 до 1
-        'morph_iter': 1            # Оставлено 1
+        'blur_ksize': 7,           # Reduced from 7 to 3
+        'blur_sigma': 5,           # Reduced from 5 to 1
+        'adaptive_block_size': 57, # Reduced from 57 to 11 (must be > 1 and odd)
+        'adaptive_c': 5,           # Reduced from 5 to 3
+        'morph_kernel': 2,         # Reduced from 2 to 1
+        'morph_iter': 1            # Kept at 1
     }
 
     transform = transforms.Compose([
         transforms.Grayscale(num_output_channels=1),
-        # Binarize(threshold=100, fill_white=False),  # Раскомментируйте если нужен
         ExtractLetterWithMargin(margin=20, fill_white=None),
         SquarePadAdaptBackground(min_size=128),
         AdaptivePreprocess(apply_prob=1, params=adaptive_preprocess_params),
-        # transforms.Resize((128, 128)),
         transforms.RandomRotation(5),
         transforms.RandomAffine(
-            degrees=0,  # Измените на нужные значения
+            degrees=0,
             translate=(0.01, 0.1),
             shear=4
         ),    

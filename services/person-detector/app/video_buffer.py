@@ -13,63 +13,63 @@ logger = logging.getLogger(__name__)
 
 class VideoBuffer:
     """
-    Хранит видеокадры в циклическом буфере для пре-ролла.
-    Позволяет начать запись с сохранением кадров до момента обнаружения.
+    Stores video frames in a circular buffer for pre-roll.
+    Allows recording to start with frames saved up to the moment of detection.
     """
     
     def __init__(self, buffer_seconds: int = config.BUFFER_SECONDS, fps: int = config.DEFAULT_FPS):
         """
-        Инициализация буфера видео
+        Initialize video buffer
         
         Args:
-            buffer_seconds: Количество секунд для хранения в буфере (пре-ролл)
-            fps: Частота кадров видео
+            buffer_seconds: Number of seconds to store in buffer (pre-roll)
+            fps: Video frame rate
         """
         self.buffer_seconds = buffer_seconds
         self.fps = fps
         self.max_frames = int(buffer_seconds * fps)
         
-        # Буферы для кадров и временных меток
+        # Buffers for frames and timestamps
         self.frames = deque(maxlen=self.max_frames)
         self.timestamps = deque(maxlen=self.max_frames)
         
-        # Состояние записи
+        # Recording state
         self.is_recording = False
         self.video_writer = None
         self.current_session_id = None
         self.recording_start_time = None
         self.recording_filepath = None
         
-        # Статистика
+        # Statistics
         self.frames_dropped = 0
         self.total_frames_added = 0
         
-        # Создаем директорию для записей
+        # Create directory for recordings
         os.makedirs("recordings", exist_ok=True)
         
         logger.info(f"📹 VideoBuffer initialized: {buffer_seconds}s buffer at {fps}fps")
     
     def add_frame(self, frame: np.ndarray, timestamp: Optional[float] = None) -> bool:
         """
-        Добавляет кадр в буфер
+        Adds a frame to the buffer
         
         Args:
-            frame: Кадр видео (numpy array)
-            timestamp: Временная метка кадра (если None, используется текущее время)
+            frame: Video frame (numpy array)
+            timestamp: Frame timestamp (if None, current time is used)
             
         Returns:
-            bool: True если кадр успешно добавлен
+            bool: True if frame was successfully added
         """
         if timestamp is None:
             timestamp = time.time()
         
         try:
-            # Добавляем копию кадра в буфер
+            # Add a copy of the frame to the buffer
             self.frames.append(frame.copy())
             self.timestamps.append(timestamp)
             self.total_frames_added += 1
             
-            # Если идет запись, записываем кадр в файл
+            # If recording, write frame to file
             if self.is_recording and self.video_writer:
                 self.video_writer.write(frame)
                 return True
@@ -83,13 +83,13 @@ class VideoBuffer:
     
     def start_recording(self, session_id: Optional[str] = None) -> Optional[str]:
         """
-        Начинает запись видео с пре-роллом из буфера
+        Starts video recording with pre-roll from buffer
         
         Args:
-            session_id: Идентификатор сессии (обычно ID человека)
+            session_id: Session identifier (usually person ID)
             
         Returns:
-            str: Путь к файлу записи или None в случае ошибки
+            str: Path to recording file or None on error
         """
         if self.is_recording:
             logger.warning("⚠️ Recording already in progress")
@@ -100,19 +100,19 @@ class VideoBuffer:
             self.current_session_id = session_id or f"session_{int(time.time())}"
             self.recording_start_time = time.time()
             
-            # Создаем имя файла
+            # Create filename
             timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
             filename = f"recording_{timestamp}_ID{self.current_session_id}.mp4"
             self.recording_filepath = os.path.join("recordings", filename)
             
-            # Определяем размеры кадра
+            # Determine frame dimensions
             if self.frames:
                 h, w = self.frames[0].shape[:2]
             else:
                 h, w = config.DEFAULT_FRAME_HEIGHT, config.DEFAULT_FRAME_WIDTH
                 logger.warning(f"⚠️ No frames in buffer, using default size {w}x{h}")
             
-            # Инициализируем видеозапись
+            # Initialize video recording
             fourcc = cv2.VideoWriter_fourcc(*'mp4v')
             self.video_writer = cv2.VideoWriter(
                 self.recording_filepath, 
@@ -124,13 +124,13 @@ class VideoBuffer:
             if not self.video_writer.isOpened():
                 raise Exception("Failed to open video writer")
             
-            # Записываем пре-ролл из буфера
+            # Write pre-roll from buffer
             pre_roll_frames = 0
             for frame in self.frames:
                 self.video_writer.write(frame)
                 pre_roll_frames += 1
             
-            # Сохраняем информацию в Redis
+            # Save information to Redis
             redis_data = {
                 'filename': filename,
                 'filepath': self.recording_filepath,
@@ -157,24 +157,24 @@ class VideoBuffer:
     
     def stop_recording(self) -> Optional[Dict]:
         """
-        Останавливает запись и сохраняет видео
+        Stops recording and saves the video
         
         Returns:
-            dict: Информация о записи или None в случае ошибки
+            dict: Recording information or None on error
         """
         if not self.is_recording or not self.video_writer:
             logger.warning("⚠️ No recording in progress")
             return None
         
         try:
-            # Закрываем видео writer
+            # Close video writer
             self.video_writer.release()
             self.video_writer = None
             
             duration = time.time() - self.recording_start_time
             logger.info(f"📹 Stopped recording. Duration: {duration:.2f}s")
             
-            # Обновляем информацию в Redis
+            # Update information in Redis
             if self.current_session_id:
                 key = f"{config.REDIS_KEYS['recording_prefix']}{self.current_session_id}"
                 RedisManager.hset(key, {
@@ -192,7 +192,7 @@ class VideoBuffer:
                 'end_time': time.time()
             }
             
-            # Сбрасываем состояние
+            # Reset state
             self.is_recording = False
             self.current_session_id = None
             self.recording_start_time = None
@@ -207,36 +207,36 @@ class VideoBuffer:
     
     def get_buffer_frames(self, seconds: Optional[float] = None) -> List[np.ndarray]:
         """
-        Получает кадры из буфера за последние N секунд
+        Gets frames from the buffer for the last N seconds
         
         Args:
-            seconds: Количество секунд (если None - весь буфер)
+            seconds: Number of seconds (if None - entire buffer)
             
         Returns:
-            list: Список кадров
+            list: List of frames
         """
         if seconds is None:
             return list(self.frames)
         
-        # Вычисляем, сколько кадров нужно
+        # Calculate how many frames are needed
         frames_needed = int(seconds * self.fps)
         frames_needed = min(frames_needed, len(self.frames))
         
         if frames_needed == 0:
             return []
         
-        # Берем последние N кадров
+        # Take the last N frames
         return list(self.frames)[-frames_needed:]
     
     def get_buffer_timestamps(self, seconds: Optional[float] = None) -> List[float]:
         """
-        Получает временные метки из буфера за последние N секунд
+        Gets timestamps from the buffer for the last N seconds
         
         Args:
-            seconds: Количество секунд (если None - весь буфер)
+            seconds: Number of seconds (if None - entire buffer)
             
         Returns:
-            list: Список временных меток
+            list: List of timestamps
         """
         if seconds is None:
             return list(self.timestamps)
@@ -250,17 +250,17 @@ class VideoBuffer:
         return list(self.timestamps)[-frames_needed:]
     
     def clear_buffer(self):
-        """Очищает буфер"""
+        """Clears the buffer"""
         self.frames.clear()
         self.timestamps.clear()
         logger.info("🔄 Buffer cleared")
     
     def get_buffer_info(self) -> Dict:
         """
-        Получает информацию о буфере
+        Gets buffer information
         
         Returns:
-            dict: Информация о буфере
+            dict: Buffer information
         """
         return {
             'buffer_seconds': self.buffer_seconds,
@@ -276,13 +276,13 @@ class VideoBuffer:
     
     def save_snapshot(self, filename: Optional[str] = None) -> Optional[str]:
         """
-        Сохраняет последний кадр из буфера как изображение
+        Saves the last frame from the buffer as an image
         
         Args:
-            filename: Имя файла (если None - генерируется автоматически)
+            filename: File name (if None - auto-generated)
             
         Returns:
-            str: Путь к сохраненному изображению или None
+            str: Path to saved image or None
         """
         if not self.frames:
             logger.warning("⚠️ No frames in buffer for snapshot")
@@ -304,10 +304,10 @@ class VideoBuffer:
     
     def get_current_frame(self) -> Optional[np.ndarray]:
         """
-        Получает последний кадр из буфера
+        Gets the last frame from the buffer
         
         Returns:
-            numpy.ndarray: Последний кадр или None
+            numpy.ndarray: Last frame or None
         """
         if self.frames:
             return self.frames[-1]
@@ -315,10 +315,10 @@ class VideoBuffer:
     
     def get_recording_status(self) -> Dict:
         """
-        Получает статус текущей записи
+        Gets current recording status
         
         Returns:
-            dict: Статус записи
+            dict: Recording status
         """
         return {
             'is_recording': self.is_recording,

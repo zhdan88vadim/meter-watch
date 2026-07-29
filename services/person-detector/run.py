@@ -12,12 +12,12 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-# Глобальный трекер
+# Global tracker
 tracker = None
 
 
 def signal_handler(sig, frame):
-    """Обработка сигналов для корректного завершения"""
+    """Signal handling for graceful shutdown"""
     logger.info("🛑 Received shutdown signal")
     if tracker:
         tracker.cleanup()
@@ -27,16 +27,16 @@ def signal_handler(sig, frame):
 def main():
     global tracker
 
-    # Настройка обработки сигналов
+    # Setup signal handling
     signal.signal(signal.SIGINT, signal_handler)
     signal.signal(signal.SIGTERM, signal_handler)
 
     logger.info("🚀 Starting Security System...")
 
-    # Запуск Telegram бота
+    # Start Telegram bot
     telegram_bot.start()
 
-    # Запуск трекера в отдельном потоке
+    # Start tracker in a separate thread
     tracker = PersonTracker(
         source=config.RTSP_URL,
         buffer_seconds=config.BUFFER_SECONDS,
@@ -47,7 +47,7 @@ def main():
     tracker_thread = threading.Thread(target=tracker.run, daemon=True)
     tracker_thread.start()
 
-    # Запуск API в отдельном потоке
+    # Start API in a separate thread
     api_thread = threading.Thread(target=start_api, daemon=True)
     api_thread.start()
 

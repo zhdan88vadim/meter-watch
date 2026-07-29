@@ -15,7 +15,7 @@ CORS(app)
 state_manager = StateManager()
 
 def require_auth():
-    """Проверка API ключа"""
+    """Check API key"""
     api_key = request.headers.get('X-API-Key')
     if api_key != config.API_SECRET_KEY:
         return False
@@ -23,7 +23,7 @@ def require_auth():
 
 @app.route('/status', methods=['GET'])
 def get_status():
-    """Получение статуса системы"""   
+    """Get system status"""   
     gas_status = RedisManager.get_key(config.REDIS_KEYS['gas_flow'])
     last_seen = RedisManager.get_key(config.REDIS_KEYS['human_last_seen'])
     alert_active = RedisManager.get_key(config.REDIS_KEYS['alert_triggered'])
@@ -53,7 +53,7 @@ def get_status():
 
 @app.route('/alert/reset', methods=['POST'])
 def reset_alert():
-    """Сбросить тревогу"""
+    """Reset alert"""
     state_manager.reset_alert()
     
     return jsonify({
@@ -64,12 +64,12 @@ def reset_alert():
 
 @app.route('/system/control', methods=['POST'])
 def system_control():
-    """Управление системой"""
+    """System control"""
     data = request.json
     action = data.get('action')
     
     if action == 'restart':
-        # Перезапуск системы
+        # Restart system
         RedisManager.delete_key(config.REDIS_KEYS['startup'])
         RedisManager.set_timestamp_key(config.REDIS_KEYS['startup'], config.STARTUP_DURATION)
         
@@ -80,7 +80,7 @@ def system_control():
         })
     
     elif action == 'silence':
-        # Отключить звук
+        # Mute sound
         RedisManager.set_key(config.REDIS_KEYS['alert_cooldown'], '1', config.ALERT_COOLDOWN)
         
         return jsonify({
@@ -91,7 +91,7 @@ def system_control():
     return jsonify({'error': 'Invalid action'}), 400
 
 def start_api():
-    """Запускает API сервер"""
+    """Start API server"""
     app.run(
         host=config.WEB_HOST,
         port=config.WEB_PORT,

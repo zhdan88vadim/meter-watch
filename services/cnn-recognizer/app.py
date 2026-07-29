@@ -1,4 +1,4 @@
-from flask import Flask, render_template
+from flask import Flask
 from flask_cors import CORS
 from models.pytorch_model import load_pytorch_model
 from services.monitoring import start_monitoring

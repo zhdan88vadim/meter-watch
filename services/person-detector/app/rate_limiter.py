@@ -7,7 +7,7 @@ class SimpleRateLimiter:
         self.last_save_time = 0
 
     def can_save(self) -> bool:
-        """Проверяет, прошло ли время"""
+        """Checks if time has passed."""
         current_time = time.time()
         if current_time - self.last_save_time >= self.min_interval:
             self.last_save_time = current_time

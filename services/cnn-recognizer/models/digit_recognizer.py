@@ -1,4 +1,3 @@
-import torch
 import torch.nn as nn
 
 class DigitRecognizer(nn.Module):
@@ -19,7 +18,6 @@ class DigitRecognizer(nn.Module):
         self.dropout = nn.Dropout(0.3)
         self.relu = nn.ReLU()
         
-        # Инициализация весов (Kaiming для ReLU)
         self._init_weights()
 
     def _init_weights(self):

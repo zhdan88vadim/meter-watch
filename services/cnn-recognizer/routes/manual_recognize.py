@@ -18,8 +18,8 @@ manual_recognize_bp = Blueprint('manual_recognize', __name__)
 @manual_recognize_bp.route('/recognize', methods=['POST'])
 def recognize():
     """
-    Ожидает JSON с base64 изображением
-    Пример: {"image": "base64_string"}
+    Expects JSON with base64 image
+    Example: {"image": "base64_string"}
     """
     try:
         data = request.get_json()
@@ -42,9 +42,9 @@ def recognize():
 @manual_recognize_bp.route('/test', methods=['GET'])
 def test():
     """
-    GET метод для тестирования распознавания
-    Принимает параметр filename - имя файла в датасете
-    Пример: GET /test?filename=image.jpg&dataset=test
+    GET method for testing recognition
+    Accepts filename parameter - file name in the dataset
+    Example: GET /test?filename=image.jpg&dataset=test
     """
     try:
         filename = request.args.get('filename')
@@ -58,18 +58,15 @@ def test():
         
         base_path = Config.OUTPUT_DIR
         dataset_path = os.path.join(base_path, dataset)
-        file_path = os.path.join(dataset_path, filename)
+        file_path = os.path.join(dataset_path, filename)        
         
-        print(f"Looking for file: {file_path}")  # Для отладки
-        
-        # Проверяем существование файла
+        # Check if file exists
         if not os.path.exists(file_path):
             return jsonify({
                 'error': f'File not found: {filename} in dataset {dataset}',
                 'path': file_path
             }), 404
         
-        # Читаем изображение
         img = cv2.imread(file_path)
         if img is None:
             return jsonify({'error': 'Could not read image file'}), 400

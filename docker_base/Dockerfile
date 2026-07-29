@@ -11,7 +11,6 @@ RUN apt-get update && apt-get install -y \
 
 # Copy requirements and install
 COPY ./docker_base/base-requirements.txt .
-# RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy requirements and install with PERMANENT cache
 RUN --mount=type=cache,target=/root/.cache/pip,id=permanent_pip_cache,sharing=locked \

@@ -1,14 +1,13 @@
 import os
 import torch
 
-class Config:
+class Config:   
+    DEVICE = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+        
+    # Paths
     CURRENT_DIR = os.getcwd()
     print(f"Current directory: {CURRENT_DIR}")
-    
-    DEVICE = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-    IMAGE_SIZE = 28
-    
-    # Paths
+
     BASE_DIR = os.path.dirname(os.path.abspath(__file__))
     print(f"BASE_DIR: {BASE_DIR}")
 
@@ -17,8 +16,6 @@ class Config:
     TRAINED_MODEL_PATH = os.path.join(TRAINED_MODELS_DIR, 'digit_recognizer.pth')
         
     MANUAL_RECONGIZED_DATA_DIR = os.path.abspath(os.path.join(OUTPUT_DIR, 'manual_recongized_data'))
-    print(f"MANUAL_RECONGIZED_DATA_DIR: {MANUAL_RECONGIZED_DATA_DIR}")
-
     WRONG_PREDICTIONS_DIR = os.path.join(OUTPUT_DIR, 'wrong_predictions')
     VALIDATION_DIR = os.path.join(OUTPUT_DIR, 'validation')
     

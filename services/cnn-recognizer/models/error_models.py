@@ -1,11 +1,11 @@
 class MeterMonitorError(Exception):
-    """Базовое исключение для монитора"""
+    """Base exception for the monitor"""
     pass
 
 class ImageFetchError(MeterMonitorError):
-    """Ошибка получения изображения"""
+    """Image fetching error"""
     pass
 
 class RecognitionError(MeterMonitorError):
-    """Ошибка распознавания"""
+    """Recognition error"""
     pass

@@ -8,7 +8,7 @@ from services.recognition import recognize_image
 
 @dataclass
 class MeterState:
-    """Состояние счетчика в один момент времени"""
+    """Meter state at a specific point in time"""
     digits: List[int]
     timestamp: float
     time_str: str
@@ -25,12 +25,12 @@ class MeterState:
         return f"MeterState(number={self.number}, digits={self.digits}, time={self.time_str})"
     
     def __str__(self):
-        return f"Показания: {self.number} ({self.digits}) в {self.time_str}"    
+        return f"Reading: {self.number} ({self.digits}) at {self.time_str}"    
 
 
 @dataclass
 class RecognitionResult:
-    """Результат распознавания"""
+    """Recognition result"""
     digits: List[int]
     number: int
     min_conf: float
@@ -40,7 +40,7 @@ class RecognitionResult:
     
     @classmethod
     def from_image(cls, image: Any) -> Optional['RecognitionResult']:
-        """Создать результат из изображения"""
+        """Create result from image"""
         try:
             result, min_conf = recognize_image(image)
             digits = list(result['full_number'])
@@ -54,6 +54,5 @@ class RecognitionResult:
                 time_str=time.strftime("%H:%M %d:%m:%Y", time.localtime())
             )
         except Exception as e:
-            print(f"❌ Ошибка распознавания: {e}")
+            print(f"❌ Recognition error: {e}")
             return None
-

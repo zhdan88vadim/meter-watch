@@ -11,60 +11,60 @@ from models.pytorch_model import load_pytorch_model
 from services.recognition import recognize_image
 
 def save_rename_history(history: List[Dict], log_file: str, log_format: str = "json"):
-    """Сохраняет историю переименований в файл"""
+    """Saves rename history to a file"""
     
     if log_format in ["json", "both"]:
         json_file = log_file if log_file.endswith('.json') else f"{log_file}.json"
         with open(json_file, 'w', encoding='utf-8') as f:
             json.dump(history, f, ensure_ascii=False, indent=2)
-        print(f"✅ JSON лог сохранен: {json_file}")
+        print(f"✅ JSON log saved: {json_file}")
 
 def denormalize_image(normalized):
     """
-    Преобразует нормализованное изображение обратно в обычный формат для отображения
+    Converts a normalized image back to a regular format for display
     
     Args:
-        normalized: нормализованное изображение (значения от -1 до 1)
+        normalized: normalized image (values from -1 to 1)
     
     Returns:
-        изображение в формате uint8 (0-255)
+        image in uint8 format (0-255)
     """
-    # Денормализация: (x * 0.5) + 0.5
+    # Denormalization: (x * 0.5) + 0.5
     denormalized = (normalized * 0.5) + 0.5
     
-    # Обрезаем значения вне диапазона [0, 1]
+    # Clip values outside range [0, 1]
     denormalized = np.clip(denormalized, 0, 1)
     
-    # Конвертируем в uint8 (0-255)
+    # Convert to uint8 (0-255)
     denormalized = (denormalized * 255).astype(np.uint8)
     
     return denormalized
 
 def process_and_rename_images(input_dir, output_dir, recognize_image_func):
     """
-    Обрабатывает все изображения из директории, распознает их и переименовывает
+    Processes all images from a directory, recognizes them and renames
     
     Args:
-        input_dir: путь к директории с исходными изображениями
-        output_dir: путь к директории для сохранения обработанных изображений
-        recognize_image_func: функция распознавания, возвращающая (result, min_conf)
+        input_dir: path to directory with source images
+        output_dir: path to directory for saving processed images
+        recognize_image_func: recognition function returning (result, min_conf)
     """
     
-    # Создаем выходную директорию, если её не существует
+    # Create output directory if it doesn't exist
     Path(output_dir).mkdir(parents=True, exist_ok=True)
     
-    # Поддерживаемые форматы изображений
+    # Supported image formats
     image_extensions = {'.jpg', '.jpeg', '.png', '.bmp', '.tiff', '.gif'}
     
-    # Получаем список всех файлов изображений
+    # Get list of all image files
     image_files = [f for f in os.listdir(input_dir) 
                    if Path(f).suffix.lower() in image_extensions]
     
     if not image_files:
-        print(f"В директории {input_dir} не найдено изображений")
+        print(f"No images found in directory {input_dir}")
         return
     
-    print(f"Найдено {len(image_files)} изображений")
+    print(f"Found {len(image_files)} images")
     
     processed_count = 0
     failed_count = 0
@@ -94,31 +94,31 @@ def process_and_rename_images(input_dir, output_dir, recognize_image_func):
                 cv2.imwrite(filepath_original, digit['source_image'])
                 # cv2.imwrite(filepath_model, denormalize_image(digit['prepared_model_image']))
         
-            # Получаем распознанное число
+            # Get recognized number
             new_digits = list(result['full_number'])
             recognized_number = result['full_number']
             
-            # Если число не распознано или пустое
+            # If number not recognized or empty
             if not recognized_number:
-                print(f"⚠️  Не удалось распознать число на {img_file}, пропускаем")
+                print(f"⚠️  Failed to recognize number on {img_file}, skipping")
                 failed_count += 1
                 continue
             
-            # Генерируем уникальный ID (первые 8 символов для краткости)
+            # Generate unique ID (first 8 characters for brevity)
             unique_id = str(uuid.uuid4())[:8]
             
-            # Формируем новое имя файла
+            # Form new filename
             original_extension = Path(img_file).suffix
             new_filename = f"{recognized_number}_{unique_id}{original_extension}"
             new_path = os.path.join(output_dir, new_filename)
             
-            # Копируем и переименовываем файл
+            # Copy and rename file
             shutil.copy2(img_path, new_path)
             
-            print(f"✓ {img_file} -> {new_filename} (уверенность: {min_conf:.2f})")
+            print(f"✓ {img_file} -> {new_filename} (confidence: {min_conf:.2f})")
             processed_count += 1
 
-            # Сохраняем информацию о переименовании
+            # Save rename information
             history_entry = {
                 'old_name': img_file,
                 'new_name': new_filename,
@@ -128,41 +128,41 @@ def process_and_rename_images(input_dir, output_dir, recognize_image_func):
             rename_history.append(history_entry)
             
         except Exception as e:
-            print(f"✗ Ошибка при обработке {img_file}: {str(e)}")
+            print(f"✗ Error processing {img_file}: {str(e)}")
             failed_count += 1
     
 
     save_rename_history(rename_history, "rename_history.json", "json")
 
-    # Выводим статистику
+    # Print statistics
     print("\n" + "="*50)
-    print(f"Обработка завершена!")
-    print(f"✅ Успешно обработано: {processed_count}")
-    print(f"❌ Ошибок/пропущено: {failed_count}")
-    print(f"📁 Результаты сохранены в: {output_dir}")
+    print(f"Processing complete!")
+    print(f"✅ Successfully processed: {processed_count}")
+    print(f"❌ Errors/skipped: {failed_count}")
+    print(f"📁 Results saved to: {output_dir}")
     print("="*50)
 
 
-# Пример использования с псевдо-функцией распознавания
-# (замените на вашу реальную функцию)
+# Example usage with pseudo-recognition function
+# (replace with your actual function)
 
 def example_recognize_image(img_path):
     """
-    Пример функции распознавания.
-    Замените на вашу реальную реализацию.
+    Example recognition function.
+    Replace with your actual implementation.
     """
-    # Ваша реальная логика распознавания здесь
-    # Должна возвращать (result, min_conf)
+    # Your actual recognition logic here
+    # Should return (result, min_conf)
     
-    # Пример для тестирования:
+    # Example for testing:
     class Result:
         pass
     
     result = Result()
-    # Предполагаем, что результат содержит поле 'full_number'
-    result['full_number'] = "12345"  # пример распознанного числа
+    # Assume result contains 'full_number' field
+    result['full_number'] = "12345"  # example recognized number
     
-    min_conf = 0.95  # пример уверенности
+    min_conf = 0.95
     
     return result, min_conf
 
@@ -184,5 +184,4 @@ if __name__ == "__main__":
         shutil.rmtree(dir_path)
         print(f"Removed directory: {dir_name}")
 
-    # Замените example_recognize_image на вашу реальную функцию
     process_and_rename_images(INPUT_DIRECTORY, OUTPUT_DIRECTORY, example_recognize_image)

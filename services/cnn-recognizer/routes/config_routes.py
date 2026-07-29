@@ -6,7 +6,7 @@ config_bp = Blueprint('config', __name__)
 
 @config_bp.route("/config", methods=["GET"])
 def get_config():
-    """Получить все настройки"""
+    """Get all configuration settings"""
     return jsonify({
         "status": "success",
         "config": config.to_dict()
@@ -14,7 +14,7 @@ def get_config():
 
 @config_bp.route("/config/<string:key>", methods=["GET"])
 def get_config_param(key: str):
-    """Получить конкретную настройку"""
+    """Get a specific configuration parameter"""
     if not hasattr(config, key):
         return jsonify({"status": "error", "message": f"Parameter '{key}' not found"}), 404
     
@@ -26,7 +26,7 @@ def get_config_param(key: str):
 
 @config_bp.route("/config", methods=["POST"])
 def update_config():
-    """Обновить настройки"""
+    """Update configuration settings"""
     data = request.get_json()
     if not data:
         return jsonify({"status": "error", "message": "No data"}), 400
@@ -40,7 +40,7 @@ def update_config():
 
 @config_bp.route("/config/<string:key>", methods=["PUT"])
 def update_config_param(key: str):
-    """Обновить конкретную настройку"""
+    """Update a specific configuration parameter"""
     if not hasattr(config, key):
         return jsonify({"status": "error", "message": f"Parameter '{key}' not found"}), 404
     

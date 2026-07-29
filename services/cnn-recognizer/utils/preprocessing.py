@@ -32,20 +32,20 @@ def preprocess_image(image, params=None):
     return opened
 
 def prepare_for_model(roi):
-    # Получаем размеры изображения
+    # Get image dimensions
     h, w = roi.shape[:2]
     
-    # Определяем размер квадрата (максимальная сторона)
+    # Determine square size (maximum side)
     size = max(h, w)
     
-    # Создаем черное квадратное изображение
+    # Create black square image
     square = np.zeros((size, size), dtype=roi.dtype)
     
-    # Вычисляем отступы для центрирования
+    # Calculate padding for centering
     y_offset = (size - h) // 2
     x_offset = (size - w) // 2
     
-    # Вставляем исходное изображение в центр квадрата
+    # Insert original image into the center of the square
     square[y_offset:y_offset + h, x_offset:x_offset + w] = roi
     
     resized = cv2.resize(square, (28, 28))

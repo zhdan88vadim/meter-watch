@@ -11,10 +11,10 @@ from meter_watch_shared.models import (
 
 
 def save_meter_data_to_database(result: RecognitionResult, is_anomaly: bool) -> None:
-    """Сохранить показания в БД"""
+    """Save meter readings to the database"""
     db = SessionLocal()
     try:
-        # Лог активности
+        # Activity log
         log = ActivityLog(
             source=SourceEnum.METER,
             event_type=EventTypeEnum.READING,
@@ -24,7 +24,7 @@ def save_meter_data_to_database(result: RecognitionResult, is_anomaly: bool) -> 
         )
         db.add(log)
 
-        # Показание счетчика
+        # Meter reading
         reading = MeterReading(
             value=result.number, timestamp=datetime.utcnow(), min_conf=result.min_conf, is_anomaly=is_anomaly
         )

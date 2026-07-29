@@ -6,19 +6,16 @@ from dotenv import load_dotenv
 
 
 def load_environment():
-    """Загрузка переменных окружения"""
-    # Проверяем, запущены ли мы в Docker
+    """Loading environment variables"""
     in_docker = os.path.exists("/.dockerenv")
 
     if in_docker:
         print("🐳 Running in Docker, using environment variables")
-        # В Docker переменные уже есть в окружении
+        # In Docker, variables are already in the environment
         return
 
-    # Локальная разработка - загружаем .env
-    # base_dir = Path(__file__).resolve().parent.parent
+    # Local development - load .env
     base_dir = Path(__file__).resolve().parent.parent.parent
-    # base_dir = Path(__file__).resolve().parent.parent
     env_file = base_dir / ".env"
 
     if env_file.exists():
@@ -28,7 +25,6 @@ def load_environment():
         print(f"⚠️ No .env file found at {env_file}")
 
 
-# Загружаем переменные
 load_environment()
 
 
@@ -48,11 +44,10 @@ class Config:
 
     # System
     STARTUP_DURATION: int = 5  # 5 sec
-    PERSON_ABSENCE_THRESHOLD: int = 60 * 5  # 10 minutes
+    PERSON_ABSENCE_THRESHOLD: int = 60 * 10  # 10 minutes
     PERSON_IS_ACTIVE_THRESHOLD: int = 5  # 5 sec
-    ALERT_COOLDOWN: int = 30  # 2 minutes
+    ALERT_COOLDOWN: int = 30
     CHECK_INTERVAL: int = 3
-    # PERSON_EXPIRE_TIME: int = 3600
     RECORDING_EXPIRE_TIME: int = 86400
     STARTUP_PERSON_TIMEOUT: int = 60
 
@@ -62,7 +57,7 @@ class Config:
     DEFAULT_FRAME_HEIGHT: int = 480
     BUFFER_SECONDS: int = 4
     POST_ROLL_SECONDS: int = 4
-    FRAME_SKIP: int = 30  # Process every 2nd frame
+    FRAME_SKIP: int = 30
 
     # Web
     WEB_HOST: str = os.getenv("WEB_HOST", "0.0.0.0")
@@ -94,10 +89,3 @@ class Config:
 
 
 config = Config()
-
-print("-" * 20)
-print("-" * 20)
-print(config.TELEGRAM_BOT_TOKEN)
-print(config.REDIS_HOST)
-print(config.REDIS_PASSWORD)
-print("-" * 20)

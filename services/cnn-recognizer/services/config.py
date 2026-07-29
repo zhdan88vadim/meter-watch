@@ -5,28 +5,15 @@ from enum import Enum
 from typing import Any
 
 class ConfigKeys(str, Enum):
-    """Enum для всех ключей конфигурации - единый источник истины"""
-    # Камера
+    """Enum for all configuration keys - single source of truth"""
+    # Camera
     CAMERA_URL = "camera_url"
     CAMERA_REQUEST_PAUSE = "camera_request_pause"
     
-    # Мониторинг
+    # Monitoring
     MONITORING_ENABLED = "monitoring_enabled"
     SAVE_THRESHOLD = "save_threshold"
     SAVE_BAD_PHOTOS = "save_bad_photos"
-    
-    # Обрезка
-    CROP_TOP = "crop_top"
-    CROP_LEFT = "crop_left"
-    CROP_RIGHT = "crop_right"
-    CROP_BOTTOM = "crop_bottom"
-    
-    # Распознавание
-    DIGIT_WIDTH = "digit_width"
-    DIGIT_COUNT = "digit_count"
-    
-    # Другое
-    DEBUG_MODE = "debug_mode"
     
     @classmethod
     def values(cls):
@@ -34,35 +21,22 @@ class ConfigKeys(str, Enum):
 
 @dataclass
 class AppConfig:
-    """Dataclass для конфигурации с типами и значениями по умолчанию"""
-    # Камера
+    """Dataclass for configuration with types and default values"""
+    # Camera
     camera_url: str = "rtsp://username:password@ip:port/stream"
     camera_request_pause: int = 5
     
-    # Мониторинг
+    # Monitoring
     monitoring_enabled: bool = True
     save_threshold: float = 0.6
     save_bad_photos: bool = True
-    
-    # Обрезка
-    crop_top: int = 45
-    crop_left: int = 8
-    crop_right: int = 0
-    crop_bottom: int = 35
-    
-    # Распознавание
-    digit_width: int = 28
-    digit_count: int = 5
-    
-    # Другое
-    debug_mode: bool = False
     
     def __post_init__(self):
         self._config_file = "config.json"
         self._load_from_file()
     
     def _load_from_file(self):
-        """Загружает из файла"""
+        """Loads from file"""
         if os.path.exists(self._config_file):
             try:
                 with open(self._config_file, 'r', encoding='utf-8') as f:
@@ -75,7 +49,7 @@ class AppConfig:
                 print(f"Error loading config: {e}")
     
     def save(self):
-        """Сохраняет в файл"""
+        """Saves to file"""
         try:
             with open(self._config_file, 'w', encoding='utf-8') as f:
                 json.dump(asdict(self), f, indent=4, ensure_ascii=False)
@@ -83,7 +57,7 @@ class AppConfig:
             print(f"Error saving config: {e}")
     
     def to_dict(self) -> dict:
-        """Возвращает словарь"""
+        """Returns a dictionary"""
         return asdict(self)
 
     def get(self, key: ConfigKeys) -> Any:
@@ -97,7 +71,7 @@ class AppConfig:
         return False
 
     def update(self, updates: dict) -> dict:
-        """Обновляет несколько параметров"""
+        """Updates multiple parameters"""
         changes = {}
         for key, value in updates.items():
             if hasattr(self, key):
@@ -110,6 +84,5 @@ class AppConfig:
         
         return changes
 
-# Глобальный экземпляр
+# Global instance
 config = AppConfig()
-# config.save()

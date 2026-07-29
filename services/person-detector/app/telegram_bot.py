@@ -22,7 +22,7 @@ class TelegramBot:
         self._register_commands()
     
     def _register_commands(self):
-        """Регистрирует обработчики команд"""
+        """Registers command handlers"""
         self.command_handlers = {
             '/start': self._handle_start,
             '/status': self._handle_status,
@@ -32,7 +32,7 @@ class TelegramBot:
         }
     
     def send_message(self, message: str, parse_mode: str = 'Markdown') -> bool:
-        """Отправляет сообщение в Telegram"""
+        """Sends a message to Telegram"""
         if not self.bot_token or not self.chat_id:
             logger.warning("⚠️ Telegram credentials not configured")
             return False
@@ -57,7 +57,7 @@ class TelegramBot:
             return False
     
     def send_alert(self, alert_type: str, data: Optional[dict] = None) -> bool:
-        """Отправляет системное уведомление"""
+        """Sends a system notification"""
         if alert_type == 'startup':
             message = self._format_startup_message(data)
         elif alert_type == 'gas_alert':
@@ -69,11 +69,11 @@ class TelegramBot:
     
     def _format_startup_message(self, data: dict) -> str:
         return (
-            f"🔄 **Система перезагружена**\n"
-            f"⏰ Время: {datetime.now().strftime('%H:%M:%S')}\n"
-            f"⏳ Режим ожидания: {config.STARTUP_DURATION//60} минут\n"
-            f"📡 Сервис активен\n"
-            f"🤖 Используйте /help для управления"
+            f"🔄 **System restarted**\n"
+            f"⏰ Time: {datetime.now().strftime('%H:%M:%S')}\n"
+            f"⏳ Waiting mode: {config.STARTUP_DURATION//60} minutes\n"
+            f"📡 Service active\n"
+            f"🤖 Use /help for management"
         )
     
     def _format_gas_alert_message(self) -> str:
@@ -84,32 +84,32 @@ class TelegramBot:
             last_seen_time = datetime.fromtimestamp(float(last_seen)).strftime('%H:%M:%S')
             minutes_ago = int((time.time() - float(last_seen)) / 60)
         else:
-            last_seen_time = "Никогда"
-            minutes_ago = "более 10"
+            last_seen_time = "Never"
+            minutes_ago = "more than 10"
         
         return (
-            f"⚠️ **ВНИМАНИЕ! ОБНАРУЖЕНА УТЕЧКА ГАЗА!** ⚠️\n\n"
-            f"🔥 **Газ идет**: {'ДА' if gas_status == '1' else 'НЕТ'}\n"
-            f"👤 **Человек не обнаружен**: {minutes_ago} минут\n"
-            f"⏰ **Последнее обнаружение**: {last_seen_time}\n"
-            f"🕐 **Время тревоги**: {datetime.now().strftime('%H:%M:%S')}\n\n"
-            f"🚨 **НЕМЕДЛЕННО ПРОВЕРЬТЕ ПОМЕЩЕНИЕ!**\n\n"
-            f"🤖 Для управления используйте:\n"
-            f"/silence - отключить звук\n"
-            f"/reset - сбросить тревогу\n"
-            f"/status - текущий статус"
+            f"⚠️ **WARNING! GAS LEAK DETECTED!** ⚠️\n\n"
+            f"🔥 **Gas flowing**: {'YES' if gas_status == '1' else 'NO'}\n"
+            f"👤 **Person not detected**: {minutes_ago} minutes\n"
+            f"⏰ **Last detection**: {last_seen_time}\n"
+            f"🕐 **Alert time**: {datetime.now().strftime('%H:%M:%S')}\n\n"
+            f"🚨 **IMMEDIATELY CHECK THE ROOM!**\n\n"
+            f"🤖 Use commands:\n"
+            f"/silence - mute sound\n"
+            f"/reset - reset alert\n"
+            f"/status - current status"
         )
     
-    # === Команды бота ===
+    # === Bot commands ===
     
     def _handle_start(self, args=None) -> str:
         return (
-            f"👋 **Добро пожаловать в систему безопасности!**\n\n"
-            f"🤖 Доступные команды:\n"
-            f"/status - статус системы\n"
-            f"/silence - отключить звук\n"
-            f"/reset - сбросить тревогу\n"
-            f"/help - помощь"
+            f"👋 **Welcome to the security system!**\n\n"
+            f"🤖 Available commands:\n"
+            f"/status - system status\n"
+            f"/silence - mute sound\n"
+            f"/reset - reset alert\n"
+            f"/help - help"
         )
     
     def _handle_status(self, args=None) -> str:
@@ -117,43 +117,43 @@ class TelegramBot:
         last_seen = RedisManager.get_key(config.REDIS_KEYS['human_last_seen'])
         alert_active = RedisManager.key_exists(config.REDIS_KEYS['alert_triggered'])
         
-        status = f"📊 **Статус системы**\n\n"
-        status += f"🔥 Газ: {'🟢 Идет' if gas_status == '1' else '🔴 Не идет'}\n"
+        status = f"📊 **System status**\n\n"
+        status += f"🔥 Gas: {'🟢 Flowing' if gas_status == '1' else '🔴 Not flowing'}\n"
         
         if last_seen:
             last_seen_time = datetime.fromtimestamp(float(last_seen)).strftime('%H:%M:%S')
             minutes_ago = int((time.time() - float(last_seen)) / 60)
-            status += f"👤 Человек: {'🟢 Есть' if minutes_ago < 5 else '🔴 Нет'}\n"
-            status += f"⏰ Последний раз: {last_seen_time} ({minutes_ago} мин назад)\n"
+            status += f"👤 Person: {'🟢 Present' if minutes_ago < 5 else '🔴 Absent'}\n"
+            status += f"⏰ Last seen: {last_seen_time} ({minutes_ago} min ago)\n"
         else:
-            status += f"👤 Человек: ⚪ Не обнаружен\n"
+            status += f"👤 Person: ⚪ Not detected\n"
         
-        status += f"🚨 Тревога: {'🔴 Активна' if alert_active else '🟢 Нет'}\n"
-        status += f"🕐 Время: {datetime.now().strftime('%H:%M:%S')}"
+        status += f"🚨 Alert: {'🔴 Active' if alert_active else '🟢 None'}\n"
+        status += f"🕐 Time: {datetime.now().strftime('%H:%M:%S')}"
         
         return status
     
     def _handle_silence_alert(self, args=None) -> str:
         RedisManager.set_key(config.REDIS_KEYS['alert_cooldown'], '1', config.ALERT_COOLDOWN)
         RedisManager.delete_key(config.REDIS_KEYS['alert_triggered'])
-        return "🔇 Звук отключен на 10 минут. Тревога сброшена."
+        return "🔇 Sound muted for 10 minutes. Alert reset."
     
     def _handle_reset(self, args=None) -> str:
         self.state_manager.reset_alert()
-        return "🔄 Система сброшена. Тревога деактивирована."
+        return "🔄 System reset. Alert deactivated."
     
     def _handle_help(self, args=None) -> str:
         return (
-            f"🤖 **Доступные команды:**\n\n"
-            f"/start - приветствие\n"
-            f"/status - текущий статус системы\n"
-            f"/silence - отключить звук и сбросить тревогу\n"
-            f"/reset - сбросить состояние системы\n"
-            f"/help - эта справка"
+            f"🤖 **Available commands:**\n\n"
+            f"/start - welcome\n"
+            f"/status - current system status\n"
+            f"/silence - mute sound and reset alert\n"
+            f"/reset - reset system state\n"
+            f"/help - this help"
         )
     
     def start(self):
-        """Запускает бота в отдельном потоке"""
+        """Starts the bot in a separate thread"""
         if not self.bot_token or not self.chat_id:
             logger.warning("⚠️ Telegram bot not configured")
             return
@@ -169,7 +169,7 @@ class TelegramBot:
             self.thread.join(timeout=5)
     
     def _poll_messages(self):
-        """Проверяет новые сообщения"""
+        """Checks for new messages"""
         while self.running:
             try:
                 url = f"https://api.telegram.org/bot{self.bot_token}/getUpdates"
@@ -193,7 +193,7 @@ class TelegramBot:
                 time.sleep(5)
     
     def _process_update(self, update):
-        """Обрабатывает входящее сообщение"""
+        """Processes incoming message"""
         if 'message' not in update:
             return
         
@@ -204,12 +204,12 @@ class TelegramBot:
         text = message['text']
         chat_id = str(message['chat']['id'])
         
-        # Проверяем, что сообщение от правильного chat_id
+        # Check that message is from the correct chat_id
         if chat_id != self.chat_id:
             logger.warning(f"⚠️ Message from unauthorized chat: {chat_id}")
             return
         
-        # Обрабатываем команду
+        # Process command
         for command, handler in self.command_handlers.items():
             if text.startswith(command):
                 response = handler()

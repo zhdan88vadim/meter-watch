@@ -18,11 +18,6 @@ from pathlib import Path
 from torchvision.datasets import ImageFolder
 from torch.utils.data import DataLoader
 
-def load_config(config_path='config/config.yaml'):
-    """Loads the configuration"""
-    with open(config_path, 'r') as f:
-        return yaml.safe_load(f)
-
 class ModelTrainer:
     """Handles model training on labeled data"""
     
@@ -32,17 +27,12 @@ class ModelTrainer:
         self.train_losses = []
         self.val_accuracies = []
 
-    def prepare_data_from_folders(self, dataset_path, val_dataset_path, batch_size=32, num_workers=4):
+    def prepare_data_from_folders(self, dataset_path, val_dataset_path, batch_size=32, num_workers=4, image_size=28):
         try:
-            config = load_config()
-            aug_builder = AdaptiveAugmentationBuilder(base_size=config['data']['image_size'])
+            aug_builder = AdaptiveAugmentationBuilder(base_size=image_size)
 
-            train_transform = aug_builder.build_train_transform(
-                (config['data']['image_size'], config['data']['image_size'])
-            )
-            val_transform = aug_builder.build_val_transform(
-                (config['data']['image_size'], config['data']['image_size'])
-            )
+            train_transform = aug_builder.build_train_transform((image_size, image_size))
+            val_transform = aug_builder.build_val_transform(image_size, image_size)
             
             # Load dataset
             train_dataset = ImageFolder(root=dataset_path, transform=train_transform)
@@ -52,8 +42,7 @@ class ModelTrainer:
             train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True,
                                     num_workers=num_workers, pin_memory=True, drop_last=True)
             
-            # shuffle=True --- for debug image only
-            val_loader = DataLoader(val_dataset, batch_size=batch_size, shuffle=True,
+            val_loader = DataLoader(val_dataset, batch_size=batch_size, shuffle=False,
                                 num_workers=num_workers, pin_memory=True, drop_last=True)
             
             return train_loader, val_loader
@@ -62,12 +51,12 @@ class ModelTrainer:
             print(f"Error: {e}")
             return None, None, None
 
-    def train_from_folder(self, dataset_path, val_dataset_path, epochs, batch_size, learning_rate):
+    def train_from_folder(self, dataset_path, val_dataset_path, epochs, batch_size, learning_rate, image_size):
         """Train the model on data from a folder-based dataset with TensorBoard logging"""
         print("\nStarting model training...")
         
         try:
-            train_loader, val_loader = self.prepare_data_from_folders(dataset_path, val_dataset_path, batch_size)
+            train_loader, val_loader = self.prepare_data_from_folders(dataset_path, val_dataset_path, batch_size, image_size)
             
             if train_loader is None:
                 return {"success": False, "error": "No training data available"}
@@ -395,15 +384,10 @@ class ModelTrainer:
 if __name__ == '__main__':
     trainer = ModelTrainer()
     trainer.train_from_folder(
-        # dataset_path="/media/vadim/1TB_SSD/my_github/meter-watch/dataset",
-        # dataset_path="/media/vadim/1TB_SSD/my_github/meter-watch/dataset_val_test",
-        # dataset_path="/media/vadim/1TB_SSD/my_github/meter-watch/dataset_val",
         dataset_path = "/media/vadim/1TB_SSD/my_github/meter-watch/dataset_train/",
-        # val_dataset_path="/media/vadim/1TB_SSD/my_github/meter-watch/dataset_val/",
-        # val_dataset_path="/media/vadim/1TB_SSD/my_github/meter-watch/dataset_val_low_transform/",
         val_dataset_path="/media/vadim/1TB_SSD/my_github/meter-watch/data/dataset_binary_val/",
-        # dataset_path=Config.TRAINING_DATA_DIR,
         epochs=40,
         batch_size=64,
-        learning_rate=0.0005
+        learning_rate=0.0005,
+        image_size= 28
     )
