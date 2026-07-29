@@ -22,8 +22,7 @@ tar -czf config.tar.gz \
     postgres/ \
     trained_models/ \
     pgadmin/ \
-    grafana/ \
-    web/ 2>/dev/null || true
+    grafana/ 2>/dev/null || true
 
 # 3. Transfer configuration
 echo "📤 Transferring configuration..."

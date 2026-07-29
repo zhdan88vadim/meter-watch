@@ -4,8 +4,6 @@ from sqlalchemy.orm import sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
 from urllib.parse import urlparse
 from meter_watch_shared.config import config
-from alembic.config import Config as alembic_config
-from alembic import command
 
 DATABASE_URL = config.DATABASE_URL
 DATABASE_URL_ASYNC = config.DATABASE_URL_ASYNC
@@ -47,6 +45,9 @@ def create_database_if_not_exists():
 
 def run_migrations():
     """Run Alembic migrations"""
+    from alembic.config import Config as alembic_config
+    from alembic import command
+    
     try:       
         alembic_cfg = alembic_config("alembic.ini")
         command.upgrade(alembic_cfg, "head")
