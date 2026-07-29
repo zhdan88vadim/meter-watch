@@ -495,7 +495,9 @@ python src/utils/visualizer.py --generate-report
 # 1. Клонировать репозиторий
 git clone https://github.com/yourusername/meter-watch.git
 
-# 2. Создать базовый образ (опционально, будет создан автоматически)
+# Создайте файл .env на базе .env.example со своими настройками
+
+# 2. Создать образ
 docker build
 
 # 3. Запустить все сервисы
@@ -503,16 +505,41 @@ docker compose up -d
 
 # 4. Проверить статус
 docker compose ps
+```
+
 
 # 5. Открыть веб-интерфейс
-# http://localhost:8080/recognition
+http://localhost:8080/recognition
 
-# http://localhost:3000 (Grafana)
+-----
+
+http://localhost:5050 (pgAdmin)
+Данные авторизации в .env
+
+-----
+
+http://localhost:3000 (Grafana)
+
+По умолчанию
 user:admin
 pass:admin
 
-# http://localhost:5050 (pgAdmin)
-```
+
+### Настройка Grafana
+
+После запуска системы добавьте PostgreSQL datasource и импортируйте дашборд:
+
+**1. Добавьте datasource через UI:**
+- **Configuration** → **Data Sources** → **Add data source** → **PostgreSQL**
+- Host: `postgres:5432`
+- Database/User/Password — из `.env` → **Save & Test**
+
+**2. Импортируйте дашборд:**
+- **Dashboards** → **Browse** → **New** → **Import**
+- Загрузите `/meter-watch/config/grafana/dashboards/meter_watch_dashboard.json`
+- Выберите PostgreSQL datasource → **Import**
+
+
 
 
 ## 📊 Итоги
