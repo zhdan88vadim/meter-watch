@@ -1,16 +1,38 @@
 {
-    // Use IntelliSense to learn about possible attributes.
-    // Hover to view descriptions of existing attributes.
-    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
-    "version": "0.2.0",
-    "configurations": [
-        {
-            "name": "Python Debugger: Current File",
-            "type": "debugpy",
-            "request": "launch",
-            "program": "${file}",
-            "console": "integratedTerminal",
-            "python": "/mnt/ntfs/learn_ML/test_classes/Тестовое Python ML,CV/Тестовое_ML/тестовое_ml/.conda/bin/python"
-        }
-    ]
+  // Use IntelliSense to learn about possible attributes.
+  // Hover to view descriptions of existing attributes.
+  // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "cnn-recognizer",
+      "type": "debugpy",
+      "request": "launch",
+      "program": "/media/vadim/1TB_SSD/my_github/meter-watch/services/cnn-recognizer/app.py",
+      // "program": "${file}",
+      "console": "integratedTerminal",
+      "cwd": "/media/vadim/1TB_SSD/my_github/meter-watch/services/cnn-recognizer/",
+      "python": "/mnt/ntfs/learn_ML/test_classes/Тестовое Python ML,CV/Тестовое_ML/тестовое_ml/.conda/bin/python"
+    },
+    {
+      "name": "person-detector",
+      "type": "debugpy",
+      "request": "launch",
+      "program": "/media/vadim/1TB_SSD/my_github/meter-watch/services/person-detector/run.py",
+      // "program": "${file}",
+      "console": "integratedTerminal",
+      "cwd": "/media/vadim/1TB_SSD/my_github/meter-watch/services/person-detector/",
+      "python": "/home/vadim/miniconda3/envs/YOLO_t0/bin/python"
+    },
+    {
+      "name": "person-detector: pytest current file",
+      "type": "debugpy",
+      "request": "launch",
+      "module": "pytest",
+      "args": ["${file}", "-v", "-s"],
+      "console": "integratedTerminal",
+      "cwd": "/media/vadim/1TB_SSD/my_github/meter-watch/services/person-detector/",
+      "python": "/home/vadim/miniconda3/envs/YOLO_t0/bin/python"
+    }
+  ]
 }

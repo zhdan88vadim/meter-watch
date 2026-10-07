@@ -4,7 +4,6 @@ import time
 from datetime import datetime
 from meter_watch_shared.config import config
 from meter_watch_shared.redis_manager import RedisManager
-from app.state_manager import StateManager
 import logging
 
 logger = logging.getLogger(__name__)
@@ -12,14 +11,7 @@ logger = logging.getLogger(__name__)
 app = Flask(__name__)
 CORS(app)
 
-state_manager = StateManager()
-
-def require_auth():
-    """Check API key"""
-    api_key = request.headers.get('X-API-Key')
-    if api_key != config.API_SECRET_KEY:
-        return False
-    return True
+# state_manager = StateManager()
 
 @app.route('/status', methods=['GET'])
 def get_status():
@@ -54,7 +46,7 @@ def get_status():
 @app.route('/alert/reset', methods=['POST'])
 def reset_alert():
     """Reset alert"""
-    state_manager.reset_alert()
+    # state_manager.reset_alert()
     
     return jsonify({
         'success': True,

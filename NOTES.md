@@ -1,8 +1,14 @@
 # DEV
 
 ### ENV
+qwe1
 conda activate /mnt/ntfs/learn_ML/test_classes/Тестовое\ Python\ ML,CV/Тестовое_ML/тестовое_ml/.conda
+
+qwe2
 conda activate YOLO_t0
+
+
+python -m pip install asyncpg alembic
 
 tensorboard --logdir=runs
 

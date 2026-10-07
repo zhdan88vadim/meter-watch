@@ -1,7 +1,6 @@
 __pycache__
 services/cnn-recognizer/runs/
 services/cnn-recognizer/logs/
-data/
 services/person-detector/recordings/
 .env
 output/
@@ -14,3 +13,11 @@ experiments/hog_svm/*.pkl
 services/cnn-recognizer/models/*.pth
 services/cnn-recognizer/models/digit_recognizer.pth
 experiments/tracker/
+services/cnn-recognizer/trained_models/
+trained_models/digit_recognizer.pth
+data/dataset_synthetic/
+SKIP/
+.vscode/launch.json
+services/person-detector/app/todo/
+services/person-detector/tests/assets/
+.idea

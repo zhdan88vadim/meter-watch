@@ -1,27 +1,37 @@
-from typing import Union
+from typing import Callable, Union
 
 import cv2
 import time
 from app.database import log_person_left_to_database, log_person_detected_to_database
-from ultralytics import YOLO
 from meter_watch_shared.config import config
 from meter_watch_shared.redis_manager import RedisManager
 from app.video_buffer import VideoBuffer
-from app.safety_monitor import SafetyMonitor
-from app.telegram_bot import telegram_bot
 from app.rate_limiter import SimpleRateLimiter
 import logging
+
+from app.protocol_models import Detector
 
 logger = logging.getLogger(__name__)
 
 class PersonTracker:
     def __init__(
-        self, 
+        self,
+        detector: Detector,
+        buffer: VideoBuffer,
+        rate_limiter: SimpleRateLimiter | None = None,
+        clock: Callable[[], float] = time.time,
         source: Union[int, str] = 0,
-        buffer_seconds: int = config.BUFFER_SECONDS,
         post_roll_seconds: int = config.POST_ROLL_SECONDS,
         frame_skip: int = config.FRAME_SKIP
     ):
+        print("source: ", source)
+
+
+        self._detector = detector
+        self.buffer = buffer
+        self.rate_limiter = rate_limiter
+        self._clock = clock
+
         self.source = source
         self.post_roll_seconds = post_roll_seconds
         self.frame_skip = frame_skip
@@ -32,41 +42,11 @@ class PersonTracker:
         self.frame_count = 0
         self.running = False
         
-        # Модель
-        self.model = YOLO('yolov8n.pt')
-        
         # Видео
         self.cap = cv2.VideoCapture(source)
-        self.fps = self.cap.get(cv2.CAP_PROP_FPS) or config.DEFAULT_FPS
-        
-        # Буфер
-        self.buffer = VideoBuffer(buffer_seconds, self.fps)
-        self.safety_monitor = SafetyMonitor()
 
-        self.rate_limiter = SimpleRateLimiter(30)
-        
-        # Очистка при старте
-        self._cleanup_redis()
-        self._mark_startup()
-    
-    def _cleanup_redis(self):
-        """Очистка Redis"""
-        try:
-            conn = RedisManager.get_connection()
-            # conn.delete(config.REDIS_KEYS['active_people'])
-            conn.delete(config.REDIS_KEYS['alert_triggered'])
-            conn.delete(config.REDIS_KEYS['alert_cooldown'])
-            logger.info("✅ Redis cleaned")
-        except:
-            pass
-    
-    def _mark_startup(self):
-        """Отметка запуска"""
-        RedisManager.set_timestamp_key(
-            config.REDIS_KEYS['startup'], 
-            config.STARTUP_DURATION
-        )
-        telegram_bot.send_alert('startup')
+        if not self.cap.isOpened():
+            print(f"Error: Could not open video source: {self.source}")
     
     def _start_recording(self):
         """Начать запись"""
@@ -99,26 +79,17 @@ class PersonTracker:
         if self.frame_count % self.frame_skip != 0:
             return
         
-        # Детекция людей
-        try:
-            results = self.model.track(
-                frame, 
-                persist=True, 
-                tracker="bytetrack.yaml",
-                classes=[0],  # Только люди
-                verbose=False
-            )
-        except:
-            return
+        detections = list(self._detector.detect(frame))
+
+        print("detections: ", len(detections))
         
-        current_time = time.time()
+        current_time = self._clock()
         current_people = set()
         
         # Получаем ID людей в кадре
-        if results and results[0].boxes.id is not None:
-            track_ids = results[0].boxes.id.cpu().numpy().astype(int)
-            current_people = set(int(x) for x in track_ids)
-            
+        if detections:
+            current_people = [d.track_id for d in detections]
+                        
             # Обновляем время появления каждого
             for person_id in current_people:
                 self.last_seen[person_id] = current_time
@@ -134,19 +105,16 @@ class PersonTracker:
                 )
 
 
-            # Рисуем рамки
-            boxes = results[0].boxes.xyxy.cpu().numpy().astype(int)
-            for idx, person_id in enumerate(track_ids):
-                x1, y1, x2, y2 = boxes[idx]
-                cv2.rectangle(frame, (x1, y1), (x2, y2), (0, 255, 0), 2)
+            for det in detections:
+                cv2.rectangle(frame, (det.x1, det.y1), (det.x2, det.y2), (0, 255, 0), 2)
                 cv2.putText(
-                    frame, 
-                    f"ID: {int(person_id)}", 
-                    (x1, y1 - 10),
-                    cv2.FONT_HERSHEY_SIMPLEX, 
-                    0.6, 
-                    (0, 255, 0), 
-                    2
+                    frame,
+                    f"ID: {det.track_id}",
+                    (det.x1, det.y1 - 10),
+                    cv2.FONT_HERSHEY_SIMPLEX,
+                    0.6,
+                    (0, 255, 0),
+                    2,
                 )
         
         # ===== ПРОСТАЯ ЛОГИКА ЗАПИСИ =====
@@ -214,11 +182,10 @@ class PersonTracker:
         self.running = True
         logger.info("🎯 Starting tracker...")
         
-        self.safety_monitor.start()
-        
         try:
             while self.running and self.cap.isOpened():
                 success, frame = self.cap.read()
+
                 if not success:
                     time.sleep(1)
                     self.cap.release()
@@ -230,13 +197,17 @@ class PersonTracker:
                 
                 if cv2.waitKey(1) & 0xFF == ord("q"):
                     break
+
+        except Exception as ex:
+            import traceback
+            traceback.print_exc()
+            print("Error: ", ex)
         finally:
             self.cleanup()
     
     def cleanup(self):
         """Очистка"""
         self.running = False
-        self.safety_monitor.stop()
         
         if self.is_recording:
             self._stop_recording()
