@@ -17,9 +17,9 @@ class RedisService:
         """Clean stale Redis keys on startup."""
         try:
             conn = RedisManager.get_connection()
-            # conn.delete(config.REDIS_KEYS['active_people'])
-            conn.delete(config.REDIS_KEYS["alert_triggered"])
-            conn.delete(config.REDIS_KEYS["alert_cooldown"])
+            # conn.delete(config.REDIS_KEYS.active_people)
+            conn.delete(config.REDIS_KEYS.alert_triggered)
+            conn.delete(config.REDIS_KEYS.alert_cooldown)
             logger.info("✅ Redis cleaned")
         except Exception as exc:
             logger.warning("Redis cleanup failed: %s", exc)
@@ -27,7 +27,7 @@ class RedisService:
     def mark_startup(self) -> None:
         """Mark service startup and notify Telegram."""
         RedisManager.set_timestamp_key(
-            config.REDIS_KEYS["startup"],
+            config.REDIS_KEYS.startup,
             self.startup_duration,
         )
         self._notifier.send_alert("startup")

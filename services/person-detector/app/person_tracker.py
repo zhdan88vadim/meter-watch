@@ -96,11 +96,11 @@ class PersonTracker:
                 time_str = time.strftime("%H:%M %d:%m:%Y", time.localtime(time.time()))
 
                 RedisManager.set_key(
-                    config.REDIS_KEYS['human_last_seen_str'], 
+                    config.REDIS_KEYS.human_last_seen_str,
                     time_str
                 )
                 RedisManager.set_key(
-                    config.REDIS_KEYS['human_last_seen'], 
+                    config.REDIS_KEYS.human_last_seen,
                     str(current_time)
                 )
 

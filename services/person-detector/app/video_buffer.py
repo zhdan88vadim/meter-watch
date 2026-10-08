@@ -142,7 +142,7 @@ class VideoBuffer:
             }
             
             RedisManager.hset(
-                f"{config.REDIS_KEYS['recording_prefix']}{self.current_session_id}", 
+                f"{config.REDIS_KEYS.recording_prefix}{self.current_session_id}",
                 redis_data
             )
             
@@ -176,7 +176,7 @@ class VideoBuffer:
             
             # Update information in Redis
             if self.current_session_id:
-                key = f"{config.REDIS_KEYS['recording_prefix']}{self.current_session_id}"
+                key = f"{config.REDIS_KEYS.recording_prefix}{self.current_session_id}"
                 RedisManager.hset(key, {
                     'duration': duration,
                     'end_time': time.time(),

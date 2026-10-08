@@ -28,7 +28,21 @@ def load_environment():
 load_environment()
 
 
-@dataclass
+@dataclass(frozen=True)
+class RedisKeys:
+    startup: str = "system:startup:timestamp"
+    gas_flow: str = "meter:gas:flow"
+    gas_number: str = "meter:gas:number"
+    gas_last_activity: str = "meter:gas:last_activity"
+    human_last_seen: str = "human:last_seen"
+    human_last_seen_str: str = "human:last_seen_str"
+    alert_cooldown: str = "alert:telegram:cooldown"
+    active_people: str = "active:people"
+    recording_prefix: str = "recording:"
+    alert_triggered: str = "alert:gas:triggered"
+
+
+@dataclass(frozen=True)
 class Config:
     # Redis
     RTSP_URL: str = os.getenv("RTSP_URL")
@@ -74,18 +88,7 @@ class Config:
     API_SECRET_KEY: str = os.getenv("API_SECRET_KEY", "your-secret-key-here")
 
     # Redis Keys
-    REDIS_KEYS = {
-        "startup": "system:startup:timestamp",
-        "gas_flow": "meter:gas:flow",
-        "gas_number": "meter:gas:number",
-        "gas_last_activity": "meter:gas:last_activity",
-        "human_last_seen": "human:last_seen",
-        "human_last_seen_str": "human:last_seen_str",
-        "alert_cooldown": "alert:telegram:cooldown",
-        "active_people": "active:people",
-        "recording_prefix": "recording:",
-        "alert_triggered": "alert:gas:triggered",
-    }
+    REDIS_KEYS: RedisKeys = RedisKeys()
 
 
 config = Config()

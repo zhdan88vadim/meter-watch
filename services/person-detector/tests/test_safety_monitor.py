@@ -1,21 +1,23 @@
 from app.services.safety_monitor import SafetyMonitor
+from app.domain.models import Thresholds
 from tests.fakes import FakeNotifier, FakeStore
+from meter_watch_shared.config import RedisKeys
 
-KEYS = {
-    "gas_flow": "gas",
-    "startup": "startup",
-    "alert_triggered": "alert",
-    "alert_cooldown": "cooldown",
-    "human_last_seen": "last_seen",
-    "human_last_seen_str": "last_seen_str",
-}
+KEYS = RedisKeys(
+    gas_flow="gas",
+    startup="startup",
+    alert_triggered="alert",
+    alert_cooldown="cooldown",
+    human_last_seen="last_seen",
+    human_last_seen_str="last_seen_str",
+)
 
-TH = {
-    "person_is_active_threshold": 5,
-    "person_absence_threshold": 600,
-    "startup_person_timeout": 60,
-    "alert_cooldown": 30,
-}
+TH = Thresholds(
+        person_is_active_threshold= 5,
+        person_absence_threshold= 600,
+        startup_person_timeout= 60,
+        alert_cooldown= 30,
+    )
 
 
 def make_monitor():

@@ -69,8 +69,8 @@ def format_startup_message(cfg) -> str:
 
 
 def format_gas_alert_message(cfg, read_state=None) -> str:
-    gas_status = read_state(cfg.REDIS_KEYS["gas_flow"]) if read_state else None
-    last_seen = read_state(cfg.REDIS_KEYS["human_last_seen"]) if read_state else None
+    gas_status = read_state(cfg.REDIS_KEYS.gas_flow) if read_state else None
+    last_seen = read_state(cfg.REDIS_KEYS.human_last_seen) if read_state else None
     return (
         f"⚠️ **WARNING! GAS LEAK DETECTED!** ⚠️\n\n"
         f"🔥 **Gas flowing**: {'YES' if gas_status == '1' else 'NO'}\n"

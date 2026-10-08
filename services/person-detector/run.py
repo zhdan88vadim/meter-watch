@@ -14,6 +14,7 @@ from app.api import start_api
 from app.video_buffer import VideoBuffer
 from app.rate_limiter import SimpleRateLimiter
 from app.services.safety_monitor import SafetyMonitor
+from app.domain.models import Thresholds
 from app.adapters.redis_store import RedisKeyValueStore
 from app.adapters.telegram_notifier import TelegramNotifier
 
@@ -35,12 +36,12 @@ def signal_handler(sig, frame):
 
 
 def _thresholds() -> dict:
-    return {
-        "person_is_active_threshold": config.PERSON_IS_ACTIVE_THRESHOLD,
-        "person_absence_threshold": config.PERSON_ABSENCE_THRESHOLD,
-        "startup_person_timeout": config.STARTUP_PERSON_TIMEOUT,
-        "alert_cooldown": config.ALERT_COOLDOWN,
-    }
+    return Thresholds(
+        person_is_active_threshold= config.PERSON_IS_ACTIVE_THRESHOLD,
+        person_absence_threshold= config.PERSON_ABSENCE_THRESHOLD,
+        startup_person_timeout= config.STARTUP_PERSON_TIMEOUT,
+        alert_cooldown= config.ALERT_COOLDOWN,
+    )
 
 def main():
 

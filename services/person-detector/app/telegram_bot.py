@@ -8,6 +8,7 @@ from typing import Callable, Dict, Optional
 import requests
 
 from app.protocol_models import KeyValueStore
+from meter_watch_shared.config import Config
 
 logger = logging.getLogger(__name__)
 
@@ -18,7 +19,7 @@ class TelegramBot:
     process_update() is pure enough to be called directly in tests.
     """
 
-    def __init__(self, cfg, store: KeyValueStore) -> None:
+    def __init__(self, cfg: Config, store: KeyValueStore) -> None:
         self._cfg = cfg
         self._store = store
         self.last_update_id = 0
@@ -113,13 +114,13 @@ class TelegramBot:
 
     def _handle_status(self) -> str:
         k = self._cfg.REDIS_KEYS
-        gas = self._store.get(k["gas_flow"])
-        last = self._store.get(k["human_last_seen"])
-        alert = self._store.exists(k["alert_triggered"])
+        gas = self._store.get(k.gas_flow)
+        last = self._store.get(k.human_last_seen)
+        alert = self._store.exists(k.alert_triggered)
         lines = ["📊 **System status**\n"]
         lines.append(f"🔥 Gas: {'🟢 Flowing' if gas == '1' else '🔴 Not flowing'}")
         if last:
-            secs = self._store.seconds_since(k["human_last_seen"])
+            secs = self._store.seconds_since(k.human_last_seen)
             mins = int(secs / 60) if secs is not None else 0
             lines.append(f"👤 Person last seen: {mins} min ago")
         else:
@@ -129,18 +130,18 @@ class TelegramBot:
 
     def _handle_silence(self) -> str:
         k = self._cfg.REDIS_KEYS
-        self._store.set(k["alert_cooldown"], "1", ttl=self._cfg.ALERT_COOLDOWN)
-        self._store.delete(k["alert_triggered"])
+        self._store.set(k.alert_cooldown, "1", ttl=self._cfg.ALERT_COOLDOWN)
+        self._store.delete(k.alert_triggered)
         return "🔇 Sound muted. Alert reset."
 
     def _handle_reset(self) -> str:
         k = self._cfg.REDIS_KEYS
         time_str = time.strftime("%H:%M %d:%m:%Y", time.localtime(time.time()))
 
-        self._store.delete(k["alert_triggered"])
-        self._store.delete(k["alert_cooldown"])
-        self._store.set(k["human_last_seen"], str(time.time()))
-        self._store.set(k['human_last_seen_str'], time_str)
+        self._store.delete(k.alert_triggered)
+        self._store.delete(k.alert_cooldown)
+        self._store.set(k.human_last_seen, str(time.time()))
+        self._store.set(k.human_last_seen_str, time_str)
         return "🔄 System reset."
 
     def _handle_help(self) -> str:

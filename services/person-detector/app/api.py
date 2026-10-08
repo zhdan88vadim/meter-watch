@@ -16,10 +16,10 @@ CORS(app)
 @app.route('/status', methods=['GET'])
 def get_status():
     """Get system status"""   
-    gas_status = RedisManager.get_key(config.REDIS_KEYS['gas_flow'])
-    last_seen = RedisManager.get_key(config.REDIS_KEYS['human_last_seen'])
-    alert_active = RedisManager.get_key(config.REDIS_KEYS['alert_triggered'])
-    startup_mode = RedisManager.key_exists(config.REDIS_KEYS['startup'])
+    gas_status = RedisManager.get_key(config.REDIS_KEYS.gas_flow)
+    last_seen = RedisManager.get_key(config.REDIS_KEYS.human_last_seen)
+    alert_active = RedisManager.get_key(config.REDIS_KEYS.alert_triggered)
+    startup_mode = RedisManager.key_exists(config.REDIS_KEYS.startup)
     
     status = {
         'timestamp': datetime.now().isoformat(),
@@ -37,7 +37,7 @@ def get_status():
         },
         'alert': {
             'active': bool(int(alert_active)) if alert_active is not None else False,
-            'cooldown': RedisManager.key_exists(config.REDIS_KEYS['alert_cooldown'])
+            'cooldown': RedisManager.key_exists(config.REDIS_KEYS.alert_cooldown)
         }
     }
     
@@ -62,8 +62,8 @@ def system_control():
     
     if action == 'restart':
         # Restart system
-        RedisManager.delete_key(config.REDIS_KEYS['startup'])
-        RedisManager.set_timestamp_key(config.REDIS_KEYS['startup'], config.STARTUP_DURATION)
+        RedisManager.delete_key(config.REDIS_KEYS.startup)
+        RedisManager.set_timestamp_key(config.REDIS_KEYS.startup, config.STARTUP_DURATION)
         
         return jsonify({
             'success': True,
@@ -73,7 +73,7 @@ def system_control():
     
     elif action == 'silence':
         # Mute sound
-        RedisManager.set_key(config.REDIS_KEYS['alert_cooldown'], '1', config.ALERT_COOLDOWN)
+        RedisManager.set_key(config.REDIS_KEYS.alert_cooldown, '1', config.ALERT_COOLDOWN)
         
         return jsonify({
             'success': True,

@@ -16,3 +16,10 @@ class Detection:
     y1: int
     x2: int
     y2: int
+
+@dataclass(frozen=True)
+class Thresholds:
+    person_is_active_threshold: int
+    person_absence_threshold: int
+    startup_person_timeout: int
+    alert_cooldown: int
