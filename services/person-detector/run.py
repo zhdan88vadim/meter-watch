@@ -5,6 +5,7 @@ import sys
 
 from meter_watch_shared.config import config
 from meter_watch_shared.db import init_database
+from meter_watch_shared.db import SessionLocal
 
 from app.person_tracker import PersonTracker
 from app.services.redis_service import RedisService
@@ -17,6 +18,7 @@ from app.services.safety_monitor import SafetyMonitor
 from app.domain.models import Thresholds
 from app.adapters.redis_store import RedisKeyValueStore
 from app.adapters.telegram_notifier import TelegramNotifier
+from app.adapters.activity_repo import SqlActivityRepository
 
 logging.basicConfig(
     level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
@@ -71,12 +73,17 @@ def main():
     )
     safety_monitor.start()
 
+    db_repository = SqlActivityRepository(SessionLocal)
+
     # Start tracker in a separate thread
     tracker = PersonTracker(
         detector=YoloDetector("yolov8n.pt"),
         buffer=VideoBuffer(config.BUFFER_SECONDS, config.DEFAULT_FPS),
         rate_limiter=SimpleRateLimiter(30),
         source=config.RTSP_URL,
+        store=store,
+        keys=config.REDIS_KEYS,
+        db_repository=db_repository,
         post_roll_seconds=config.POST_ROLL_SECONDS,
         frame_skip=config.FRAME_SKIP,
     )

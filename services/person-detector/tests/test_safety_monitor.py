@@ -1,5 +1,7 @@
 from app.services.safety_monitor import SafetyMonitor
 from app.domain.models import Thresholds
+
+from app.protocol_models import AlertType
 from tests.fakes import FakeNotifier, FakeStore
 from meter_watch_shared.config import RedisKeys
 
@@ -42,7 +44,7 @@ def test_person_missing_sends_alert():
     store.set_timestamp("last_seen")
     store.now = 700
     m.check_once()
-    assert notifier.alerts == ["gas_alert"]
+    assert notifier.alerts == [AlertType.GAS_ALERT]
     assert store.exists("alert")
 
 

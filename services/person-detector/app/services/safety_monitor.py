@@ -1,6 +1,5 @@
 import time
 import threading
-from dataclasses import dataclass
 from typing import Callable
 from app.protocol_models import KeyValueStore, Notifier
 from app.domain.models import Thresholds

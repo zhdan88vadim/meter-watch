@@ -1,15 +1,15 @@
-from typing import Callable, Union
+from typing import Callable
 
 import cv2
 import time
-from app.database import log_person_left_to_database, log_person_detected_to_database
-from meter_watch_shared.config import config
-from meter_watch_shared.redis_manager import RedisManager
 from app.video_buffer import VideoBuffer
 from app.rate_limiter import SimpleRateLimiter
-import logging
+from app.protocol_models import KeyValueStore
+from app.protocol_models import ActivityRepository, Detector
 
-from app.protocol_models import Detector
+from meter_watch_shared.config import RedisKeys
+
+import logging
 
 logger = logging.getLogger(__name__)
 
@@ -18,19 +18,24 @@ class PersonTracker:
         self,
         detector: Detector,
         buffer: VideoBuffer,
+        db_repository: ActivityRepository,
+        keys: RedisKeys,
+        store: KeyValueStore,
+        post_roll_seconds: int,
+        frame_skip: int,
         rate_limiter: SimpleRateLimiter | None = None,
         clock: Callable[[], float] = time.time,
-        source: Union[int, str] = 0,
-        post_roll_seconds: int = config.POST_ROLL_SECONDS,
-        frame_skip: int = config.FRAME_SKIP
+        source: int | str = 0,
     ):
         print("source: ", source)
 
-
         self._detector = detector
+        self._keys = keys
         self.buffer = buffer
         self.rate_limiter = rate_limiter
         self._clock = clock
+        self._db_repository = db_repository
+        self._store = store
 
         self.source = source
         self.post_roll_seconds = post_roll_seconds
@@ -95,15 +100,8 @@ class PersonTracker:
                 self.last_seen[person_id] = current_time
                 time_str = time.strftime("%H:%M %d:%m:%Y", time.localtime(time.time()))
 
-                RedisManager.set_key(
-                    config.REDIS_KEYS.human_last_seen_str,
-                    time_str
-                )
-                RedisManager.set_key(
-                    config.REDIS_KEYS.human_last_seen,
-                    str(current_time)
-                )
-
+                self._store.set(self._keys.human_last_seen_str, time_str)
+                self._store.set(self._keys.human_last_seen, str(current_time))
 
             for det in detections:
                 cv2.rectangle(frame, (det.x1, det.y1), (det.x2, det.y2), (0, 255, 0), 2)
@@ -123,8 +121,7 @@ class PersonTracker:
         if current_people:
 
             if self.rate_limiter.can_save():
-                log_person_detected_to_database({'ids': list(current_people)})
-
+                self._db_repository.log_person_detected({'ids': list(current_people)})                
 
             if not self.is_recording:
                 self.is_recording = True
@@ -147,7 +144,7 @@ class PersonTracker:
                 for person_id in people_to_remove:
                     del self.last_seen[person_id]
                     logger.info(f"🚶 Person {person_id} left")
-                    log_person_left_to_database({'id': person_id})
+                    self._db_repository.log_person_left({'id': person_id})                    
                 
                 # Если больше нет активных людей - останавливаем запись
                 if not self.last_seen:

@@ -6,11 +6,11 @@ from __future__ import annotations
 
 import logging
 from datetime import datetime
-from typing import Optional
 
 import requests
 
 from meter_watch_shared.config import config
+from app.protocol_models import AlertType
 
 logger = logging.getLogger(__name__)
 
@@ -43,16 +43,16 @@ class TelegramNotifier:
             logger.error("Telegram send error: %s", exc)
             return False
 
-    def send_alert(self, alert_type: str, data: Optional[dict] = None) -> bool:
-        if alert_type == "startup":
+    def send_alert(self, alert_type: AlertType, data: dict | None = None) -> bool:
+        if alert_type == AlertType.STARTUP:
             message = format_startup_message(self._cfg)
-        elif alert_type == "gas_alert":
+        elif alert_type == AlertType.GAS_ALERT:
             message = format_gas_alert_message(self._cfg, self._read_state)
         else:
             message = str(data)
         return self.send_message(message)
 
-    def _read_state(self, key: str) -> Optional[str]:
+    def _read_state(self, key: str) -> str | None:
         # Deliberately minimal: only used to enrich the alert message.
         from meter_watch_shared.redis_manager import RedisManager
         return RedisManager.get_key(key)
