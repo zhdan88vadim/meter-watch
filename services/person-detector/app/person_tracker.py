@@ -1,75 +1,58 @@
-from typing import Union
+from typing import Callable
 
 import cv2
 import time
-from app.database import log_person_left_to_database, log_person_detected_to_database
-from ultralytics import YOLO
-from meter_watch_shared.config import config
-from meter_watch_shared.redis_manager import RedisManager
+import numpy as np
+
 from app.video_buffer import VideoBuffer
-from app.safety_monitor import SafetyMonitor
-from app.telegram_bot import telegram_bot
 from app.rate_limiter import SimpleRateLimiter
+from app.protocol_models import KeyValueStore
+from app.protocol_models import ActivityRepository, Detector
+
+from meter_watch_shared.config import RedisKeys
+
 import logging
 
 logger = logging.getLogger(__name__)
 
 class PersonTracker:
     def __init__(
-        self, 
-        source: Union[int, str] = 0,
-        buffer_seconds: int = config.BUFFER_SECONDS,
-        post_roll_seconds: int = config.POST_ROLL_SECONDS,
-        frame_skip: int = config.FRAME_SKIP
+        self,
+        detector: Detector,
+        buffer: VideoBuffer,
+        db_repository: ActivityRepository,
+        keys: RedisKeys,
+        store: KeyValueStore,
+        post_roll_seconds: int,
+        frame_skip: int,
+        rate_limiter: SimpleRateLimiter | None = None,
+        clock: Callable[[], float] = time.time,
+        source: int | str = 0,
     ):
+        print("source: ", source)
+
+        self._detector = detector
+        self._keys = keys
+        self.buffer = buffer
+        self.rate_limiter = rate_limiter
+        self._clock = clock
+        self._db_repository = db_repository
+        self._store = store
+
         self.source = source
         self.post_roll_seconds = post_roll_seconds
         self.frame_skip = frame_skip
         
-        # Состояние
+        # State
         self.is_recording = False
-        self.last_seen = {}           # Когда видели каждого
+        self.last_seen = {}           # When each person was last seen
         self.frame_count = 0
         self.running = False
         
-        # Модель
-        self.model = YOLO('yolov8n.pt')
-        
-        # Видео
-        self.cap = cv2.VideoCapture(source)
-        self.fps = self.cap.get(cv2.CAP_PROP_FPS) or config.DEFAULT_FPS
-        
-        # Буфер
-        self.buffer = VideoBuffer(buffer_seconds, self.fps)
-        self.safety_monitor = SafetyMonitor()
-
-        self.rate_limiter = SimpleRateLimiter(30)
-        
-        # Очистка при старте
-        self._cleanup_redis()
-        self._mark_startup()
-    
-    def _cleanup_redis(self):
-        """Очистка Redis"""
-        try:
-            conn = RedisManager.get_connection()
-            # conn.delete(config.REDIS_KEYS['active_people'])
-            conn.delete(config.REDIS_KEYS['alert_triggered'])
-            conn.delete(config.REDIS_KEYS['alert_cooldown'])
-            logger.info("✅ Redis cleaned")
-        except:
-            pass
-    
-    def _mark_startup(self):
-        """Отметка запуска"""
-        RedisManager.set_timestamp_key(
-            config.REDIS_KEYS['startup'], 
-            config.STARTUP_DURATION
-        )
-        telegram_bot.send_alert('startup')
+        self.cap = None
     
     def _start_recording(self):
-        """Начать запись"""
+        """Start recording"""
         if self.is_recording:
             return
         
@@ -78,115 +61,92 @@ class PersonTracker:
         logger.info("📹 Recording STARTED")
     
     def _stop_recording(self):
-        """Остановить запись"""
+        """Stop recording"""
         if not self.is_recording:
             return
         
-        # Ждем post_roll
+        # Wait for post_roll
         time.sleep(self.post_roll_seconds)
         
         self.buffer.stop_recording()
         self.is_recording = False
         logger.info("🛑 Recording STOPPED")
     
-    def process_frame(self, frame):
-        """Обработка кадра - простая логика"""
-        # Добавляем в буфер
+    def process_frame(self, frame: np.ndarray):
+        """Process frame"""
         self.buffer.add_frame(frame)
         
-        # Пропускаем кадры
+        # skip frame
         self.frame_count += 1
         if self.frame_count % self.frame_skip != 0:
             return
         
-        # Детекция людей
-        try:
-            results = self.model.track(
-                frame, 
-                persist=True, 
-                tracker="bytetrack.yaml",
-                classes=[0],  # Только люди
-                verbose=False
-            )
-        except:
-            return
+        detections = list(self._detector.detect(frame))
+
+        print("detections: ", len(detections))
         
-        current_time = time.time()
+        current_time = self._clock()
         current_people = set()
         
-        # Получаем ID людей в кадре
-        if results and results[0].boxes.id is not None:
-            track_ids = results[0].boxes.id.cpu().numpy().astype(int)
-            current_people = set(int(x) for x in track_ids)
-            
-            # Обновляем время появления каждого
+        # get person ID
+        if detections:
+            current_people = [d.track_id for d in detections]
+                        
+            # Update appearance time for each person
             for person_id in current_people:
                 self.last_seen[person_id] = current_time
-                time_str = time.strftime("%H:%M %d:%m:%Y", time.localtime(time.time()))
+                time_str = time.strftime("%H:%M %d:%m:%Y", time.localtime(self._clock()))
 
-                RedisManager.set_key(
-                    config.REDIS_KEYS['human_last_seen_str'], 
-                    time_str
-                )
-                RedisManager.set_key(
-                    config.REDIS_KEYS['human_last_seen'], 
-                    str(current_time)
-                )
+                self._store.set(self._keys.human_last_seen_str, time_str)
+                self._store.set(self._keys.human_last_seen, str(current_time))
 
-
-            # Рисуем рамки
-            boxes = results[0].boxes.xyxy.cpu().numpy().astype(int)
-            for idx, person_id in enumerate(track_ids):
-                x1, y1, x2, y2 = boxes[idx]
-                cv2.rectangle(frame, (x1, y1), (x2, y2), (0, 255, 0), 2)
+            for det in detections:
+                cv2.rectangle(frame, (det.x1, det.y1), (det.x2, det.y2), (0, 255, 0), 2)
                 cv2.putText(
-                    frame, 
-                    f"ID: {int(person_id)}", 
-                    (x1, y1 - 10),
-                    cv2.FONT_HERSHEY_SIMPLEX, 
-                    0.6, 
-                    (0, 255, 0), 
-                    2
+                    frame,
+                    f"ID: {det.track_id}",
+                    (det.x1, det.y1 - 10),
+                    cv2.FONT_HERSHEY_SIMPLEX,
+                    0.6,
+                    (0, 255, 0),
+                    2,
                 )
-        
-        # ===== ПРОСТАЯ ЛОГИКА ЗАПИСИ =====
-        
-        # Есть люди в кадре
-        if current_people:
 
             if self.rate_limiter.can_save():
-                log_person_detected_to_database({'ids': list(current_people)})
-
+                self._db_repository.log_person_detected({'ids': list(current_people)})                
 
             if not self.is_recording:
-                self.is_recording = True
+                # COMMENT THIS WHEN _start_recording is uncommneted
+                # self.is_recording = True
                 logger.info("Person detected")
                 
-                # self._start_recording()
+                self._start_recording()
         
-        # Нет людей в кадре
+        # No people in frame
         else:
-            # Если запись идет - проверяем, может кто-то вышел
+            # If recording is in progress - check if someone left
             if self.is_recording:
-                # Проверяем всех, кого видели
+                # Check everyone we've seen
                 people_to_remove = []
                 for person_id, last_time in self.last_seen.items():
-                    # Если человека нет больше 3 секунд - удаляем
+                    # If person hasn't been seen for more than 3 seconds - remove them
                     if current_time - last_time > 3.0:
                         people_to_remove.append(person_id)
                 
-                # Удаляем тех, кого давно нет
+                # Remove those who have been gone for a while
                 for person_id in people_to_remove:
                     del self.last_seen[person_id]
-                    logger.info(f"🚶 Person {person_id} left")
-                    log_person_left_to_database({'id': person_id})
+                    logger.info(f"🚶 Person {person_id} left, now last_seen: {self.last_seen}" )
+                    self._db_repository.log_person_left({'id': person_id})                    
                 
-                # Если больше нет активных людей - останавливаем запись
+                # If there are no more active people - stop recording
                 if not self.last_seen:
-                    self.is_recording = False
-                    # self._stop_recording()
+                    # COMMENT THIS WHEN _stop_recording is uncommneted
+                    # self.is_recording = False
+
+                    self._stop_recording()
         
-        # Отображаем статус
+        # Display status
         status = "🔴 REC" if self.is_recording else "⏸ IDLE"
         cv2.putText(
             frame, 
@@ -198,7 +158,7 @@ class PersonTracker:
             2
         )
         
-        # Количество людей
+        # Number of people
         cv2.putText(
             frame,
             f"People: {len(current_people)}",
@@ -210,15 +170,19 @@ class PersonTracker:
         )
     
     def run(self):
-        """Запуск"""
+        """Start"""
         self.running = True
-        logger.info("🎯 Starting tracker...")
+        logger.info("Starting tracker...")
         
-        self.safety_monitor.start()
-        
-        try:
+        try:           
+            self.cap = cv2.VideoCapture(self.source)
+
+            if not self.cap.isOpened():
+                print(f"Error: Could not open video source: {self.source}")
+                            
             while self.running and self.cap.isOpened():
                 success, frame = self.cap.read()
+
                 if not success:
                     time.sleep(1)
                     self.cap.release()
@@ -230,13 +194,17 @@ class PersonTracker:
                 
                 if cv2.waitKey(1) & 0xFF == ord("q"):
                     break
+
+        except Exception as ex:
+            import traceback
+            traceback.print_exc()
+            print("Error: ", ex)
         finally:
             self.cleanup()
     
     def cleanup(self):
-        """Очистка"""
+        """Cleanup"""
         self.running = False
-        self.safety_monitor.stop()
         
         if self.is_recording:
             self._stop_recording()
