@@ -4,8 +4,6 @@ RedisManager stays untouched as a class-based singleton in meter_watch_shared.
 """
 from __future__ import annotations
 
-from typing import Optional
-
 from meter_watch_shared.redis_manager import RedisManager
 
 

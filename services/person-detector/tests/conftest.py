@@ -11,7 +11,6 @@ def _first_existing(candidates: list[Path]) -> Path | None:
             return c
     return None
 
-
 @pytest.fixture(scope="session")
 def person_image_path() -> Path:
     p = _first_existing([

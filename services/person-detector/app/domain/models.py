@@ -1,8 +1,6 @@
 from __future__ import annotations
 
-from dataclasses import dataclass, field
-from enum import Enum
-from typing import Dict, List, Optional
+from dataclasses import dataclass
 
 import numpy as np
 
