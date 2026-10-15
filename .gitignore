@@ -21,3 +21,4 @@ SKIP/
 services/person-detector/app/todo/
 services/person-detector/tests/assets/
 .idea
+*.egg-info
