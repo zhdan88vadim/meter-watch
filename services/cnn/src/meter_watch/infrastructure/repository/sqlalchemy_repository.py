@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import json
+from typing import Any, Callable
 from datetime import datetime
 
 from meter_watch.domain.models import MeterReading
@@ -15,7 +16,11 @@ class SqlAlchemyReadingRepository:
     depends on SQLAlchemy.
     """
 
-    def __init__(self, session_factory, logger: Logger) -> None:  # noqa: ANN001
+    def __init__(
+        self,
+        session_factory: Callable[[], Any],
+        logger: Logger,
+    ) -> None:
         self._session_factory = session_factory
         self._logger = logger
 

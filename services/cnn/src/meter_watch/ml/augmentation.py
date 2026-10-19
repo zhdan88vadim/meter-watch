@@ -20,8 +20,7 @@ class AdaptiveAugmentationBuilder:
 
     def __init__(self, base_size: int = 64) -> None:
         self.base_size = base_size
-        self.size_cache: dict = {}
-        self.adaptive_preprocess_params = {
+        self.adaptive_preprocess_params: dict[str, int] = {
             "blur_ksize": 7,
             "blur_sigma": 5,
             "adaptive_block_size": 57,
@@ -30,7 +29,9 @@ class AdaptiveAugmentationBuilder:
             "morph_iter": 1,
         }
 
-    def build_train_transform(self, image_size: Tuple[int, int]):  # noqa: ANN201
+    def build_train_transform(
+        self, image_size: Tuple[int, int]
+    ) -> transforms.Compose:
         return transforms.Compose([
             transforms.Grayscale(num_output_channels=1),
             ExtractLetterWithMargin(margin=20, fill_white=None),
@@ -56,7 +57,9 @@ class AdaptiveAugmentationBuilder:
             transforms.Normalize(mean=[0.5], std=[0.5]),
         ])
 
-    def build_val_transform(self, image_size: Tuple[int, int]):  # noqa: ANN201
+    def build_val_transform(
+        self, image_size: Tuple[int, int]
+    ) -> transforms.Compose:
         return transforms.Compose([
             transforms.Grayscale(num_output_channels=1),
             transforms.Resize((28, 28)),
@@ -77,13 +80,11 @@ class RemoveSmallObjects:
         self.apply_prob = apply_prob
         self.debug = debug
 
-    def __call__(self, image):  # noqa: ANN001, ANN201
+    def __call__(self, image: Image.Image) -> Image.Image:
         if random.random() > self.apply_prob:
             return image
 
-        image_np = (
-            np.array(image.convert("L")) if hasattr(image, "convert") else image
-        )
+        image_np = np.array(image.convert("L"))
         gray = (
             cv2.cvtColor(image_np, cv2.COLOR_BGR2GRAY)
             if len(image_np.shape) == 3
@@ -110,11 +111,13 @@ class AdaptivePreprocess:
     """Adaptive image preprocessing using OpenCV."""
 
     def __init__(
-        self, params: dict | None = None, apply_prob: float = 1.0
+        self,
+        params: dict[str, int] | None = None,
+        apply_prob: float = 1.0,
     ) -> None:
         self.apply_prob = apply_prob
         if params is None:
-            self.params = {
+            self.params: dict[str, int] = {
                 "blur_ksize": 3,
                 "blur_sigma": 1,
                 "adaptive_block_size": 11,
@@ -125,7 +128,7 @@ class AdaptivePreprocess:
         else:
             self.params = params
 
-    def __call__(self, image):  # noqa: ANN001, ANN201
+    def __call__(self, image: Image.Image) -> Image.Image:
         if random.random() > self.apply_prob:
             return image
 
@@ -138,7 +141,9 @@ class AdaptivePreprocess:
         processed = self._preprocess_image(img_np, self.params)
         return Image.fromarray(processed)
 
-    def _preprocess_image(self, image: np.ndarray, params: dict) -> np.ndarray:
+    def _preprocess_image(
+        self, image: np.ndarray, params: dict[str, int]
+    ) -> np.ndarray:
         gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
         blurred = cv2.GaussianBlur(
             gray,
@@ -167,9 +172,10 @@ class SquarePadAdaptBackground:
     def __init__(
         self,
         border_size: int = 2,
-        min_size: Union[int, Tuple[int, int]] | None = None,
+        min_size: Union[int, Tuple[int, ...]] | None = None,
     ) -> None:
         self.border_size = border_size
+        self.min_size: tuple[int, ...] | None
         if min_size is None:
             self.min_size = None
         elif isinstance(min_size, int):
@@ -199,7 +205,7 @@ class SquarePadAdaptBackground:
             img, (pad_left, pad_top, pad_right, pad_bottom), fill=fill_color
         )
 
-    def _compute_fill_color(self, img_np: np.ndarray):
+    def _compute_fill_color(self, img_np: np.ndarray) -> int | tuple[int, ...]:
         b = self.border_size
         if len(img_np.shape) == 2:
             edges = np.concatenate([
@@ -226,8 +232,8 @@ class ExtractLetterWithMargin:
         self.margin = margin
         self.fill_white = fill_white
 
-    def __call__(self, img):  # noqa: ANN001, ANN201
-        img_np = np.array(img) if isinstance(img, Image.Image) else img
+    def __call__(self, img: Image.Image) -> Image.Image:
+        img_np = np.array(img)
         gray = (
             cv2.cvtColor(img_np, cv2.COLOR_RGB2GRAY)
             if len(img_np.shape) == 3
@@ -247,14 +253,14 @@ class ExtractLetterWithMargin:
         y1 = max(0, y - self.margin)
         x2 = min(img_np.shape[1], x + w + self.margin)
         y2 = min(img_np.shape[0], y + h + self.margin)
-        cropped = img_np[y1:y2, x1:x2]
+        cropped: np.ndarray = img_np[y1:y2, x1:x2]
 
         if self.fill_white:
             target_h = h + 2 * self.margin
             target_w = w + 2 * self.margin
             if cropped.shape[0] < target_h or cropped.shape[1] < target_w:
                 if len(img_np.shape) == 3:
-                    canvas = np.ones(
+                    canvas: np.ndarray = np.ones(
                         (target_h, target_w, img_np.shape[2]), dtype=np.uint8
                     ) * 255
                 else:
@@ -278,9 +284,9 @@ class MorphologicalTransform:
 
     def __init__(
         self,
-        erosion: tuple = (0, 2),
-        dilation: tuple = (0, 2),
-        kernel_size: tuple = (1, 3),
+        erosion: tuple[int, int] = (0, 2),
+        dilation: tuple[int, int] = (0, 2),
+        kernel_size: tuple[int, int] = (1, 3),
         kernel_type: str = "ellipse",
         prob: float = 0.5,
     ) -> None:
@@ -290,11 +296,11 @@ class MorphologicalTransform:
         self.kernel_type = kernel_type
         self.prob = prob
 
-    def __call__(self, img):  # noqa: ANN001, ANN201
+    def __call__(self, img: Image.Image) -> Image.Image:
         if random.random() > self.prob:
             return img
 
-        img_np = np.array(img) if isinstance(img, Image.Image) else img
+        img_np = np.array(img)
         is_color = len(img_np.shape) == 3
         gray = (
             cv2.cvtColor(img_np, cv2.COLOR_RGB2GRAY) if is_color else img_np
@@ -345,14 +351,10 @@ class BinarizeCV:
     def __init__(self, apply_prob: float = 1.0) -> None:
         self.apply_prob = apply_prob
 
-    def __call__(self, image):  # noqa: ANN001, ANN201
+    def __call__(self, image: Image.Image) -> Image.Image:
         if random.random() > self.apply_prob:
             return image
-        image_np = (
-            np.array(image.convert("L"))
-            if hasattr(image, "convert")
-            else image
-        )
+        image_np = np.array(image.convert("L"))
         binary = cv2.adaptiveThreshold(
             image_np,
             255,
@@ -381,14 +383,10 @@ class ContourFilter:
         self.max_aspect_ratio = max_aspect_ratio
         self.apply_prob = apply_prob
 
-    def __call__(self, image):  # noqa: ANN001, ANN201
+    def __call__(self, image: Image.Image) -> Image.Image:
         if random.random() > self.apply_prob:
             return image
-        image_np = (
-            np.array(image.convert("L"))
-            if hasattr(image, "convert")
-            else image
-        )
+        image_np = np.array(image.convert("L"))
         cnts, _ = cv2.findContours(
             image_np, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE
         )
@@ -415,9 +413,7 @@ class ContourFilter:
             mask.copy(), padding, padding, padding, padding,
             cv2.BORDER_CONSTANT, value=0,
         )
-        kernel = cv2.getStructuringElement(
-            cv2.MORPH_RECT, (3, 10)
-        )
+        kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (3, 10))
         closed = cv2.morphologyEx(mask_padded, cv2.MORPH_CLOSE, kernel)
         closed = closed[padding:-padding, padding:-padding]
 
@@ -435,7 +431,7 @@ class BinarizeNP:
         self.fill_white = fill_white
         self.apply_prob = apply_prob
 
-    def __call__(self, image):  # noqa: ANN001, ANN201
+    def __call__(self, image: Image.Image) -> Image.Image:
         if random.random() > self.apply_prob:
             return image
         img_np = np.array(image)
@@ -452,9 +448,10 @@ class OnlyBrighten:
     def __init__(self, max_brightness: float = 2.0) -> None:
         self.max_brightness = max_brightness
 
-    def __call__(self, img):  # noqa: ANN001, ANN201
+    def __call__(self, img: Image.Image) -> Image.Image:
         factor = 1.0 + random.random() * (self.max_brightness - 1.0)
-        return transforms.functional.adjust_brightness(img, factor)
+        result: Image.Image = transforms.functional.adjust_brightness(img, factor)
+        return result
 
 
 class SquarePad:
@@ -463,7 +460,7 @@ class SquarePad:
     def __init__(self, fill_white: bool = False) -> None:
         self.fill_white = fill_white
 
-    def __call__(self, img):  # noqa: ANN001, ANN201
+    def __call__(self, img: Image.Image) -> Image.Image:
         width, height = img.size
         max_side = max(width, height)
         pad_left = (max_side - width) // 2
@@ -496,10 +493,10 @@ class SimpleThinOrThicken:
         else:
             self.iterations = int(strength)
 
-    def __call__(self, img):  # noqa: ANN001, ANN201
+    def __call__(self, img: Image.Image) -> Image.Image:
         if np.random.random() > self.p:
             return img
-        img_np = np.array(img) if isinstance(img, Image.Image) else img
+        img_np = np.array(img)
         kernel = np.ones((3, 3), np.uint8)
         if len(img_np.shape) == 2:
             return Image.fromarray(
@@ -513,18 +510,20 @@ class SimpleThinOrThicken:
 class Invert:
     """Invert an image."""
 
-    def __call__(self, img):  # noqa: ANN001, ANN201
+    def __call__(self, img: Image.Image) -> Image.Image:
         return Image.fromarray(255 - np.array(img))
 
 
 class AddGaussianNoise:
     """Add Gaussian noise to a tensor."""
 
-    def __init__(self, std_range: tuple = (0.1, 0.8), p: float = 1.0) -> None:
+    def __init__(
+        self, std_range: tuple[float, float] = (0.1, 0.8), p: float = 1.0
+    ) -> None:
         self.std_range = std_range
         self.p = p
 
-    def __call__(self, tensor):  # noqa: ANN001, ANN201
+    def __call__(self, tensor: torch.Tensor) -> torch.Tensor:
         if np.random.random() > self.p:
             return tensor
         std = np.random.uniform(*self.std_range)
@@ -535,15 +534,15 @@ class AddGaussianNoise:
 class RandomMissingPart:
     """Simulate a missing rectangle of a letter."""
 
-    def __init__(self, p: float = 0.3, cut_size: tuple = (5, 15)) -> None:
+    def __init__(
+        self, p: float = 0.3, cut_size: tuple[int, int] = (5, 15)
+    ) -> None:
         self.p = p
         self.cut_size = cut_size
 
-    def __call__(self, img):  # noqa: ANN001, ANN201
+    def __call__(self, img: Image.Image) -> Image.Image:
         if random.random() > self.p:
             return img
-        if isinstance(img, torch.Tensor):
-            img = transforms.ToPILImage()(img)
         img_np = np.array(img)
         h, w = img_np.shape[:2]
         cut_h = random.randint(self.cut_size[0], min(self.cut_size[1], h // 3))
@@ -560,15 +559,15 @@ class RandomMissingPart:
 class RandomBleed:
     """Simulate ink bleed via Gaussian blur."""
 
-    def __init__(self, p: float = 0.3, blur_radius: tuple = (0.5, 1.5)) -> None:
+    def __init__(
+        self, p: float = 0.3, blur_radius: tuple[float, float] = (0.5, 1.5)
+    ) -> None:
         self.p = p
         self.blur_radius = blur_radius
 
-    def __call__(self, img):  # noqa: ANN001, ANN201
+    def __call__(self, img: Image.Image) -> Image.Image:
         if random.random() > self.p:
             return img
-        if isinstance(img, torch.Tensor):
-            img = transforms.ToPILImage()(img)
         radius = random.uniform(*self.blur_radius)
         return img.filter(ImageFilter.GaussianBlur(radius=radius))
 
@@ -579,20 +578,18 @@ class AddRandomBlobs:
     def __init__(
         self,
         p: float = 0.5,
-        num_blobs: tuple = (2, 5),
-        blob_size: tuple = (4, 5),
-        intensity: tuple = (200, 255),
+        num_blobs: tuple[int, int] = (2, 5),
+        blob_size: tuple[int, int] = (4, 5),
+        intensity: tuple[int, int] = (200, 255),
     ) -> None:
         self.p = p
         self.num_blobs = num_blobs
         self.blob_size = blob_size
         self.intensity = intensity
 
-    def __call__(self, img):  # noqa: ANN001, ANN201
+    def __call__(self, img: Image.Image) -> Image.Image:
         if random.random() > self.p:
             return img
-        if isinstance(img, torch.Tensor):
-            img = transforms.ToPILImage()(img)
         img_copy = img.copy()
         draw = ImageDraw.Draw(img_copy)
         width, height = img_copy.size
@@ -612,15 +609,15 @@ class AddRandomBlobs:
 class RandomStrokeWidth:
     """Randomly change stroke width."""
 
-    def __init__(self, p: float = 0.5, thickness_range: tuple = (-1, 2)) -> None:
+    def __init__(
+        self, p: float = 0.5, thickness_range: tuple[int, int] = (-1, 2)
+    ) -> None:
         self.p = p
         self.thickness_range = thickness_range
 
-    def __call__(self, img):  # noqa: ANN001, ANN201
+    def __call__(self, img: Image.Image) -> Image.Image:
         if random.random() > self.p:
             return img
-        if isinstance(img, torch.Tensor):
-            img = transforms.ToPILImage()(img)
         img_np = np.array(img.convert("L"))
         thickness = random.randint(*self.thickness_range)
         if thickness > 0:
@@ -638,18 +635,16 @@ class AddRandomBlackSpots:
     def __init__(
         self,
         p: float = 0.5,
-        num_spots: tuple = (3, 6),
-        spot_size: tuple = (3, 6),
+        num_spots: tuple[int, int] = (3, 6),
+        spot_size: tuple[int, int] = (3, 6),
     ) -> None:
         self.p = p
         self.num_spots = num_spots
         self.spot_size = spot_size
 
-    def __call__(self, img):  # noqa: ANN001, ANN201
+    def __call__(self, img: Image.Image) -> Image.Image:
         if random.random() > self.p:
             return img
-        if isinstance(img, torch.Tensor):
-            img = transforms.ToPILImage()(img)
         img_copy = img.copy()
         draw = ImageDraw.Draw(img_copy)
         width, height = img_copy.size

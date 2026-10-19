@@ -1,6 +1,7 @@
 """PyTorch model definition for digit recognition."""
 from __future__ import annotations
 
+import torch
 import torch.nn as nn
 
 
@@ -36,24 +37,28 @@ class DigitRecognizer(nn.Module):
                 nn.init.constant_(m.weight, 1)
                 nn.init.constant_(m.bias, 0)
 
-    def forward(self, x):  # noqa: ANN001, ANN201
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
         x = self.pool(self.relu(self.bn1(self.conv1(x))))
         x = self.pool(self.relu(self.bn2(self.conv2(x))))
         x = x.view(-1, 64 * 7 * 7)
         x = self.relu(self.bn3(self.fc1(x)))
         x = self.dropout(x)
-        return self.fc2(x)
+        out: torch.Tensor = self.fc2(x)
+        return out
 
-    def get_features(self, x):  # noqa: ANN001, ANN201
+    def get_features(self, x: torch.Tensor) -> torch.Tensor:
         """Extract 128-dim features before the final classification layer."""
         x = self.pool(self.relu(self.bn1(self.conv1(x))))
         x = self.pool(self.relu(self.bn2(self.conv2(x))))
         x = x.view(-1, 64 * 7 * 7)
-        return self.relu(self.bn3(self.fc1(x)))
+        out: torch.Tensor = self.relu(self.bn3(self.fc1(x)))
+        return out
 
-    def get_intermediate_features(self, x) -> dict:  # noqa: ANN001
+    def get_intermediate_features(
+        self, x: torch.Tensor
+    ) -> dict[str, torch.Tensor | dict[str, float]]:
         """Return features at each level (for debugging / visualization)."""
-        features: dict = {}
+        features: dict[str, torch.Tensor | dict[str, float]] = {}
 
         x1 = self.pool(self.relu(self.bn1(self.conv1(x))))
         features["after_conv1"] = x1
@@ -73,7 +78,7 @@ class DigitRecognizer(nn.Module):
         return features
 
 
-def _stats(t) -> dict:  # noqa: ANN001
+def _stats(t: torch.Tensor) -> dict[str, float]:
     return {
         "mean": t.mean().item(),
         "std": t.std().item(),

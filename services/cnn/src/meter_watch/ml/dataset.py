@@ -1,6 +1,6 @@
 """Dataset builders for training."""
 from __future__ import annotations
-
+import torch
 from torch.utils.data import DataLoader
 from torchvision.datasets import ImageFolder
 
@@ -13,7 +13,7 @@ def build_dataloaders(
     image_size: int = 28,
     batch_size: int = 32,
     num_workers: int = 4,
-) -> tuple[DataLoader, DataLoader]:
+) -> tuple[DataLoader[tuple[torch.Tensor, int]], DataLoader[tuple[torch.Tensor, int]]]:
     """Build train and validation DataLoaders from ImageFolder-style dirs."""
     aug = AdaptiveAugmentationBuilder(base_size=image_size)
     train_ds = ImageFolder(

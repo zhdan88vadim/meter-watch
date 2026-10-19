@@ -10,7 +10,7 @@ bp = Blueprint("status", __name__)
 
 
 @bp.route("/status", methods=["GET"])
-def status():
+def status() -> Response:
     monitor = current_app.container.monitor  # type: ignore[attr-defined]
     s = monitor.status()
     return jsonify({
@@ -21,7 +21,7 @@ def status():
 
 
 @bp.route("/history", methods=["GET"])
-def history():
+def history() -> Response:
     monitor = current_app.container.monitor  # type: ignore[attr-defined]
     return jsonify({
         "history": [serialize_reading(r) for r in monitor.history()],
@@ -29,7 +29,7 @@ def history():
 
 
 @bp.route("/last_activity", methods=["GET"])
-def last_activity():
+def last_activity() -> Response:
     monitor = current_app.container.monitor  # type: ignore[attr-defined]
     s = monitor.status()
     recent = monitor.history()[-4:]
@@ -40,7 +40,7 @@ def last_activity():
 
 
 @bp.route("/metrics", methods=["GET"])
-def metrics():
+def metrics() -> Response:
     monitor = current_app.container.monitor  # type: ignore[attr-defined]
     last = monitor.status().last_reading
     value = last.number.value if last else 0

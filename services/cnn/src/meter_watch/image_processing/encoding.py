@@ -12,4 +12,4 @@ def image_to_base64(img: np.ndarray, ext: str = ".png") -> str:
     ok, buffer = cv2.imencode(ext, img)
     if not ok:
         raise ValueError("Failed to encode image")
-    return base64.b64encode(buffer).decode("utf-8")
+    return base64.b64encode(buffer.tobytes()).decode("utf-8")

@@ -2,7 +2,7 @@
 from __future__ import annotations
 
 import os
-from typing import Optional
+from typing import Any, Optional, Type
 
 import torch
 
@@ -14,7 +14,7 @@ class ModelLoader:
 
     def __init__(
         self,
-        model_class,
+        model_class: Type[torch.nn.Module],
         path: str,
         device: torch.device,
         logger: Logger,
@@ -30,7 +30,9 @@ class ModelLoader:
             return None
         try:
             model = self._model_class().to(self._device)
-            state = torch.load(self._path, map_location=self._device)
+            state: dict[str, Any] = torch.load(
+                self._path, map_location=self._device
+            )
             model.load_state_dict(state)
             model.eval()
             self._logger.info(f"model loaded: {self._path}")

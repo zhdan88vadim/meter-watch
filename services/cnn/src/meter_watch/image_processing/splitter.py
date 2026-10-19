@@ -1,6 +1,8 @@
 """Split a binarized meter image into individual digit ROIs."""
 from __future__ import annotations
 
+from typing import Any, Sequence
+
 import cv2
 import numpy as np
 
@@ -64,13 +66,13 @@ def split_digits(
 
 
 def _filter_contours(
-    contours: list,
+    contours: Sequence[Any],
     min_height: int,
     min_width: int,
     min_area: int,
     max_aspect_ratio: float,
-) -> list:
-    filtered = []
+) -> list[Any]:
+    filtered: list[Any] = []
     for c in contours:
         _, _, w, h = cv2.boundingRect(c)
         area = cv2.contourArea(c)

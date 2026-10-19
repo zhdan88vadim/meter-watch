@@ -4,7 +4,7 @@ from __future__ import annotations
 from meter_watch.domain.models import MeterReading, RecognitionResult
 
 
-def serialize_reading(reading: MeterReading) -> dict:
+def serialize_reading(reading: MeterReading) -> dict[str, object]:
     """Serialize a MeterReading to a JSON-friendly dict."""
     return {
         "digits": list(reading.number.digits),
@@ -15,7 +15,7 @@ def serialize_reading(reading: MeterReading) -> dict:
     }
 
 
-def serialize_recognition(result: RecognitionResult) -> dict:
+def serialize_recognition(result: RecognitionResult) -> dict[str, Any]:
     """Serialize a RecognitionResult to a JSON-friendly dict."""
     return {
         "full_number": result.number.text,

@@ -12,6 +12,7 @@ from meter_watch.application.recognize_image import RecognizeImageUseCase
 from meter_watch.domain.protocols import (
     Clock,
     DigitClassifier,
+    ImageAnnotator,
     ImageFetcher,
     Logger,
     ReadingRepository,
@@ -67,7 +68,6 @@ def build_container(
     clock = SystemClock()
     config = FileConfigProvider(config_path)
 
-    annotator = NoopAnnotator()
     model = ModelLoader(
         model_class=DigitRecognizer,
         path=model_path,
@@ -79,7 +79,7 @@ def build_container(
         raise ModelNotLoadedError("Model is None")
         
     classifier = PyTorchDigitClassifier(model, device, logger)
-    annotator = GradCamAnnotator(model, SimpleHeatmap(model), device)
+    annotator: ImageAnnotator = GradCamAnnotator(model, SimpleHeatmap(model), device)
 
     recognizer = RecognizeImageUseCase(
         classifier=classifier,
@@ -137,7 +137,7 @@ def build_container(
 class _NoopSession:
     """Minimal stand-in for a DB session when persistence is disabled."""
 
-    def add(self, *args, **kwargs) -> None:
+    def add(self, *args: object, **kwargs: object) -> None:
         return None
 
     def commit(self) -> None:

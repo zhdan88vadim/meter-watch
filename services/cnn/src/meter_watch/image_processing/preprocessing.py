@@ -4,7 +4,7 @@ from __future__ import annotations
 import cv2
 import numpy as np
 
-DEFAULT_PARAMS = {
+DEFAULT_PARAMS: dict[str, int] = {
     "blur_ksize": 7,
     "blur_sigma": 5,
     "adaptive_block_size": 57,
@@ -14,7 +14,10 @@ DEFAULT_PARAMS = {
 }
 
 
-def preprocess_image(image: np.ndarray, params: dict | None = None) -> np.ndarray:
+def preprocess_image(
+    image: np.ndarray,
+    params: dict[str, int] | None = None,
+) -> np.ndarray:
     """Convert an image into a binarized, inverted, cleaned-up mask."""
     params = params or DEFAULT_PARAMS
 

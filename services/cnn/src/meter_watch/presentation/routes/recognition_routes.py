@@ -10,17 +10,23 @@ from uuid import uuid4
 
 import cv2
 import numpy as np
-from flask import Blueprint, jsonify, request
+from flask import Blueprint, Response, jsonify, request
 from PIL import Image
 
 from meter_watch.application.dtos import serialize_recognition
+from meter_watch.presentation.protocols import ConfigProvider, Recognizer
+
+FlaskResponse = Response | tuple[Response, int]
 
 
-def make_recognition_bp(recognizer, config_provider) -> Blueprint:  # noqa: ANN001
+def make_recognition_bp(
+    recognizer: Recognizer,
+    config_provider: ConfigProvider,
+) -> Blueprint:
     bp = Blueprint("recognition", __name__)
 
     @bp.route("/recognize", methods=["POST"])
-    def recognize():
+    def recognize() -> FlaskResponse:
         data = request.get_json() or {}
         if "image" not in data:
             return jsonify({"error": "No image provided"}), 400
@@ -36,7 +42,7 @@ def make_recognition_bp(recognizer, config_provider) -> Blueprint:  # noqa: ANN0
             return jsonify({"error": str(exc)}), 500
 
     @bp.route("/test", methods=["GET"])
-    def test_file():
+    def test_file() -> FlaskResponse:
         filename = request.args.get("filename")
         dataset = request.args.get("dataset")
         if not filename:
@@ -59,7 +65,7 @@ def make_recognition_bp(recognizer, config_provider) -> Blueprint:  # noqa: ANN0
         return jsonify(payload)
 
     @bp.route("/test/list", methods=["GET"])
-    def test_list():
+    def test_list() -> FlaskResponse:
         dataset = request.args.get("dataset", "")
         # base_path = "output"
         base_path = "/media/vadim/1TB_SSD/my_github/meter-watch/output"
@@ -75,7 +81,7 @@ def make_recognition_bp(recognizer, config_provider) -> Blueprint:  # noqa: ANN0
         return jsonify({"files": files, "count": len(files)})
 
     @bp.route("/delete-file", methods=["POST"])
-    def delete_file():
+    def delete_file() -> FlaskResponse:
         data = request.get_json() or {}
         filename = data.get("filename")
         dataset = data.get("dataset", "")
@@ -89,7 +95,7 @@ def make_recognition_bp(recognizer, config_provider) -> Blueprint:  # noqa: ANN0
         return jsonify({"success": True, "filename": filename})
 
     @bp.route("/save-digit", methods=["POST"])
-    def save_digit():
+    def save_digit() -> FlaskResponse:
         data = request.get_json() or {}
         digit = data.get("digit")
         image_b64 = data.get("image_base64")

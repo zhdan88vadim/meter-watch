@@ -5,6 +5,7 @@ import os
 import time
 from datetime import datetime
 from pathlib import Path
+from typing import Any
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -14,7 +15,9 @@ import torch.nn as nn
 import torch.optim as optim
 import torchvision.utils as vutils
 from sklearn.metrics import classification_report, confusion_matrix
+from torch.utils.data import DataLoader
 from torch.utils.tensorboard import SummaryWriter
+from torchvision.datasets import ImageFolder
 
 from meter_watch.ml.dataset import build_dataloaders
 from meter_watch.ml.model import DigitRecognizer
@@ -39,7 +42,7 @@ class ModelTrainer:
         learning_rate: float,
         image_size: int = 28,
         num_workers: int = 4,
-    ) -> dict:
+    ) -> dict[str, object]:
         print("\nStarting model training...")
         try:
             train_loader, val_loader = build_dataloaders(
@@ -48,7 +51,9 @@ class ModelTrainer:
         except Exception as exc:  # noqa: BLE001
             return {"success": False, "error": str(exc)}
 
-        classes = train_loader.dataset.classes
+        dataset = train_loader.dataset
+        assert isinstance(dataset, ImageFolder)
+        classes = dataset.classes
 
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
         log_dir = os.path.join("runs", f"folder_training_{timestamp}")
@@ -119,7 +124,7 @@ class ModelTrainer:
                 "final_accuracy": self.val_accuracies[-1] if self.val_accuracies else None,
                 "training_time": training_time,
                 "model_path": self.model_save_path,
-                "num_samples": len(train_loader.dataset),
+                "num_samples": len(dataset),
                 "dataset_path": dataset_path,
                 "tensorboard_dir": log_dir,
             }
@@ -129,7 +134,16 @@ class ModelTrainer:
 
     # ---------- internals ----------
 
-    def _train_epoch(self, loader, optimizer, criterion, writer, global_step, epoch):
+    def _train_epoch(
+        self,
+        loader: DataLoader[Any],
+        optimizer: torch.optim.Optimizer,
+        criterion: torch.nn.Module,
+        writer: SummaryWriter,
+        global_step: int,
+        epoch: int,
+    ) -> tuple[float, int]:
+        assert self.model is not None
         self.model.train()
         running_loss = 0.0
         for i, (images, labels) in enumerate(loader):
@@ -148,7 +162,12 @@ class ModelTrainer:
             global_step += 1
         return running_loss / len(loader), global_step
 
-    def _validate(self, loader, criterion):
+    def _validate(
+        self,
+        loader: DataLoader[Any],
+        criterion: torch.nn.Module,
+    ) -> tuple[float, list[int], list[int]]:
+        assert self.model is not None
         self.model.eval()
         correct = 0
         total = 0
@@ -166,7 +185,13 @@ class ModelTrainer:
                 labels_all.extend(labels.cpu().numpy())
         return 100 * correct / total, preds, labels_all
 
-    def _log_image_grids(self, writer, train_loader, val_loader, epoch):
+    def _log_image_grids(
+        self,
+        writer: SummaryWriter,
+        train_loader: DataLoader[Any],
+        val_loader: DataLoader[Any],
+        epoch: int,
+    ) -> None:
         images, _ = next(iter(train_loader))
         writer.add_image(
             f"Training/Epoch_{epoch}",
@@ -180,7 +205,14 @@ class ModelTrainer:
             epoch,
         )
 
-    def _log_final_report(self, y_true, y_pred, classes, writer, best_accuracy):
+    def _log_final_report(
+        self,
+        y_true: list[int],
+        y_pred: list[int],
+        classes: list[str],
+        writer: SummaryWriter,
+        best_accuracy: float,
+    ) -> None:
         if not y_pred:
             return
         cm = confusion_matrix(y_true, y_pred)
@@ -217,7 +249,14 @@ class ModelTrainer:
             f"Best Accuracy: {best_accuracy:.2f}%\n\n{report}"
         )
 
-    def _log_embeddings(self, writer, train_loader, classes, max_samples=500):
+    def _log_embeddings(
+        self,
+        writer: SummaryWriter,
+        train_loader: DataLoader[Any],
+        classes: list[str],
+        max_samples: int = 500,
+    ) -> None:
+        assert self.model is not None
         images_list, labels_list = [], []
         for images, labels in train_loader:
             images_list.append(images)
@@ -247,6 +286,7 @@ class ModelTrainer:
         writer.flush()
 
     def _save_model(self) -> str:
+        assert self.model is not None
         os.makedirs(os.path.dirname(self.model_save_path), exist_ok=True)
         torch.save(self.model.state_dict(), self.model_save_path)
         return self.model_save_path

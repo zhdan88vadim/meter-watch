@@ -6,6 +6,7 @@ import numpy as np
 import torch
 
 from meter_watch.domain.models import DigitPrediction
+from meter_watch.infrastructure.classifier.heatmap import SimpleHeatmap
 from meter_watch.image_processing.encoding import image_to_base64
 from meter_watch.image_processing.preprocessing import prepare_for_model
 
@@ -13,7 +14,12 @@ from meter_watch.image_processing.preprocessing import prepare_for_model
 class GradCamAnnotator:
     """Produces Grad-CAM + saliency + digit crop base64 strings."""
 
-    def __init__(self, model, heatmap_generator, device) -> None:  # noqa: ANN001
+    def __init__(
+        self,
+        model: torch.nn.Module,
+        heatmap_generator: "SimpleHeatmap",
+        device: torch.device,
+    ) -> None:
         self._model = model
         self._heatmap = heatmap_generator
         self._device = device

@@ -6,7 +6,7 @@ class NullLogger:
     """Collects log records in memory; useful for assertions in tests."""
 
     def __init__(self) -> None:
-        self.records: list[tuple[str, str, dict]] = []
+        self.records: list[tuple[str, str, dict[str, object]]] = []
 
     def info(self, msg: str, **ctx: object) -> None:
         self.records.append(("info", msg, dict(ctx)))
