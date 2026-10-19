@@ -2,10 +2,11 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Any, Optional
+from typing import Any
 
 import torch
 
+from meter_watch.domain.errors import ModelNotLoadedError
 from meter_watch.application.monitor_meter import MonitorMeterUseCase
 from meter_watch.application.recognize_image import RecognizeImageUseCase
 from meter_watch.domain.protocols import (
@@ -45,8 +46,8 @@ class Container:
     clock: Clock
     repository: ReadingRepository
     fetcher: ImageFetcher
-    classifier: Optional[DigitClassifier]
-    recognizer: Optional[RecognizeImageUseCase]
+    classifier: DigitClassifier
+    recognizer: RecognizeImageUseCase
     monitor: MonitorMeterUseCase
 
 
@@ -66,8 +67,6 @@ def build_container(
     clock = SystemClock()
     config = FileConfigProvider(config_path)
 
-    # --- Classifier (optional) ---
-    classifier: Optional[DigitClassifier] = None
     annotator = NoopAnnotator()
     model = ModelLoader(
         model_class=DigitRecognizer,
@@ -76,18 +75,17 @@ def build_container(
         logger=logger,
     ).load()
 
-    if model is not None:
-        classifier = PyTorchDigitClassifier(model, device, logger)
-        annotator = GradCamAnnotator(model, SimpleHeatmap(model), device)
+    if model is None:
+        raise ModelNotLoadedError("Model is None")
+        
+    classifier = PyTorchDigitClassifier(model, device, logger)
+    annotator = GradCamAnnotator(model, SimpleHeatmap(model), device)
 
-    # --- Recognizer ---
-    recognizer: Optional[RecognizeImageUseCase] = None
-    if classifier is not None:
-        recognizer = RecognizeImageUseCase(
-            classifier=classifier,
-            annotator=annotator,
-            logger=logger,
-        )
+    recognizer = RecognizeImageUseCase(
+        classifier=classifier,
+        annotator=annotator,
+        logger=logger,
+    )
 
     # --- Fetcher ---
     fetcher = RequestsImageFetcher(
@@ -112,7 +110,7 @@ def build_container(
     # --- Monitor ---
     monitor = MonitorMeterUseCase(
         fetcher=fetcher,
-        recognizer=recognizer,  # type: ignore[arg-type]
+        recognizer=recognizer,
         anomaly_detector=anomaly,
         repository=repository,
         clock=clock,

@@ -10,7 +10,7 @@ def serve() -> None:
     parser = argparse.ArgumentParser(description="Run the meter-watch server")
     parser.add_argument("--host", default="0.0.0.0")
     parser.add_argument("--port", type=int, default=5002)
-    parser.add_argument("--config", default="config.json")
+    parser.add_argument("--config", default="/media/vadim/1TB_SSD/my_github/meter-watch/services/cnn/config/default.json")
     parser.add_argument("--model", default="trained_models/digit_recognizer.pth")
     parser.add_argument("--no-monitor", action="store_true")
     parser.add_argument("--debug", action="store_true")

@@ -2,9 +2,10 @@
 from __future__ import annotations
 
 from flask import Blueprint, jsonify, request
+from meter_watch.presentation.protocols import ConfigProvider
 
 
-def make_config_bp(config_provider) -> Blueprint:  # noqa: ANN001
+def make_config_bp(config_provider: ConfigProvider) -> Blueprint:  # noqa: ANN001
     bp = Blueprint("config", __name__)
 
     @bp.route("/config", methods=["GET"])

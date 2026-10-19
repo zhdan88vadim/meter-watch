@@ -1,4 +1,5 @@
 """Flask app factory. Wires blueprints to a Container."""
+
 from __future__ import annotations
 
 from flask import Flask
@@ -22,10 +23,10 @@ def create_app(container: Container | None = None) -> Flask:
 
     app.register_blueprint(status_bp)
     app.register_blueprint(make_config_bp(container.config))
-    if container.recognizer is not None:
-        app.register_blueprint(
-            make_recognition_bp(container.recognizer, container.config)
-        )
+    app.register_blueprint(make_recognition_bp(container.recognizer, container.config))
 
+    # TODO:
+    # app.extensions["container"] = container
+    
     app.container = container  # type: ignore[attr-defined]
     return app

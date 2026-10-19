@@ -52,7 +52,7 @@ class MeterNumber:
         return self.text
 
 
-@dataclass(frozen=True)
+@dataclass()
 class MeterReading:
     """A recognized meter reading at a point in time."""
 

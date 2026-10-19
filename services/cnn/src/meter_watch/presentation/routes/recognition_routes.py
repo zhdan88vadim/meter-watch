@@ -42,7 +42,9 @@ def make_recognition_bp(recognizer, config_provider) -> Blueprint:  # noqa: ANN0
         if not filename:
             return jsonify({"error": "No filename provided"}), 400
 
-        base_path = config_provider.get("output_dir") if config_provider.has("output_dir") else "output"
+        # base_path = config_provider.get("output_dir") if config_provider.has("output_dir") else "output"
+        
+        base_path = "/media/vadim/1TB_SSD/my_github/meter-watch/output"
         file_path = os.path.join(base_path, dataset or "", filename)
         if not os.path.exists(file_path):
             return jsonify({"error": f"File not found: {file_path}"}), 404
@@ -59,7 +61,8 @@ def make_recognition_bp(recognizer, config_provider) -> Blueprint:  # noqa: ANN0
     @bp.route("/test/list", methods=["GET"])
     def test_list():
         dataset = request.args.get("dataset", "")
-        base_path = "output"
+        # base_path = "output"
+        base_path = "/media/vadim/1TB_SSD/my_github/meter-watch/output"
         dataset_path = os.path.join(base_path, dataset)
         valid_ext = (".jpg", ".jpeg", ".png", ".bmp", ".tiff")
         if not os.path.isdir(dataset_path):

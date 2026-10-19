@@ -1,5 +1,5 @@
 {
-    "camera_url": "rtsp://username:password@ip:port/stream",
+    "camera_url": "http://192.168.0.28/capture?_cb=",
     "camera_request_pause": 5,
     "monitoring_enabled": true,
     "save_threshold": 0.6,
