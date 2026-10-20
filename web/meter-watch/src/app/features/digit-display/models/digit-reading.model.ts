@@ -1,31 +1,24 @@
 export interface LastActivity {
-  recent_history: DigitReading[];
-  latest_update: DigitReading;
+  readonly recent_history: readonly DigitReading[];
+  readonly latest_update: DigitReading;
 }
 
 export interface DigitReading {
-  digits: string[];
-  time: string;
-  timestamp: number;
+  readonly digits: readonly string[];
+  readonly time: string;
+  readonly timestamp: number;   // Unix seconds
 }
 
-export interface DigitDisplayData {
-  latestReading: DigitReading | null;
-  readings: DigitReading[];
-  timeRemaining: number; // Seconds until 5 min expires
-  progressPercent: number; // 0-100 for progress bar
-  isExpired: boolean; // True if > 5 min since last reading
+export interface ProgressState {
+  readonly timeRemaining: number;   // seconds
+  readonly progressPercent: number; // 0..100
+  readonly isExpired: boolean;
 }
 
-export const COUNTDOWN_DURATION_MS = 5 * 60 * 1000; // 5 minutes
+export const COUNTDOWN_DURATION_MS = 5 * 60 * 1000;
 
-export function calculateProgress(lastTimestamp: number): {
-  timeRemaining: number;
-  progressPercent: number;
-  isExpired: boolean;
-} {
-  const now = Date.now();
-  const elapsed = now - lastTimestamp * 1000;
+export function calculateProgress(lastTimestamp: number, nowMs = Date.now()): ProgressState {
+  const elapsed = nowMs - lastTimestamp * 1000;
   const remaining = Math.max(0, COUNTDOWN_DURATION_MS - elapsed);
   const percent = (remaining / COUNTDOWN_DURATION_MS) * 100;
 

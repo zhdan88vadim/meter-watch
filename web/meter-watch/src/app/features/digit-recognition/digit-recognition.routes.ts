@@ -5,6 +5,6 @@ export const DIGIT_RECOGNITION_ROUTES: Routes = [
   {
     path: '',
     component: DigitRecognitionComponent,
-    title: 'Digit Recognition'
-  }
+    title: 'Digit Recognition',
+  },
 ];

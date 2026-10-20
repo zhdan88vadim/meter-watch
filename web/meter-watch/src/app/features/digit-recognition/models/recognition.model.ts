@@ -1,32 +1,36 @@
 export interface DigitResult {
-  digit_image: string;      // base64
-  heatmap_gradcam: string;  // base64
-  heatmap_saliency: string; // base64
-  prediction: number;
-  confidence: number;
-  position: number;
+  readonly digit_image: string;      // base64
+  readonly heatmap_gradcam: string;  // base64
+  readonly heatmap_saliency: string; // base64
+  readonly prediction: number;
+  readonly confidence: number;
+  readonly position: number;
 }
 
 export interface RecognitionResponse {
-  filename: string;
-  full_number: string;
-  digits: DigitResult[];
-  error?: string;
+  readonly filename: string;
+  readonly full_number: string;
+  readonly digits: readonly DigitResult[];
+  readonly error?: string;
 }
 
 export interface FileListResponse {
-  files: string[];
+  readonly files: readonly string[];
 }
 
 export interface SaveDigitRequest {
-  digit: number;
-  image_base64: string;
-  filename: string;
+  readonly digit: number;
+  readonly image_base64: string;
+  readonly filename: string;
 }
 
 export interface DeleteFileRequest {
-  filename: string;
-  dataset: Dataset;
+  readonly filename: string;
+  readonly dataset: Dataset;
+}
+
+export interface SaveResult {
+  readonly success: boolean;
 }
 
 export type Dataset = 'wrong_predictions' | 'validation';

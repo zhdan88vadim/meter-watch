@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, Blueprint
 from flask_cors import CORS
 import time
 from datetime import datetime
@@ -11,9 +11,11 @@ logger = logging.getLogger(__name__)
 app = Flask(__name__)
 CORS(app)
 
+api = Blueprint('api', __name__, url_prefix='/api')
+
 # state_manager = StateManager()
 
-@app.route('/status', methods=['GET'])
+@api.route('/status', methods=['GET'])
 def get_status():
     """Get system status"""   
     gas_status = RedisManager.get_key(config.REDIS_KEYS.gas_flow)
@@ -27,7 +29,7 @@ def get_status():
             'startup_mode': startup_mode
         },
         'gas': {
-            'flowing': bool(int(gas_status)),
+            'flowing': bool(int(gas_status)) if gas_status is not None else "not_available",
         },
         'person': {
             'last_seen': float(last_seen) if last_seen else None,
@@ -43,7 +45,7 @@ def get_status():
     
     return jsonify(status)
 
-@app.route('/alert/reset', methods=['POST'])
+@api.route('/alert/reset', methods=['POST'])
 def reset_alert():
     """Reset alert"""
     # state_manager.reset_alert()
@@ -54,7 +56,7 @@ def reset_alert():
         'timestamp': datetime.now().isoformat()
     })
 
-@app.route('/system/control', methods=['POST'])
+@api.route('/system/control', methods=['POST'])
 def system_control():
     """System control"""
     data = request.json
@@ -84,6 +86,9 @@ def system_control():
 
 def start_api():
     """Start API server"""
+
+    app.register_blueprint(api)
+
     app.run(
         host=config.WEB_HOST,
         port=config.WEB_PORT,

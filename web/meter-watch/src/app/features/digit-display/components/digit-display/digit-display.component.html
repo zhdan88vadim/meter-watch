@@ -1,49 +1,46 @@
 <div class="digit-display-card">
-  <h2 class="card-title">
-    <i class="fas fa-gauge-high"></i>
-    📊 Показания счётчика
-  </h2>
+  <h2 class="card-title">📊 Meter readings</h2>
 
   <div class="meter-display">
-    <div class="meter-label">Текущие показания</div>
+    <div class="meter-label">Current readings</div>
+
     <div class="meter-value">
-      <div class="digit" *ngFor="let digit of currentDigits; let i = index" [style.animationDelay]="i * 0.05 + 's'">
-        {{ digit }}
+      @for (digit of currentDigits(); track $index) {
+        <div class="digit">{{ digit }}</div>
+      } @empty {
+        <div class="placeholder">---</div>
+      }
+    </div>
+
+    @if (latestReading(); as reading) {
+      <div class="meter-update">
+        <i class="fas fa-clock"></i>
+        Updated: {{ reading.timestamp * 1000 | date: 'dd.MM.yyyy HH:mm:ss' }}
       </div>
-      <div class="placeholder" *ngIf="currentDigits.length === 0">---</div>
-    </div>
-    <div class="meter-update">
-      <i class="fas fa-clock"></i>
-      Обновлено: {{ latestReading && latestReading.timestamp * 1000 | date:'dd.MM.yyyy HH:mm:ss' }}
-    </div>
+    }
   </div>
 
-  <div class="card-content">
-
-    <h3 style="font-size: 14px; color: var(--text-secondary); margin-bottom: 12px;">
-      История показаний
-    </h3>
-    <div class="history-list">
-      <div class="history-section" *ngIf="history.length > 0">
-        <div class="history-list">
-          <div class="history-item" *ngFor="let item of history">
-            <span class="history-value">{{ item.digits.join('') }}</span>
-            <span class="history-time">{{ item.time }}</span>
-          </div>
-        </div>
+  <h3 class="section-title">Reading history</h3>
+  <div class="history-list">
+    @for (item of history(); track item.time) {
+      <div class="history-item">
+        <span class="history-value">{{ item.digits.join('') }}</span>
+        <span class="history-time">{{ item.time }}</span>
       </div>
-    </div>
-
+    } @empty {
+      <p class="muted">No records</p>
+    }
   </div>
 
-  <hr>
+  <hr />
 
-  <app-person-status-card
-    [lastSeenTimestamp]="(statusService.status$ | async)?.person?.last_seen ?? null"
-    [isPresentNow]="(statusService.status$ | async)?.person?.is_active ?? false"
-    [isAlertActive]="(statusService.status$ | async)?.alert?.active ?? false"
-    [isStartupMode]="(statusService.status$ | async)?.system?.startup_mode ?? false"
-    alertMessage="⚠️ Газ идет! Отправлено в Telegram"
-  />
-
+  @if (status(); as s) {
+    <app-person-status-card
+      [lastSeenTimestamp]="s.person.last_seen"
+      [isPresentNow]="s.person.is_active"
+      [isAlertActive]="s.alert.active"
+      [isStartupMode]="s.system.startup_mode"
+      alertMessage="⚠️ Gas is flowing! Sent to Telegram"
+    />
+  }
 </div>

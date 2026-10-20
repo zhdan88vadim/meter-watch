@@ -1,35 +1,25 @@
-// src/app/app.config.ts
 import { ApplicationConfig, provideZoneChangeDetection } from '@angular/core';
-import { provideRouter } from '@angular/router';
-import { routes } from './app.routes';
-
-// 1. Import PrimeNG Config
-import { providePrimeNG } from 'primeng/config';
-import { provideNoopAnimations } from '@angular/platform-browser/animations';
-
-// 2. Import Animations (Required for Dialogs, Dropdowns, etc.)
+import { provideRouter, withComponentInputBinding } from '@angular/router';
 import { provideAnimations } from '@angular/platform-browser/animations';
+import { provideHttpClient, withFetch } from '@angular/common/http';
+import { providePrimeNG } from 'primeng/config';
 import Material from '@primeuix/themes/material';
+
+import { routes } from './app.routes';
 
 export const appConfig: ApplicationConfig = {
   providers: [
     provideZoneChangeDetection({ eventCoalescing: true }),
-    provideRouter(routes),
-
-    // 3. Add PrimeNG Configuration
+    provideRouter(routes, withComponentInputBinding()),
+    provideHttpClient(withFetch()),
     providePrimeNG({
-      ripple: true, // Enables ripple effect on buttons
-      inputStyle: 'filled', // 'filled' or 'outlined',
+      ripple: true,
+      inputStyle: 'filled',
       theme: {
         preset: Material,
-        options: {
-          // Отключаем тёмный режим полностью (опционально)
-          darkModeSelector: false, // или 'none'
-        },
+        options: { darkModeSelector: false },
       },
     }),
-
-    // 4. Add Animations
     provideAnimations(),
   ],
 };

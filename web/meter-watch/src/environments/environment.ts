@@ -1,4 +1,6 @@
-export const environment = {
+import { AppEnvironment } from './environment.types';
+
+export const environment: AppEnvironment = {
   production: false,
   apiUrl: 'http://192.168.0.254:5002',
   personDetectApiUrl: 'http://192.168.0.254:5000/api',

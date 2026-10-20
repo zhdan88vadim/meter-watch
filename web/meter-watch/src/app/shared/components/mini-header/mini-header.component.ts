@@ -1,10 +1,10 @@
-import { Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component } from '@angular/core';
 
 @Component({
   selector: 'app-mini-header',
   standalone: true,
-  imports: [],
   templateUrl: './mini-header.component.html',
-  styleUrls: ['./mini-header.component.scss'],
+  styleUrl: './mini-header.component.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class MiniHeaderComponent {}
