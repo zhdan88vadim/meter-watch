@@ -1,26 +1,26 @@
 export interface AlertStatus {
-  active: boolean;
-  cooldown: boolean;
+  readonly active: boolean;
+  readonly cooldown: boolean;
 }
 
 export interface GasStatus {
-  flowing: boolean;
+  readonly flowing: boolean;
 }
 
 export interface PersonStatus {
-  is_active: boolean;
-  last_seen: number; // Timestamp в секундах (float)
-  last_seen_str: string; // Строковое представление времени
+  readonly is_active: boolean;
+  readonly last_seen: number;      // Unix seconds (float)
+  readonly last_seen_str: string;  // human-readable
 }
 
 export interface SystemStatus {
-  startup_mode: boolean;
+  readonly startup_mode: boolean;
 }
 
 export interface FullApiResponse {
-  alert: AlertStatus;
-  gas: GasStatus;
-  person: PersonStatus;
-  system: SystemStatus;
-  timestamp: string; // ISO 8601 строка
+  readonly alert: AlertStatus;
+  readonly gas: GasStatus;
+  readonly person: PersonStatus;
+  readonly system: SystemStatus;
+  readonly timestamp: string;      // ISO 8601
 }

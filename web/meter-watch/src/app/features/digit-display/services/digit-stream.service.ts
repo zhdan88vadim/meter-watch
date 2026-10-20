@@ -1,29 +1,27 @@
-// digit-stream.service.ts
-
-import { Injectable } from '@angular/core';
-import { Observable, interval, switchMap, startWith, shareReplay } from 'rxjs';
-import { DigitReading, LastActivity } from '../models/digit-reading.model';
+import { Injectable, inject } from '@angular/core';
+import { Observable, interval } from 'rxjs';
+import { switchMap, startWith, shareReplay } from 'rxjs/operators';
 import { HttpClient } from '@angular/common/http';
+
+import { LastActivity } from '../models/digit-reading.model';
 import { environment } from '../../../../environments/environment';
+import { POLLING_CONFIG } from '../../../core/tokens/polling-config.token';
 
 @Injectable({ providedIn: 'root' })
 export class DigitStreamService {
+  private readonly http = inject(HttpClient);
+  private readonly config = inject(POLLING_CONFIG);
   private readonly apiUrl = environment.apiUrl;
-
-  constructor(private http: HttpClient) {}
 
   getLastActivity(): Observable<LastActivity> {
     return this.http.get<LastActivity>(`${this.apiUrl}/last_activity`);
   }
 
-  /**
-   * 🔁 Polling - опрашивает сервер каждые N секунд
-   */
-  pollLastActivity(intervalSeconds: number = 5): Observable<LastActivity> {
+  pollLastActivity(intervalSeconds = this.config.digitPollSeconds): Observable<LastActivity> {
     return interval(intervalSeconds * 1000).pipe(
-      startWith(0), // Первый запрос сразу
+      startWith(0),
       switchMap(() => this.getLastActivity()),
-      shareReplay(1), // Кэширует последний результат для новых подписчиков
+      shareReplay({ bufferSize: 1, refCount: true }),
     );
   }
 }

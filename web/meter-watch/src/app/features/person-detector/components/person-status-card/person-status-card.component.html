@@ -1,22 +1,20 @@
 <div class="person-card" [ngClass]="status()">
-  
-  <h2>Присутствие человека</h2>
+  <h2 class="person-card__title">Person presence</h2>
 
-  <div class="stat-value" *ngIf="status() !== 'startup-mode'">
-    {{ displayTime() }}
-  </div>
+  @if (status() !== 'startup-mode') {
+    <div class="stat-value">{{ displayTime() }}</div>
+  }
 
   <div class="stat-label">
     @switch (status()) {
-      @case ('startup-mode') { <span>в данный момент данные не доступны</span> }
-      @case ('present') { <span>На кухне</span> }
-      @case ('absent') { <span>Покинул кухню</span> }
-      @case ('critical') { <span>Давно нет на кухне</span> }
+      @case ('startup-mode') { <span>data currently unavailable</span> }
+      @case ('present')      { <span>In the kitchen</span> }
+      @case ('absent')       { <span>Left the kitchen</span> }
+      @case ('critical')     { <span>Has not been in the kitchen for a long time</span> }
     }
   </div>
+
   @if (status() === 'critical') {
-    <div class="person-alert">
-      {{ alertMessage() }}
-    </div>
+    <div class="person-alert">{{ alertMessage() }}</div>
   }
 </div>

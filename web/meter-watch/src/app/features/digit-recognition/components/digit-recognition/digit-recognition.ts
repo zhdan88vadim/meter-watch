@@ -1,23 +1,29 @@
-import { Component, computed, inject, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  inject,
+  signal,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { finalize } from 'rxjs/operators';
+import { finalize, firstValueFrom, forkJoin } from 'rxjs';
 
-// PrimeNG modules
 import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
 import { ToastModule } from 'primeng/toast';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
-import { BadgeModule } from 'primeng/badge';
-import { PaginatorModule } from 'primeng/paginator';
-import { PaginatorState } from 'primeng/paginator';
+import { PaginatorModule, PaginatorState } from 'primeng/paginator';
 
-// Local components & services
 import { ApiService } from '../../../../core/services/api.service';
-import { DatasetSelectorComponent } from '../../../../shared/components/dataset-selector/dataset-selector';
-import { Dataset, RecognitionResponse, SaveDigitRequest } from '../../models/recognition.model';
+import { DatasetSelectorComponent } from '../../../../shared/components/dataset-selector/dataset-selector.component';
+import {
+  Dataset,
+  RecognitionResponse,
+  SaveDigitRequest,
+} from '../../models/recognition.model';
 import { DigitCardComponent } from '../digit-card/digit-card';
 import { DigitDisplayComponent } from '../../../digit-display/components/digit-display/digit-display.component';
 
@@ -32,7 +38,6 @@ import { DigitDisplayComponent } from '../../../digit-display/components/digit-d
     ToastModule,
     ConfirmDialogModule,
     ProgressSpinnerModule,
-    BadgeModule,
     PaginatorModule,
     DatasetSelectorComponent,
     DigitCardComponent,
@@ -41,42 +46,44 @@ import { DigitDisplayComponent } from '../../../digit-display/components/digit-d
   providers: [MessageService, ConfirmationService],
   templateUrl: './digit-recognition.html',
   styleUrl: './digit-recognition.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class DigitRecognitionComponent {
   private readonly api = inject(ApiService);
   private readonly messageService = inject(MessageService);
   private readonly confirmationService = inject(ConfirmationService);
 
-  // State signals (Angular 18)
+  // --- state ---
   readonly dataset = signal<Dataset>('wrong_predictions');
-  readonly files = signal<string[]>([]);
+  readonly files = signal<readonly string[]>([]);
   readonly loading = signal(false);
   readonly processing = signal(false);
   readonly currentFile = signal<string | null>(null);
   readonly recognitionResult = signal<RecognitionResponse | null>(null);
-  readonly selectedDigits = signal<Map<number, number>>(new Map()); // position -> digit
+  readonly selectedDigits = signal<ReadonlyMap<number, number>>(new Map());
 
-  // Pagination signals
-  readonly currentPage = signal<number>(1);
-  readonly pageSize = signal<number>(10);
+  // --- pagination ---
+  readonly currentPage = signal(1);
+  readonly pageSize = signal(10);
   readonly totalRecords = computed(() => this.files().length);
 
-  // Computed paginated files
   readonly paginatedFiles = computed(() => {
-    const startIndex = (this.currentPage() - 1) * this.pageSize();
-    const endIndex = startIndex + this.pageSize();
-    return this.files().slice(startIndex, endIndex);
+    const start = (this.currentPage() - 1) * this.pageSize();
+    return this.files().slice(start, start + this.pageSize());
   });
 
-  // Computed
+  readonly firstRecordIndex = computed(
+    () => (this.currentPage() - 1) * this.pageSize(),
+  );
+
+  // --- derived ---
   readonly hasSelections = computed(() => this.selectedDigits().size > 0);
-  readonly totalPages = computed(() => Math.ceil(this.totalRecords() / this.pageSize()));
 
   constructor() {
     this.loadFiles();
   }
 
-  /** Загрузить список файлов для текущего датасета */
+  // --- data loading ---
   loadFiles(): void {
     this.loading.set(true);
     this.api
@@ -85,31 +92,27 @@ export class DigitRecognitionComponent {
       .subscribe({
         next: (files) => {
           this.files.set(files);
-          // Reset to first page when loading new files
           this.currentPage.set(1);
-          if (files.length) {
-            this.recognize(files[0]);
-          }
+          if (files.length) this.recognize(files[0]);
         },
-        error: (err) => this.showError('Failed to load files', err.message),
+        error: (err: Error) =>
+          this.showError('Failed to load files', err.message),
       });
   }
 
-  /** Сменить датасет */
   onDatasetChange(newDataset: Dataset): void {
     this.dataset.set(newDataset);
     this.resetSelection();
     this.loadFiles();
   }
 
-  /** Handle page change */
   onPageChange(event: PaginatorState): void {
-    const newPage = (event.first ?? 0) / (event.rows ?? this.pageSize()) + 1;
-    this.currentPage.set(newPage);
-    this.pageSize.set(event.rows ?? this.pageSize());
+    const rows = event.rows ?? this.pageSize();
+    this.pageSize.set(rows);
+    this.currentPage.set(((event.first ?? 0) / rows) + 1);
   }
 
-  /** Распознать файл */
+  // --- recognition ---
   recognize(filename: string): void {
     this.currentFile.set(filename);
     this.processing.set(true);
@@ -125,16 +128,13 @@ export class DigitRecognitionComponent {
             this.showError('Recognition error', result.error);
             return;
           }
-
-          result.digits = result.digits; // .filter(digit => digit.confidence < 0.9);
-
           this.recognitionResult.set(result);
         },
-        error: (err) => this.showError('Recognition failed', err.message),
+        error: (err: Error) => this.showError('Recognition failed', err.message),
       });
   }
 
-  /** Удалить файл с подтверждением */
+  // --- deletion ---
   requestDelete(filename: string): void {
     this.confirmationService.confirm({
       message: `Delete file "${filename}"?`,
@@ -142,44 +142,40 @@ export class DigitRecognitionComponent {
       icon: 'pi pi-exclamation-triangle',
       acceptButtonStyleClass: 'p-button-danger',
       accept: () => this.deleteFile(filename),
-      reject: () => {},
     });
   }
 
-  /** Удалить файл (после подтверждения) */
   private deleteFile(filename: string): void {
     this.api.deleteFile({ filename, dataset: this.dataset() }).subscribe({
       next: (res) => {
-        if (res.success) {
-          this.showSuccess(`Deleted: ${filename}`);
-          this.loadFiles();
-          // Очистить результат если удалили текущий файл
-          if (this.currentFile() === filename) {
-            this.resetSelection();
-          }
+        if (!res.success) {
+          this.showError('Delete failed', 'Server returned success=false');
+          return;
         }
+        this.showSuccess(`Deleted: ${filename}`);
+        this.loadFiles();
+        if (this.currentFile() === filename) this.resetSelection();
       },
-      error: (err) => this.showError('Delete failed', err.message),
+      error: (err: Error) => this.showError('Delete failed', err.message),
     });
   }
 
-  /** Обработать выбор цифры в карточке */
+  // --- selections ---
   onDigitSelected(event: { position: number; digit: number }): void {
     const map = new Map(this.selectedDigits());
     map.set(event.position, event.digit);
     this.selectedDigits.set(map);
   }
 
-  /** Обработать отмену выбора цифры */
   onDigitDeselected(position: number): void {
     const map = new Map(this.selectedDigits());
     map.delete(position);
     this.selectedDigits.set(map);
   }
 
-  /** Сохранить исправления */
-  submitCorrections(): void {
-    if (!this.currentFile() || !this.hasSelections()) {
+  async submitCorrections(): Promise<void> {
+    const file = this.currentFile();
+    if (!file || !this.hasSelections()) {
       this.messageService.add({
         severity: 'warn',
         summary: 'No selections',
@@ -188,71 +184,57 @@ export class DigitRecognitionComponent {
       return;
     }
 
-    const baseFilename = this.currentFile()!.replace('.png', '');
-    const digits = this.recognitionResult()?.digits || [];
-    const saveRequests: SaveDigitRequest[] = [];
+    const baseName = file.replace('.png', '');
+    const digits = this.recognitionResult()?.digits ?? [];
+    const requests: SaveDigitRequest[] = [];
 
     this.selectedDigits().forEach((digit, position) => {
-      const digitData = digits[position];
-      if (digitData?.digit_image) {
-        saveRequests.push({
+      const d = digits[position];
+      if (d?.digit_image) {
+        requests.push({
           digit,
-          image_base64: digitData.digit_image,
-          filename: `${baseFilename}_pos${position + 1}_digit${digit}.png`,
+          image_base64: d.digit_image,
+          filename: `${baseName}_pos${position + 1}_digit${digit}.png`,
         });
       }
     });
 
+    if (!requests.length) {
+      this.showError('Save failed', 'Nothing to save');
+      return;
+    }
+
     this.processing.set(true);
-
-    // Выполнить все запросы параллельно
-    Promise.all(saveRequests.map((req) => this.api.saveDigit(req).toPromise()))
-      .then((results) => {
-        const allSuccess = results.every((r) => r?.success);
-
-        if (allSuccess) {
-          const savedInfo = Array.from(this.selectedDigits())
-            .map(([pos, dig]) => `Pos ${pos + 1} → ${dig}`)
-            .join(', ');
-
-          this.showSuccess(`Saved ${saveRequests.length} digit(s): ${savedInfo}`);
-          this.selectedDigits.set(new Map()); // Очистить выбор
-        } else {
-          throw new Error('Some saves failed');
-        }
-      })
-      .catch((err) => {
-        this.showError('Save failed', err.message);
-      })
-      .finally(() => {
-        this.processing.set(false);
-      });
+    try {
+      const responses = await firstValueFrom(forkJoin(requests.map((r) => this.api.saveDigit(r))));
+      if (!responses.every((r) => r?.success)) {
+        throw new Error('Some saves failed');
+      }
+      const info = [...this.selectedDigits()]
+        .map(([p, d]) => `Pos ${p + 1} → ${d}`)
+        .join(', ');
+      this.showSuccess(`Saved ${requests.length} digit(s): ${info}`);
+      this.selectedDigits.set(new Map());
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : 'Unknown error';
+      this.showError('Save failed', msg);
+    } finally {
+      this.processing.set(false);
+    }
   }
 
-  /** Сбросить выбор */
+  // --- helpers ---
   private resetSelection(): void {
     this.currentFile.set(null);
     this.recognitionResult.set(null);
     this.selectedDigits.set(new Map());
   }
 
-  /** Показать уведомление об успехе */
   private showSuccess(detail: string): void {
-    this.messageService.add({
-      severity: 'success',
-      summary: 'Success',
-      detail,
-      life: 3000,
-    });
+    this.messageService.add({ severity: 'success', summary: 'Success', detail, life: 3000 });
   }
 
-  /** Показать уведомление об ошибке */
   private showError(summary: string, detail: string): void {
-    this.messageService.add({
-      severity: 'error',
-      summary,
-      detail,
-      life: 5000,
-    });
+    this.messageService.add({ severity: 'error', summary, detail, life: 5000 });
   }
 }

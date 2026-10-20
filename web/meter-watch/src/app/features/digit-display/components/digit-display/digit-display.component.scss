@@ -1,5 +1,6 @@
 :host {
-  background: white;
+  display: block;
+  background: var(--surface-card);
   border-radius: 16px;
   padding: 28px;
 }
@@ -9,27 +10,21 @@
   margin: 0 auto;
 }
 
-.placeholder {
-  color: #999;
-  font-size: 2rem;
-}
-
 .card-title {
   font-size: 18px;
   font-weight: 600;
-  margin-bottom: 24px;
+  margin: 0 0 24px;
   display: flex;
   align-items: center;
   gap: 10px;
   color: var(--text-primary);
 }
 
-.card-title i {
-  color: var(--primary);
+.placeholder {
+  color: #999;
+  font-size: 2rem;
 }
 
-
-/* Gas Meter Display */
 .meter-display {
   background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
   border-radius: 12px;
@@ -38,16 +33,14 @@
   margin-bottom: 24px;
   position: relative;
   overflow: hidden;
-}
 
-.meter-display::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 4px;
-  background: linear-gradient(90deg, var(--success), var(--primary));
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0 0 auto;
+    height: 4px;
+    background: linear-gradient(90deg, var(--success), var(--primary));
+  }
 }
 
 .meter-label {
@@ -63,6 +56,7 @@
   justify-content: center;
   gap: 8px;
   margin-bottom: 16px;
+  flex-wrap: wrap;
 }
 
 .digit {
@@ -90,63 +84,11 @@
   gap: 6px;
 }
 
-
-
-
-
-/* Stats */
-.stats-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 16px;
-  margin-bottom: 24px;
-}
-
-.stat-item {
-  background: var(--bg-primary);
-  padding: 20px;
-  border-radius: 12px;
-  text-align: center;
-}
-
-.stat-icon {
-  width: 40px;
-  height: 40px;
-  margin: 0 auto 12px;
-  border-radius: 8px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 20px;
-}
-
-.stat-icon.blue {
-  background: #dbeafe;
-  color: var(--primary);
-}
-
-.stat-icon.green {
-  background: #d1fae5;
-  color: var(--success);
-}
-
-.stat-value {
-  font-size: 24px;
-  font-weight: 700;
-  color: var(--text-primary);
-  margin-bottom: 4px;
-}
-
-.stat-label {
-  font-size: 13px;
-  color: var(--text-secondary);
-}
-
-/* History */
 .history-list {
   display: flex;
   flex-direction: column;
   gap: 12px;
+  margin-bottom: 24px;
 }
 
 .history-item {
@@ -156,12 +98,12 @@
   padding: 16px;
   background: var(--bg-primary);
   border-radius: 8px;
-  transition: all 0.2s;
-}
+  transition: background-color 0.2s, transform 0.2s;
 
-.history-item:hover {
-  background: #f1f5f9;
-  transform: translateX(4px);
+  &:hover {
+    background: #f1f5f9;
+    transform: translateX(4px);
+  }
 }
 
 .history-value {
@@ -175,74 +117,8 @@
   color: var(--text-secondary);
 }
 
-
-.person-card {
-  transition: all 0.5s ease;
-  border: 2px solid transparent; /* Чтобы при смене цвета не дергался размер */
-  
-  /* Состояние: Человек на месте */
-  &.present {
-    background: #ecfdf5; /* Светло-зеленый фон */
-    border-color: #6ee7b7;
-    .stat-icon {
-      background: #d1fae5;
-      color: #059669;
-    }
-    .stat-value {
-      color: #059669;
-    }
-  }
-
-  /* Состояние: Вышел из кухни (предупреждение) */
-  &.absent {
-    background: #fffbeb; /* Светло-желтый фон */
-    border-color: #fcd34d;
-    .stat-icon {
-      background: #fef3c7;
-      color: #d97706;
-    }
-    .stat-value {
-      color: #d97706;
-    }
-  }
-
-  /* Состояние: КРИТИЧНО (Газ идет, никого нет) */
-  &.critical {
-    background: #fef2f2; /* Светло-красный фон */
-    border-color: #fca5a5;
-    animation: alert-pulse 2s infinite; /* Анимация пульсации */
-    
-    .stat-icon {
-      background: #fee2e2;
-      color: #dc2626;
-    }
-    .stat-value {
-      color: #dc2626;
-    }
-  }
-}
-
-/* Текст с алертом, который появляется при критическом статусе */
-.person-alert {
-  margin-top: 8px;
-  font-size: 13px;
-  font-weight: 600;
-  color: #dc2626;
-  background: #fee2e2;
-  padding: 4px 8px;
-  border-radius: 6px;
-  display: inline-block;
-  animation: fadeInOut 1.5s infinite;
-}
-
-/* Анимации */
-@keyframes alert-pulse {
-  0% { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.4); }
-  70% { box-shadow: 0 0 0 10px rgba(220, 38, 38, 0); }
-  100% { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0); }
-}
-
-@keyframes fadeInOut {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.5; }
+hr {
+  border: none;
+  border-top: 1px solid var(--border);
+  margin: 24px 0;
 }

@@ -1,0 +1,10 @@
+<div class="dataset-selector">
+  @for (ds of datasets; track ds) {
+    <p-button
+      [label]="labels[ds]"
+      [severity]="selectedDataset() === ds ? 'success' : 'secondary'"
+      [outlined]="selectedDataset() !== ds"
+      (onClick)="datasetChange.emit(ds)"
+    />
+  }
+</div>

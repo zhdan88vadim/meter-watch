@@ -1,27 +1,37 @@
+:host {
+  display: block;
+}
+
 .person-card {
   margin-top: 40px;
-  background: var(--bg-primary);
   padding: 20px;
   border-radius: 12px;
   text-align: center;
-  transition: all 0.5s ease;
+  transition: all 0.4s ease;
   border: 2px solid transparent;
   position: relative;
   overflow: hidden;
+
+  &__title {
+    margin: 0 0 12px;
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--text-primary);
+  }
 
   .stat-value {
     font-size: 24px;
     font-weight: 700;
     color: var(--text-primary);
     margin-bottom: 4px;
-    transition: color 0.5s ease;
+    transition: color 0.4s ease;
   }
 
   .stat-label {
     margin-top: 18px;
     font-size: 16px;
     color: var(--text-secondary);
-    transition: color 0.5s ease;
+    transition: color 0.4s ease;
   }
 
   .person-alert {
@@ -31,33 +41,29 @@
     padding: 6px 12px;
     border-radius: 6px;
     display: inline-block;
+    color: #dc2626;
+    background: #fee2e2;
     animation: fadePulse 1.5s infinite;
   }
-
-  /* --- Состояния --- */
 
   &.startup-mode {
     background: #e6e6e6;
     border-color: #cccccc;
 
-    h2 {
-      color: rgb(135, 135, 135);
-    }
-    
-    .stat-value {
-      color: #059669;
+    .person-card__title {
+      color: #878787;
     }
   }
+
   &.present {
     background: #ecfdf5;
     border-color: #6ee7b7;
-    
+
     .stat-value {
       color: #059669;
     }
   }
 
-  // Покинул, но еще не критично (Желтый)
   &.absent {
     background: #fffbeb;
     border-color: #fcd34d;
@@ -67,7 +73,6 @@
     }
   }
 
-  // КРИТИЧНО (Красный)
   &.critical {
     background: #fef2f2;
     border-color: #fca5a5;
@@ -76,22 +81,16 @@
     .stat-value {
       color: #dc2626;
     }
-
-    .person-alert {
-      color: #dc2626;
-      background: #fee2e2;
-    }
   }
 }
 
-/* Анимации */
 @keyframes borderPulse {
-  0% { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.4); }
-  70% { box-shadow: 0 0 0 10px rgba(220, 38, 38, 0); }
+  0%   { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.4); }
+  70%  { box-shadow: 0 0 0 10px rgba(220, 38, 38, 0); }
   100% { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0); }
 }
 
 @keyframes fadePulse {
   0%, 100% { opacity: 1; }
-  50% { opacity: 0.6; }
+  50%      { opacity: 0.6; }
 }

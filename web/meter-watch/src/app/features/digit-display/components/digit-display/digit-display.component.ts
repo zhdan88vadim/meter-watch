@@ -1,82 +1,60 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { toSignal } from '@angular/core/rxjs-interop';
+
 import { ProgressBarModule } from 'primeng/progressbar';
 import { CardModule } from 'primeng/card';
 import { BadgeModule } from 'primeng/badge';
-import { Subject, takeUntil } from 'rxjs';
-import { DigitReading, calculateProgress } from '../../models/digit-reading.model';
+
+import { calculateProgress } from '../../models/digit-reading.model';
 import { DigitStreamService } from '../../services/digit-stream.service';
 import { PersonStatusCardComponent } from '../../../person-detector/components/person-status-card/person-status-card.component';
 import { StatusService } from '../../../person-detector/services/status.service';
+import { ClockService } from '../../../../core/services/clock.service';
+import { formatRemaining } from '../../../../shared/utils/time.util';
 
 @Component({
   selector: 'app-digit-display',
   standalone: true,
-  imports: [CommonModule, ProgressBarModule, CardModule, BadgeModule, PersonStatusCardComponent],
+  imports: [
+    CommonModule,
+    ProgressBarModule,
+    CardModule,
+    BadgeModule,
+    PersonStatusCardComponent,
+  ],
   templateUrl: './digit-display.component.html',
-  styleUrls: ['./digit-display.component.scss'],
+  styleUrl: './digit-display.component.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class DigitDisplayComponent implements OnInit, OnDestroy {
-  latestReading: DigitReading | null = null;
-  history: DigitReading[] = [];
-  progressPercent = 100;
-  timeRemaining = 300;
-  isExpired = false;
+export class DigitDisplayComponent {
+  private readonly digitService = inject(DigitStreamService);
+  private readonly statusService = inject(StatusService);
+  private readonly clock = inject(ClockService);
 
-  private destroy$ = new Subject<void>();
-  private updateTimer?: any;
+  readonly lastActivity = toSignal(this.digitService.pollLastActivity(), {
+    initialValue: null,
+  });
 
-  constructor(
-    private digitService: DigitStreamService,
-    public statusService: StatusService
-  ) {
+  readonly status = toSignal(this.statusService.status$, { initialValue: null });
 
-    this.statusService.status$.subscribe(x => {
-      console.log(x);
-      
-    })
+  readonly latestReading = computed(() => this.lastActivity()?.latest_update ?? null);
+  readonly history = computed(() => this.lastActivity()?.recent_history ?? []);
+  readonly currentDigits = computed<readonly string[]>(
+    () => this.latestReading()?.digits ?? [],
+  );
 
-  }
+  readonly progress = computed(() => {
+    const reading = this.latestReading();
+    if (!reading) {
+      return { timeRemaining: 0, progressPercent: 100, isExpired: true };
+    }
+  // Reading changes rarely, but clock — every second,
+  // so progress is recalculated once per second.
+    return calculateProgress(reading.timestamp, this.clock.now());
+  });
 
-  ngOnInit(): void {
-    this.digitService
-      .pollLastActivity(5)
-      .pipe(takeUntil(this.destroy$))
-      .subscribe({
-        next: (data) => {
-          this.history = data.recent_history;
-          this.latestReading = data.latest_update;
-          this.updateProgress();
-        },
-        error: (err) => console.error('Polling error:', err),
-      });
-
-    this.updateTimer = setInterval(() => {
-      this.updateProgress();
-    }, 1000);
-  }
-
-  ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
-    if (this.updateTimer) clearInterval(this.updateTimer);
-  }
-
-  private updateProgress(): void {
-    if (!this.latestReading) return;
-    const progress = calculateProgress(this.latestReading.timestamp);
-    this.progressPercent = progress.progressPercent;
-    this.timeRemaining = progress.timeRemaining;
-    this.isExpired = progress.isExpired;
-  }
-
-  get currentDigits(): string[] {
-    return this.latestReading?.digits || [];
-  }
-
-  get timeUntilExpiry(): string {
-    const mins = Math.floor(this.timeRemaining / 60);
-    const secs = this.timeRemaining % 60;
-    return `${mins}:${secs.toString().padStart(2, '0')}`;
-  }
+  readonly timeUntilExpiry = computed(() =>
+    formatRemaining(this.progress().timeRemaining),
+  );
 }
