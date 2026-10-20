@@ -21,3 +21,9 @@ SKIP/
 services/person-detector/app/todo/
 services/person-detector/tests/assets/
 .idea
+*.egg-info
+.mypy_cache
+services/cnn/logs/
+services/cnn/runs/
+services/cnn/trained_models/
+services/cnn/classification_report.txt

@@ -15,6 +15,32 @@
       "python": "/mnt/ntfs/learn_ML/test_classes/Тестовое Python ML,CV/Тестовое_ML/тестовое_ml/.conda/bin/python"
     },
     {
+      "name": "cnn-server (module)",
+      "type": "debugpy",
+      "request": "launch",
+      "module": "meter_watch.presentation.cli",
+      "args": ["--host", "0.0.0.0", "--port", "5002"],
+      "cwd": "/media/vadim/1TB_SSD/my_github/meter-watch/services/cnn",
+      "env": {
+        "PYTHONPATH": "/media/vadim/1TB_SSD/my_github/meter-watch/services/cnn/src"
+      },
+      "console": "integratedTerminal",
+      "python": "/mnt/ntfs/learn_ML/test_classes/Тестовое Python ML,CV/Тестовое_ML/тестовое_ml/.conda/bin/python"
+    },
+    {
+      "name": "cnn new: pytest current file",
+      "type": "debugpy",
+      "request": "launch",
+      "module": "pytest",
+      "args": ["${file}", "-v", "-s"],
+      "console": "integratedTerminal",
+      "cwd": "/media/vadim/1TB_SSD/my_github/meter-watch/services/cnn",
+      "env": {
+        "PYTHONPATH": "/media/vadim/1TB_SSD/my_github/meter-watch/services/cnn/src"
+      },
+      "python": "/home/vadim/miniconda3/envs/YOLO_t0/bin/python"
+    },    
+    {
       "name": "person-detector",
       "type": "debugpy",
       "request": "launch",
