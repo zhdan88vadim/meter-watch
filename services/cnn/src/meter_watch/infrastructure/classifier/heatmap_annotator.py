@@ -5,7 +5,6 @@ import cv2
 import numpy as np
 import torch
 
-from meter_watch.domain.models import DigitPrediction
 from meter_watch.infrastructure.classifier.heatmap import SimpleHeatmap
 from meter_watch.image_processing.encoding import image_to_base64
 from meter_watch.image_processing.preprocessing import prepare_for_model
@@ -25,7 +24,7 @@ class GradCamAnnotator:
         self._device = device
 
     def annotate(
-        self, roi: np.ndarray, prediction: DigitPrediction
+        self, roi: np.ndarray
     ) -> dict[str, str]:
         prepared, resized = prepare_for_model(roi)
         tensor = (
@@ -51,17 +50,4 @@ class GradCamAnnotator:
                 cv2.applyColorMap(sal_vis, cv2.COLORMAP_HOT)
             ),
             "digit_image": image_to_base64(resized),
-        }
-
-
-class NoopAnnotator:
-    """Annotator for tests / environments without torch."""
-
-    def annotate(
-        self, roi: np.ndarray, prediction: DigitPrediction
-    ) -> dict[str, str]:
-        return {
-            "heatmap_gradcam": "",
-            "heatmap_saliency": "",
-            "digit_image": "",
         }

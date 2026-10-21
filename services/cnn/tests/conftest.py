@@ -6,6 +6,7 @@ import pytest
 from meter_watch.application.monitor_meter import MonitorMeterUseCase
 from meter_watch.application.recognize_image import RecognizeImageUseCase
 from meter_watch.domain.services.anomaly_detector import AnomalyDetector
+from meter_watch.infrastructure.logging.null_logger import NullLogger
 
 from tests.fixtures.fakes import (
     FakeClassifier,
@@ -13,7 +14,6 @@ from tests.fixtures.fakes import (
     FakeFetcher,
     FakeRepo,
     NullAnnotator,
-    NullLogger,
 )
 
 

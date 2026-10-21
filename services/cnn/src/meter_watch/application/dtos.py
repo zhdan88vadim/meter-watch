@@ -1,8 +1,8 @@
 """Application-level DTOs for serialization."""
 from __future__ import annotations
+from typing import Any
 
 from meter_watch.domain.models import MeterReading, RecognitionResult
-
 
 def serialize_reading(reading: MeterReading) -> dict[str, object]:
     """Serialize a MeterReading to a JSON-friendly dict."""
