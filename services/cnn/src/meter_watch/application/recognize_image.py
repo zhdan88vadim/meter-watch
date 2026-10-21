@@ -52,7 +52,7 @@ class RecognizeImageUseCase:
             pred = self.classifier.predict(centered)
             min_conf = min(min_conf, pred.confidence)
 
-            annotation = self.annotator.annotate(centered, pred)
+            annotation = self.annotator.annotate(centered)
             recognitions.append(
                 DigitRecognition(
                     position=i + 1,

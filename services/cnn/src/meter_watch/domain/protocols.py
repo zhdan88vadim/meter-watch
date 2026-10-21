@@ -64,5 +64,5 @@ class Logger(Protocol):
 class ImageAnnotator(Protocol):
     """Render heatmaps / digit crops to base64 strings."""
 
-    def annotate(self, roi: np.ndarray, prediction: DigitPrediction) -> dict[str, str]:
+    def annotate(self, roi: np.ndarray) -> dict[str, str]:
         ...

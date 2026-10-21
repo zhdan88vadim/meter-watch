@@ -77,23 +77,6 @@ class FakeRepo:
     def save(self, reading, is_anomaly: bool) -> None:  # noqa: ANN001
         self.saved.append((reading, is_anomaly))
 
-
-class NullLogger:
-    """Logger that records messages in memory."""
-
-    def __init__(self) -> None:
-        self.records: list[tuple[str, str, dict]] = []
-
-    def info(self, msg: str, **ctx: object) -> None:
-        self.records.append(("info", msg, dict(ctx)))
-
-    def warning(self, msg: str, **ctx: object) -> None:
-        self.records.append(("warning", msg, dict(ctx)))
-
-    def error(self, msg: str, **ctx: object) -> None:
-        self.records.append(("error", msg, dict(ctx)))
-
-
 class NullAnnotator:
     """Annotator that returns empty strings."""
 
